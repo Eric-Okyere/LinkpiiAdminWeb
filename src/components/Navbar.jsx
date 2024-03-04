@@ -95,12 +95,12 @@ const Navbar = () => {
           <ul className="py-4 font-uniquifier font-bold">
           <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
               <Link to="/fashion">
-                Fashion
+                General
               </Link>
             </li>
-            <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/approvefashion' ? 'bg-green-300' : ''}`}>
+            <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/approveGeneral' ? 'bg-green-300' : ''}`}>
               <Link to="/approvedfashion">
-                Approved Fashion
+                Approved General
               </Link>
             </li>
             <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/' ? 'bg-green-300' : ''}`}>
