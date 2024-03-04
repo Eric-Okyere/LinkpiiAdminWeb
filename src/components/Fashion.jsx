@@ -4,12 +4,12 @@ import { BeatLoader } from 'react-spinners';
 import axios from 'axios';
 import baseURL from '../assets/baseURL';
 
-
 const Fashion = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productFilter, setProductFilter] = useState([]);
   const [productCount, setProductCount] = useState(0); // New state for product count
+  const [deleteId, setDeleteId] = useState(null); // State for tracking delete confirmation
 
   const myStyle = "font-bold font-uniquifier mx-4 text-gray-700 dark:text-gray-400 font-bold text-lg";
 
@@ -17,7 +17,6 @@ const Fashion = () => {
     fetch(`${baseURL}fashionpost`)
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
         setData(json);
         setProductFilter(json);
         setLoading(false);
@@ -35,7 +34,6 @@ const Fashion = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const productCount = await response.json();
-      console.log('Product Count:', productCount);
       setProductCount(productCount); // Set the count in the state
     } catch (error) {
       console.error('Error fetching product count:', error.message);
@@ -53,12 +51,19 @@ const Fashion = () => {
   };
 
   const handleDelete = (id) => {
-    axios.delete(
-      `${baseURL}fashionpost/${id}`,
-    )
+    // Set the id of the item to be deleted
+    setDeleteId(id);
+  };
+
+  const confirmDelete = () => {
+    // Perform the deletion
+    axios.delete(`${baseURL}fashionpost/${deleteId}`)
       .then((res) => {
-        const products = productFilter.filter((item) => item.id !== id);
-        setProductFilter(products);
+        // Filter out the deleted item from the product list
+        const updatedProducts = productFilter.filter((item) => item.id !== deleteId);
+        setProductFilter(updatedProducts);
+        // Reset the deleteId state after deletion
+        setDeleteId(null);
       })
       .catch((error) => console.log(error));
   };
@@ -86,8 +91,8 @@ const Fashion = () => {
   return (
     <div>
       <div className='flex justify-between mx-8 pt-16'>
-     <h1 className='font-bold'>ALL PRODUCTS</h1>
-      <h2 className=' bg-[#f2f2f2] rounded-lg p-4 font-'>Total Products: {productCount}</h2>
+        <h1 className='font-bold'>ALL PRODUCTS</h1>
+        <h2 className=' bg-[#f2f2f2] rounded-lg p-4 font-'>Total Products: {productCount}</h2>
       </div>
       <div className="flex flex-wrap justify-around ">
         {loading ? (
@@ -124,7 +129,7 @@ const Fashion = () => {
                     onClick={() => handleUpdateApproval(item.id)}
                     className="bg-green-500 font-uniquifier w-full text-white p-2 rounded"
                   >
-                     Approve
+                    Approve
                   </button>
                 )}
               </div>
@@ -132,6 +137,19 @@ const Fashion = () => {
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteId && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded shadow-md">
+            <p>Are you sure you want to delete this product?</p>
+            <div className="flex justify-between mt-4">
+              <button onClick={confirmDelete} className="bg-red-500 text-white px-4 py-2 rounded mr-2">Confirm</button>
+              <button onClick={() => setDeleteId(null)} className="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
