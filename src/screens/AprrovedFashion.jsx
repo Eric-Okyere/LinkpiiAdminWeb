@@ -47,6 +47,7 @@ const ApprovedFashion = () => {
             <h5 className="font-bold font-serif mx-4 text-gray-700 dark:text-gray-400 text-lg">
               {item.name}
             </h5>
+            <h3 className="font-bold mx-4 text-gray-700 font-uniquifier dark:text-gray-400"> Views:{item.views}</h3>
             <h3 className="font-bold mx-4 text-gray-700 font-uniquifier dark:text-gray-400"> Gh₵{item.price}</h3>
             <h3 className="font-bold mx-4 text-gray-700 font-uniquifier dark:text-gray-400">{item.description}</h3>
             <h3 className="font-bold mx-4 text-gray-700 font-uniquifier dark:text-gray-400">{item.region}</h3>
