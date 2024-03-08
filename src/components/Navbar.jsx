@@ -15,7 +15,7 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-black flex w-7 text-xl font-bold font-serif">
           <img src={Logo} alt="logo" />
-          <h1>PalmFarm</h1>
+          <h1>LinkPii</h1>
         </div>
 
         {/* Responsive Toggle Button */}
@@ -105,12 +105,12 @@ const Navbar = () => {
             </li>
             <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/' ? 'bg-green-300' : ''}`}>
               <Link to="/">
-                All Products
+                All Agric
               </Link>
             </li>
             <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/approved' ? 'bg-green-300' : ''}`}>
               <Link to="/approved" >
-                Approved Products
+                Approved Agric
               </Link>
             </li>
             <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/cars' ? 'bg-green-300' : ''}`}>
@@ -123,6 +123,14 @@ const Navbar = () => {
                 Approved Cars
               </Link>
             </li>
+
+            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/mechanics' ? 'bg-green-300' : ''}`}>
+            <Link to="/mechanics" >
+              All Mechanics
+            </Link>
+          </li>
+
+
             <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/postadvert' ? 'bg-green-300' : ''}`}>
               <Link to="/postadvert">
                 Post Advert
