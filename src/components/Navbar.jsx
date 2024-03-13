@@ -98,7 +98,7 @@ const Navbar = () => {
         <div className={`lg:hidden fixed inset-y-0 left-0 w-64 bg-[#f2f2f2] overflow-y-auto z-30 transform transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           {/* Sidebar Content */}
           <ul className="py-4 font-uniquifier font-bold">
-          <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
+          <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
               <Link to="/calls">
                 Calls
               </Link>
