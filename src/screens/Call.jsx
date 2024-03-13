@@ -61,7 +61,7 @@ const Call = () => {
 
   const confirmDelete = () => {
     axios.delete(
-      `http://192.168.43.94:3000/call/${deleteId}`
+      `${baseURL}/${deleteId}`
     )
       .then((res) => {
         const products = productFilter.filter((item) => item._id !== deleteId);
