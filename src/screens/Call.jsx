@@ -17,7 +17,7 @@ const Call = () => {
   const myStyle = "font-bold mx-4 text-black font-uniquifier text-lg";
 
   const apiGet = () => {
-    fetch(`http://192.168.43.94:3000/call`)
+    fetch(`${baseURL}call`)
       .then((response) => response.json())
       .then((json) => {
         setData(json);
@@ -33,7 +33,7 @@ const Call = () => {
 
   const fetchProductCount = async () => {
     try {
-      const response = await fetch(`http://192.168.43.94:3000/call/get/count`);
+      const response = await fetch(`${baseURL}call/get/count`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
