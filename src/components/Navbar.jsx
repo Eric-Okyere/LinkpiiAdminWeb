@@ -33,6 +33,11 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <ul className={`lg:flex hidden space-x-4 ${isOpen ? 'hidden' : 'lg:flex'}`}>
+          <li className={`text-black hover:text-blue-200  font-bold font-uniquifier ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
+            <Link to="/calls">
+              Calls
+            </Link>
+          </li>
           <li className={`text-black hover:text-blue-200  font-bold font-uniquifier ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
             <Link to="/fashion">
               General

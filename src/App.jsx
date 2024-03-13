@@ -19,6 +19,7 @@ import EmergencyPost from './screens/EmergencyPost';
 import Fashion from './components/Fashion';
 import ApprovedFashion from './screens/AprrovedFashion';
 import AllMechanics from './components/AllMechanics';
+import Call from './screens/Call';
 
 
 
@@ -46,6 +47,7 @@ function App() {
         <Route path="/emergency" element={<Emergency />} />
         <Route path="/emergencypost" element={<EmergencyPost />} />
         <Route path="/mechanics" element={<AllMechanics />} />
+        <Route path="/calls" element={<Call />} />
         
       </Routes>
     </>
