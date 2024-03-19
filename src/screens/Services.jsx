@@ -4,7 +4,7 @@ import { BeatLoader } from 'react-spinners';
 import axios from 'axios';
 import baseURL from '../assets/baseURL';
 
-const Fashion = () => {
+const Services = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productFilter, setProductFilter] = useState([]);
@@ -14,7 +14,7 @@ const Fashion = () => {
   const myStyle = "font-bold font-uniquifier mx-4 text-gray-700 dark:text-gray-400 font-bold text-lg";
 
   const apiGet = () => {
-    fetch(`${baseURL}fashionpost`)
+    fetch(`${baseURL}services`)
       .then((response) => response.json())
       .then((json) => {
         setData(json);
@@ -29,7 +29,7 @@ const Fashion = () => {
 
   const fetchProductCount = async () => {
     try {
-      const response = await fetch(`${baseURL}fashionpost/get/count`);
+      const response = await fetch(`${baseURL}services/get/count`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -57,7 +57,7 @@ const Fashion = () => {
 
   const confirmDelete = () => {
     // Perform the deletion
-    axios.delete(`${baseURL}fashionpost/${deleteId}`)
+    axios.delete(`${baseURL}services/${deleteId}`)
       .then((res) => {
         // Filter out the deleted item from the product list
         const updatedProducts = productFilter.filter((item) => item.id !== deleteId);
@@ -70,7 +70,7 @@ const Fashion = () => {
 
   const handleUpdateApproval = async (id) => {
     try {
-      const response = await axios.put(`${baseURL}fashionpost/${id}/approve`);
+      const response = await axios.put(`${baseURL}services/${id}/approve`);
       const updatedProduct = response.data;
 
       setProductFilter((prevProducts) => {
@@ -106,13 +106,13 @@ const Fashion = () => {
               <h5 className={`${myStyle}, text-2xl`}>
                 {item.name}
               </h5>
-              <h3 className={myStyle}> View:{item.views}</h3>
               <h3 className={myStyle}> Gh₵{item.price}</h3>
               <h3 className={myStyle}>{item.description}</h3>
               <h3 className={myStyle}>{item.region}</h3>
               <h3 className={myStyle}>{item.town}</h3>
               <h3 className={myStyle}>{item.phone}</h3>
               <h3 className={myStyle}>{item.location}</h3>
+              <h3 className={myStyle}>Views:{item.views}</h3>
               <h3 className={myStyle}>
                 {formatDate(item.dateCreated)}
               </h3>
@@ -155,4 +155,4 @@ const Fashion = () => {
   );
 };
 
-export default Fashion;
+export default Services;

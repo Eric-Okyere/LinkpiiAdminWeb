@@ -20,6 +20,10 @@ import Fashion from './components/Fashion';
 import ApprovedFashion from './screens/AprrovedFashion';
 import AllMechanics from './components/AllMechanics';
 import Call from './screens/Call';
+import Services from './screens/Services';
+import ApprovedServices from './screens/ApprovedServices';
+import Okada from './components/codes/Okada';
+import SpareParts from './screens/SpareParts';
 
 
 
@@ -48,6 +52,10 @@ function App() {
         <Route path="/emergencypost" element={<EmergencyPost />} />
         <Route path="/mechanics" element={<AllMechanics />} />
         <Route path="/calls" element={<Call />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/servicesapproved" element={<ApprovedServices />} />
+        <Route path="/okada" element={<Okada />} />
+        <Route path="/spare" element={<SpareParts />} />
         
       </Routes>
     </>

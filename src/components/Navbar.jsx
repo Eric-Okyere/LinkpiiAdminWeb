@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../assets/screen.png';
+import Sidebar from './Sidebar'; // Import the Sidebar component
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isServicesOpen, setIsServicesOpen] = useState(false); // State for Services dropdown
   const location = useLocation();
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const toggleServicesDropdown = () => {
+    setIsServicesOpen(!isServicesOpen);
   };
 
   return (
@@ -33,171 +39,63 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <ul className={`lg:flex hidden space-x-4 ${isOpen ? 'hidden' : 'lg:flex'}`}>
-          <li className={`text-black hover:text-blue-200  font-bold font-uniquifier ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
-            <Link to="/calls">
-              Calls
-            </Link>
+          <li className={`text-black hover:text-black  font-bold font-uniquifier ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
+            <Link to="/calls">Calls</Link>
           </li>
-          <li className={`text-black hover:text-blue-200  font-bold font-uniquifier ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
-            <Link to="/fashion">
-              General
-            </Link>
+          <li className={`text-black hover:text-black  font-bold font-uniquifier ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
+            <Link to="/fashion">General</Link>
           </li>
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/approvedfashion' ? 'bg-green-300' : ''}`}>
-            <Link to="/approvedfashion">
-              Approved General
-            </Link>
+          {/* Services dropdown */}
+          <li
+            className={`text-black font-bold font-uniquifier hover:text-black relative ${location.pathname.startsWith('/services') ? 'bg-green-300' : ''}`}
+            onClick={toggleServicesDropdown}
+          >
+            <span>Services</span>
+            {isServicesOpen && (
+              <ul className="absolute left-0 top-full bg-white shadow-lg py-2 rounded-md">
+                <li className="px-4 py-2">
+                  <Link to="/services">All Services</Link>
+                </li>
+                <li className="px-4 py-2">
+                  <Link to="/servicesapproved">Approved Services</Link>
+                </li>
+              </ul>
+            )}
           </li>
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier   ${location.pathname === '/' ? 'bg-green-300' : ''}`}>
-            <Link to="/">
-              All Agric
-            </Link>
+          {/* End Services dropdown */}
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/' ? 'bg-green-300' : ''}`}>
+            <Link to="/">All Agric</Link>
           </li>
-          <li className={`text-black font-bold font-uniquifier hover:text-blue-200  ${location.pathname === '/approved' ? 'bg-green-300' : ''} `}>
-            <Link to="/approved" >
-              Approved Agric
-            </Link>
+          <li className={`text-black font-bold font-uniquifier hover:text-blue-200  ${location.pathname === '/approved' ? 'bg-green-300' : ''}`}>
+            <Link to="/approved">Approved Agric</Link>
           </li>
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier   ${location.pathname === '/cars' ? 'bg-green-300' : ''}`}>
-            <Link to="/cars">
-              All Cars
-            </Link>
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/okada' ? 'bg-green-300' : ''}`}>
+            <Link to="/okada">All Okada</Link>
           </li>
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier   ${location.pathname === '/approvedcars' ? 'bg-green-300' : ''}`}>
-            <Link to="/approvedcars" >
-              Approved Cars
-            </Link>
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/cars' ? 'bg-green-300' : ''}`}>
+            <Link to="/cars">All Cars</Link>
           </li>
-
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier   ${location.pathname === '/mechanics' ? 'bg-green-300' : ''}`}>
-            <Link to="/mechanics" >
-              All Mechanics
-            </Link>
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/spare' ? 'bg-green-300' : ''}`}>
+            <Link to="/spare">Spare Parts</Link>
           </li>
-
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier  ${location.pathname === '/postadvert' ? 'bg-green-300' : ''} `}>
-            <Link to="/postadvert">
-              Post Advert
-            </Link>
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/mechanics' ? 'bg-green-300' : ''}`}>
+            <Link to="/mechanics">All Mechanics</Link>
           </li>
-          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier  ${location.pathname === '/advert' ? 'bg-green-300' : ''} `}>
-            <Link to="/advert" >
-              Advert Page
-            </Link>
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/postadvert' ? 'bg-green-300' : ''}`}>
+            <Link to="/postadvert">Post Advert</Link>
           </li>
-          
-          <li className={`text-black font-bold font-uniquifier hover:text-blue-200   ${location.pathname === '/users' ? 'bg-green-300' : ''}`}>
-            <Link to="/users" >
-              All Users
-            </Link>
+          <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/advert' ? 'bg-green-300' : ''}`}>
+            <Link to="/advert">Advert Page</Link>
+          </li>
+          <li className={`text-black font-bold font-uniquifier hover:text-blue-200 ${location.pathname === '/users' ? 'bg-green-300' : ''}`}>
+            <Link to="/users">All Users</Link>
           </li>
         </ul>
 
-        {/* Sidebar */}
-        <div className={`lg:hidden fixed inset-0 bg-opacity-75 z-20 ${isOpen ? 'block' : 'hidden'}`} onClick={toggleNavbar}></div>
-        <div className={`lg:hidden fixed inset-y-0 left-0 w-64 bg-[#f2f2f2] overflow-y-auto z-30 transform transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          {/* Sidebar Content */}
-          <ul className="py-4 font-uniquifier font-bold">
-          <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
-              <Link to="/calls">
-                Calls
-              </Link>
-            </li>
-          <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
-              <Link to="/fashion">
-                General
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/approveGeneral' ? 'bg-green-300' : ''}`}>
-              <Link to="/approvedfashion">
-                Approved General
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:text-gray-200    ${location.pathname === '/' ? 'bg-green-300' : ''}`}>
-              <Link to="/">
-                All Agric
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/approved' ? 'bg-green-300' : ''}`}>
-              <Link to="/approved" >
-                Approved Agric
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/cars' ? 'bg-green-300' : ''}`}>
-              <Link to="/cars">
-                All Cars
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/approvedcars' ? 'bg-green-300' : ''}`}>
-              <Link to="/approvedcars" >
-                Approved Cars
-              </Link>
-            </li>
-
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/mechanics' ? 'bg-green-300' : ''}`}>
-            <Link to="/mechanics" >
-              All Mechanics
-            </Link>
-          </li>
-
-
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/postadvert' ? 'bg-green-300' : ''}`}>
-              <Link to="/postadvert">
-                Post Advert
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/advert' ? 'bg-green-300' : ''}`}>
-              <Link to="/advert" >
-                Advert Page
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/users' ? 'bg-green-300' : ''}`}>
-              <Link to="/users" >
-                All Users
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/airtelcode' ? 'bg-green-300' : ''}`}>
-              <Link to="/airtelcode" >
-                Post Airtel
-              </Link>
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/airtel' ? 'bg-green-300' : ''}`}>
-              <Link to="/airtel">
-                Airtel Code
-              </Link>  
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/mtn' ? 'bg-green-300' : ''}`}>
-              <Link to="/mtn" >
-               MTN Codes
-              </Link>  
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200  ${location.pathname === '/mtnpost' ? 'bg-green-300' : ''}`}>
-              <Link to="/mtnpost" >
-               MTN Post
-              </Link>  
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200 ${location.pathname === '/vodafonepost' ? 'bg-green-300' : ''}`}>
-              <Link to="/vodafonepost">
-               Vodafone Post
-              </Link>  
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200 ${location.pathname === '/vodafone' ? 'bg-green-300' : ''}`}>
-              <Link to="/vodafone" >
-               Vodafone Codes
-              </Link>  
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200 ${location.pathname === '/emergencypost' ? 'bg-green-300' : ''}`}>
-              <Link to="/emergencypost" >
-               Post Emergency
-              </Link>  
-            </li>
-            <li className={`px-4 py-2 text-gray-700 hover:bg-gray-200 ${location.pathname === '/emergency' ? 'bg-green-300' : ''}`}>
-              <Link to="/emergency" >
-               Emergency Codes
-              </Link>  
-            </li>
-          </ul>
-        </div>
+        {/* Render the Sidebar component */}
+        <Sidebar isOpen={isOpen} location={location} />
+        
+        {/* End Sidebar */}
       </div>
     </nav>
   );

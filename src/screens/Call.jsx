@@ -54,6 +54,10 @@ const Call = () => {
     return new Date(dateTimeString).toLocaleString(undefined, options);
 };
 
+const currentDateTime = new Date().toISOString(); // Get current date and time in ISO format
+const currentTimeFormatted = formatDateTime(currentDateTime); // Format the current date and time
+console.log(currentTimeFormatted);
+
   const handleDelete = (id) => {
     setShowConfirmation(true);
     setDeleteId(id);
@@ -61,7 +65,7 @@ const Call = () => {
 
   const confirmDelete = () => {
     axios.delete(
-      `${baseURL}/${deleteId}`
+      `${baseURL}call/${deleteId}`
     )
       .then((res) => {
         const products = productFilter.filter((item) => item._id !== deleteId);

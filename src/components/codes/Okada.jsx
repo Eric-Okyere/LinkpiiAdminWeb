@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BeatLoader } from 'react-spinners';
-import baseURL from '../assets/baseURL';
+import baseURL from '../../assets/baseURL';
 import axios from 'axios';
 
-const AllCars = () => {
+const Okada = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productFilter, setProductFilter] = useState([]);
@@ -12,7 +12,7 @@ const AllCars = () => {
 
 
   const apiGet = () => {
-    fetch(`${baseURL}cars`)
+    fetch(`${baseURL}okada`)
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
@@ -28,7 +28,7 @@ const AllCars = () => {
 
   const fetchProductCount = async () => {
     try {
-      const response = await fetch(`${baseURL}cars/get/countcar`);
+      const response = await fetch(`${baseURL}okada/get/countokada`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -59,9 +59,9 @@ const AllCars = () => {
     const isConfirmed = window.confirm('Are you sure you want to delete this item?');
 
     if (isConfirmed) {
-      axios.delete(`${baseURL}cars/${id}`)
+      axios.delete(`${baseURL}okada/${id}`)
         .then((res) => {
-          const products = productFilter.filter((item) => item._id !== id);
+          const products = productFilter.filter((item) => item.id !== id);
           setProductFilter(products);
         })
         .catch((error) => console.log(error));
@@ -72,7 +72,7 @@ const AllCars = () => {
     const isConfirmed = window.confirm('Are you sure you want to approve this car?');
     if (isConfirmed) {
       try {
-        const response = await axios.put(`${baseURL}cars/${_id}/approvecar`);
+        const response = await axios.put(`${baseURL}okada/${_id}/approveokada`);
         const updatedProduct = response.data;
         console.log('Product approval updated:', updatedProduct);
       } catch (error) {
@@ -113,6 +113,9 @@ const AllCars = () => {
                 </div>
                 <div className='justify-center items-center'>
                   <h1 className={myStylesh1}>
+                    Views: <span className={Spanstyle}>{item.view}</span>
+                  </h1>
+                  <h1 className={myStylesh1}>
                     Name: <span className={Spanstyle}>{item.name}</span>
                   </h1>
                  
@@ -122,17 +125,14 @@ const AllCars = () => {
                   <h1 className={myStylesh1}>
                     CarNumber: <span className={Spanstyle}>{item.carnum}</span>
                   </h1>
-                  {/* <h1 className={myStylesh1}>
-                    Description: <span className={Spanstyle}>{item.description}</span>
-                  </h1> */}
+                  <h1 className={myStylesh1}>
+                    License: <span className={Spanstyle}>{item.card}</span>
+                  </h1>
                   <h1 className={myStylesh1}>
                     Region: <span className={Spanstyle}>{item.region}</span>
                   </h1>
                   <h1 className={myStylesh1}>
                     Town: <span className={Spanstyle}>{item.town}</span>
-                  </h1>
-                  <h1 className={myStylesh1}>
-                    Views: <span className={Spanstyle}>{item.views}</span>
                   </h1>
                   
                   <h1 className={myStylesh1}>
@@ -171,4 +171,4 @@ const AllCars = () => {
   );
 };
 
-export default AllCars;
+export default Okada;
