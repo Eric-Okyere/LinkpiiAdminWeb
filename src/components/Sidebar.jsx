@@ -64,10 +64,10 @@ const Sidebar = ({ isOpen, location }) => {
           {isAgricOpen && (
             <ul className="absolute left-0 top-full bg-[#f2f2f2] shadow-lg py-2 rounded-md z-40">
               <li className="px-4 py-2">
-                <Link to="/services">All Agric</Link>
+                <Link to="/">All Agric</Link>
               </li>
               <li className="px-4 py-2">
-                <Link to="/servicesapproved">Approved Agric</Link>
+                <Link to="/approved">Approved Agric</Link>
               </li>
             </ul>
           )}
