@@ -132,6 +132,9 @@ const AllCars = () => {
                     Town: <span className={Spanstyle}>{item.town}</span>
                   </h1>
                   <h1 className={myStylesh1}>
+                    License: <span className={Spanstyle}>{item.card}</span>
+                  </h1>
+                  <h1 className={myStylesh1}>
                     Views: <span className={Spanstyle}>{item.views}</span>
                   </h1>
                   

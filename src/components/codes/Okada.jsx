@@ -56,7 +56,7 @@ const Okada = () => {
 
 
   const handleDelete = (id) => {
-    const isConfirmed = window.confirm('Are you sure you want to delete this item?');
+    const isConfirmed = window.confirm('Are you sure you want to delete this bike?');
 
     if (isConfirmed) {
       axios.delete(`${baseURL}okada/${id}`)
@@ -69,10 +69,23 @@ const Okada = () => {
   };
 
   const handleUpdateApproval = async (_id) => {
-    const isConfirmed = window.confirm('Are you sure you want to approve this car?');
+    const isConfirmed = window.confirm('Are you sure you want to approve this bike?');
     if (isConfirmed) {
       try {
         const response = await axios.put(`${baseURL}okada/${_id}/approveokada`);
+        const updatedProduct = response.data;
+        console.log('Product approval updated:', updatedProduct);
+      } catch (error) {
+        console.error('Error updating product approval:', error);
+      }
+    }
+  };
+  
+  const handleDeactivate = async (_id) => {
+    const isConfirmed = window.confirm('Are you sure you want to deactivate this bike?');
+    if (isConfirmed) {
+      try {
+        const response = await axios.put(`${baseURL}okada/${_id}/deactivateokada`);
         const updatedProduct = response.data;
         console.log('Product approval updated:', updatedProduct);
       } catch (error) {
@@ -161,6 +174,14 @@ const Okada = () => {
                     Approve
                   </button>
                 )}
+                 {item.approved && !item.deactivate && (
+    <button
+      onClick={() => handleDeactivate(item._id)}
+      className="bg-black font-uniquifier w-full text-white p-2 rounded"
+    >
+      Deactivate
+    </button>
+  )}
               </div>
 
           </div>
