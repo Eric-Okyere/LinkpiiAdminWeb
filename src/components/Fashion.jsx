@@ -103,6 +103,7 @@ const Fashion = () => {
           productFilter.map((item) => (
             <Card className="max-w-sm m-4 flex flex-col bg-[#f2f2f2]" key={item.id}>
               <img width={500} height={500} src={item.picture} alt="image 1" />
+              <img width={500} height={500} src={item.picturesec} alt="image 1" />
               <h5 className={`${myStyle}, text-2xl`}>
                 {item.name}
               </h5>
