@@ -59,6 +59,9 @@ const Navbar = () => {
                 <li className="px-4 py-2">
                   <Link to="/servicesapproved">Approved Services</Link>
                 </li>
+                <li className="px-4 py-2">
+                  <Link to="/shop">All Shops</Link>
+                </li>
               </ul>
             )}
           </li>

@@ -24,6 +24,7 @@ import Services from './screens/Services';
 import ApprovedServices from './screens/ApprovedServices';
 import Okada from './components/codes/Okada';
 import SpareParts from './screens/SpareParts';
+import Shops from './screens/Shops';
 
 
 
@@ -56,6 +57,7 @@ function App() {
         <Route path="/servicesapproved" element={<ApprovedServices />} />
         <Route path="/okada" element={<Okada />} />
         <Route path="/spare" element={<SpareParts />} />
+        <Route path="/shop" element={<Shops />} />
         
       </Routes>
     </>
