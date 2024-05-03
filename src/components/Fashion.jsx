@@ -68,6 +68,25 @@ const Fashion = () => {
       .catch((error) => console.log(error));
   };
 
+  const handleUpdateBoost = async (id) => {
+    try {
+      const response = await axios.put(`${baseURL}fashionpost/${id}/boost`);
+      const updatedProduct = response.data;
+
+      setProductFilter((prevProducts) => {
+        return prevProducts.map((product) => {
+          if (product.id === id) {
+            return { ...product, boost: true };
+          }
+          return product;
+        });
+      });
+
+      console.log('Product approval updated:', updatedProduct);
+    } catch (error) {
+      console.error('Error updating product approval:', error);
+    }
+  };
   const handleUpdateApproval = async (id) => {
     try {
       const response = await axios.put(`${baseURL}fashionpost/${id}/approve`);
@@ -132,6 +151,14 @@ const Fashion = () => {
                     className="bg-green-500 font-uniquifier w-full text-white p-2 rounded"
                   >
                     Approve
+                  </button>
+                )}
+                {!item.boost && (
+                  <button
+                    onClick={() => handleUpdateBoost(item.id)}
+                    className="bg-blue-600 font-uniquifier w-full text-white p-2 rounded"
+                  >
+                    Boost
                   </button>
                 )}
               </div>

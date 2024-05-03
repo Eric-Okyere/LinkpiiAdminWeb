@@ -88,6 +88,26 @@ const Services = () => {
     }
   };
 
+  const handleUpdateBoost = async (id) => {
+    try {
+      const response = await axios.put(`${baseURL}services/${id}/boost`);
+      const updatedProduct = response.data;
+
+      setProductFilter((prevProducts) => {
+        return prevProducts.map((product) => {
+          if (product.id === id) {
+            return { ...product, boost: true };
+          }
+          return product;
+        });
+      });
+
+      console.log('Product approval updated:', updatedProduct);
+    } catch (error) {
+      console.error('Error updating product approval:', error);
+    }
+  };
+
   return (
     <div>
       <div className='flex justify-between mx-8 pt-16'>
@@ -132,6 +152,14 @@ const Services = () => {
                     className="bg-green-500 font-uniquifier w-full text-white p-2 rounded"
                   >
                     Approve
+                  </button>
+                )}
+                {!item.boost && (
+                  <button
+                    onClick={() => handleUpdateBoost(item.id)}
+                    className="bg-blue-500 font-uniquifier w-full text-white p-2 rounded"
+                  >
+                    Boost
                   </button>
                 )}
               </div>

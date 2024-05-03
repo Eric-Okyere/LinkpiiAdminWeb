@@ -13,6 +13,7 @@ const AllProducts = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // State for delete confirmation
   const [deleteId, setDeleteId] = useState(null); // State to store the ID of the item to be deleted
   const [showApproveConfirmation, setShowApproveConfirmation] = useState(false);
+  const [showBoostConfirmation, setShowBoostConfirmation] = useState(false);
   const [approveId, setApproveId] = useState(null);
 
   const myStyle = "font-bold font-uniquifier mx-4 text-gray-700 dark:text-gray-400 font-bold text-lg";
@@ -105,6 +106,34 @@ const confirmApprove = () => {
     });
 };
 
+const handleUpdateboost = async (id) => {
+  setShowBoostConfirmation(true);
+  setApproveId(id);
+};
+
+
+const confirmBoost = () => {
+  axios.put(`${baseURL}send/${approveId}/boost`)
+    .then((response) => {
+      const updatedProduct = response.data;
+
+      setProductFilter((prevProducts) => {
+        return prevProducts.map((product) => {
+          if (product.id === approveId) {
+            return { ...product, boost: true };
+          }
+          return product;
+        });
+      });
+
+      console.log('Product approval updated:', updatedProduct);
+      setShowBoostConfirmation(false);
+    })
+    .catch((error) => {
+      console.error('Error updating product approval:', error);
+    });
+};
+
   return (
     <div>
       <div className='flex justify-between mx-8 pt-16'>
@@ -150,6 +179,14 @@ const confirmApprove = () => {
                      Approve
                   </button>
                 )}
+                {!item.boost && (
+                  <button
+                    onClick={() => handleUpdateboost(item.id)}
+                    className="bg-blue-500 font-uniquifier w-full text-white p-2 rounded"
+                  >
+                     Boost
+                  </button>
+                )}
               </div>
             </Card>
           ))
@@ -177,6 +214,17 @@ const confirmApprove = () => {
             <div className="flex justify-center mt-4">
               <button onClick={confirmDelete} className="bg-red-500 text-white px-4 py-2 mr-4 rounded">Yes</button>
               <button onClick={() => setShowDeleteConfirmation(false)} className="bg-gray-500 text-white px-4 py-2 rounded">No</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showBoostConfirmation && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <p>Are you sure you want to boost this product?</p>
+            <div className="flex justify-center mt-4">
+              <button onClick={confirmBoost} className="bg-red-500 text-white px-4 py-2 mr-4 rounded">Yes</button>
+              <button onClick={() => setShowBoostConfirmation(false)} className="bg-gray-500 text-white px-4 py-2 rounded">No</button>
             </div>
           </div>
         </div>
