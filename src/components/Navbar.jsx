@@ -42,6 +42,9 @@ const Navbar = () => {
           <li className={`text-black hover:text-black  font-bold font-uniquifier ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
             <Link to="/calls">Calls</Link>
           </li>
+          <li className={`text-black hover:text-black  font-bold font-uniquifier ${location.pathname === '/whatsap' ? 'bg-green-300' : ''}`}>
+            <Link to="/whatsap">Whatsapp</Link>
+          </li>
           <li className={`text-black hover:text-black  font-bold font-uniquifier ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
             <Link to="/fashion">General</Link>
           </li>

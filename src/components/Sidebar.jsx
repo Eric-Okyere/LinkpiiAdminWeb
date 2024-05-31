@@ -43,6 +43,9 @@ const Sidebar = ({ isOpen, location }) => {
         <li className={`px-4 py-2 text-gray-700 hover:text-gray-200 ${location.pathname === '/calls' ? 'bg-green-300' : ''}`}>
           <Link to="/calls">Calls</Link>
         </li>
+        <li className={`px-4 py-2 text-gray-700 hover:text-gray-200 ${location.pathname === '/whatsap' ? 'bg-green-300' : ''}`}>
+          <Link to="/whatsap">Whatsapp</Link>
+        </li>
         <li className={`px-4 py-2 text-gray-700 hover:text-gray-200 ${location.pathname === '/fashion' ? 'bg-green-300' : ''}`}>
           <Link to="/fashion">General</Link>
         </li>

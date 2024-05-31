@@ -25,6 +25,7 @@ import ApprovedServices from './screens/ApprovedServices';
 import Okada from './components/codes/Okada';
 import SpareParts from './screens/SpareParts';
 import Shops from './screens/Shops';
+import Whatsapp from './screens/Whatsapp';
 
 
 
@@ -58,6 +59,7 @@ function App() {
         <Route path="/okada" element={<Okada />} />
         <Route path="/spare" element={<SpareParts />} />
         <Route path="/shop" element={<Shops />} />
+        <Route path="/whatsap" element={<Whatsapp />} />
         
       </Routes>
     </>
