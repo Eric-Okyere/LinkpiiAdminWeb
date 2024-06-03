@@ -157,7 +157,8 @@ const confirmBoost = () => {
               <h3 className={myStyle}>{item.region}</h3>
               <h3 className={myStyle}>{item.town}</h3>
               <h3 className={myStyle}>{item.location}</h3>
-              <h3 className={myStyle}>{item.phone}</h3>
+              <h3 className={myStyle}>phone:{item.phone}</h3>
+              <h3 className={myStyle}>whatsapp:{item.whatsapp}</h3>
               <h3 className={myStyle}>View:{item.views}</h3>
               <h3 className={myStyle}>
                 {formatDate(item.dateCreated)}

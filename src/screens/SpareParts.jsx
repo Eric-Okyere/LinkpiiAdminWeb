@@ -112,7 +112,8 @@ const SpareParts = () => {
               <h3 className={myStyle}>{item.description}</h3>
               <h3 className={myStyle}>{item.region}</h3>
               <h3 className={myStyle}>{item.town}</h3>
-              <h3 className={myStyle}>{item.phone}</h3>
+              <h3 className={myStyle}>Phone:{item.phone}</h3>
+              <h3 className={myStyle}>Whatsapp:{item.whatsapp}</h3>
               <h3 className={myStyle}>{item.location}</h3>
               <h3 className={myStyle}>
                 {formatDate(item.dateCreated)}
