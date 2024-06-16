@@ -26,6 +26,9 @@ import Okada from './components/codes/Okada';
 import SpareParts from './screens/SpareParts';
 import Shops from './screens/Shops';
 import Whatsapp from './screens/Whatsapp';
+import Buildings from './screens/Buildings';
+import RentCars from './screens/RentCars';
+import Equipment from './components/codes/Equipment';
 
 
 
@@ -60,6 +63,10 @@ function App() {
         <Route path="/spare" element={<SpareParts />} />
         <Route path="/shop" element={<Shops />} />
         <Route path="/whatsap" element={<Whatsapp />} />
+        <Route path="/building" element={<Buildings />} />
+        <Route path="/carrent" element={<RentCars />} />
+        <Route path="/quip" element={<Equipment />} />
+        
         
       </Routes>
     </>

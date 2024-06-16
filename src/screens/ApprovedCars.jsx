@@ -64,6 +64,9 @@ const ApprovedCars = () => {
                 <h1 className={myStylesh1}>
                   Name: <span className={Spanstyle}>{item.name}</span>
                 </h1>
+                <h1 className={myStylesh1}>
+                  Size: <span className={Spanstyle}>{item.size}</span>
+                </h1>
                
                 <h1 className={myStylesh1}>
                   Phone: <span className={Spanstyle}>{item.phone}</span>
