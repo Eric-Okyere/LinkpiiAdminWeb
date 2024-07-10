@@ -29,6 +29,7 @@ import Whatsapp from './screens/Whatsapp';
 import Buildings from './screens/Buildings';
 import RentCars from './screens/RentCars';
 import Equipment from './components/codes/Equipment';
+import Reports from './components/Reports';
 
 
 
@@ -66,6 +67,7 @@ function App() {
         <Route path="/building" element={<Buildings />} />
         <Route path="/carrent" element={<RentCars />} />
         <Route path="/quip" element={<Equipment />} />
+        <Route path="/report" element={<Reports />} />
         
         
       </Routes>

@@ -66,6 +66,7 @@ const AllUsers = () => {
         const products = productFilter.filter((item) => item._id !== deleteId);
         setProductFilter(products);
         setShowConfirmation(false);
+        setProductCount(productCount - 1)
       })
       .catch((error) => console.log(error));
   };
