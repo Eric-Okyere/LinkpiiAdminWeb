@@ -1,6 +1,6 @@
 import React from 'react';
 import Logo from '../assets/screen.png';
-import Pic from '../assets/pic.jpeg';
+import Pic from '../assets/bussi.jpeg';
 import Call from '../assets/call.png';
 import Car from '../assets/Car.png';
 import Options from '../assets/options.png';
@@ -21,22 +21,28 @@ const About = () => {
       <h1 className='text-2xl md:text-3xl mb-4 flex justify-center'>About</h1>
       <div className='md:flex justify-between'>
       <div className='flex-0.7 text-center md:text-left font-serif md:text-2xl'>
-          <p className='font-bold'>Linkpii is platform that helps you:</p>
-            <li className=''>Sell your products</li>
-            <li>Hire professional drivers</li>
-            <li>Hire a car</li>
-            <li>Rent an apartment, equipment, and more</li>
+          <p className='font-bold'>Linkpii is a market platform that helps you:</p>
+            <li className=''>Sell your products to the world</li>
+            <li>Hire professional drivers for your dairly activities</li>
+            <li>Rent a car</li>
+            <li>Rent an apartment</li>
+            <li>Rent an equipments</li>
+            <li>Hire a skills</li>
+            <li>Advertise your products</li>
+            <li>Advertise your company</li>
             <li>Buy all the products you want</li>
             <li>Connect with customers all over the world</li>
-          
+          <li>and so on</li>
         </div>
 
-        <div>
-          <img src={Pic} alt='pic' />
+        <div className='md:w-1/2'>
+          <img className='rounded-md' src={Pic} alt='pic' />
         </div>
+
+
       </div>
 
-      <h1 className='text-xl flex md:text-2xl justify-center'>Features</h1>
+      <h1 className='text-xl flex md:text-2xl justify-center pt-3'>Features</h1>
       <div className='flex flex-wrap justify-center'>
         <img src={Call} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='call' />
         <img src={Car} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='car' />
