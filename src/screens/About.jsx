@@ -24,11 +24,11 @@ const About = () => {
       <div className='flex-0.7 text-center md:text-left font-serif md:text-2xl'>
           <p className='font-bold'>Linkpii is a market platform that helps you:</p>
             <li className=''>Sell your products to the world</li>
-            <li>Hire professional drivers for your dairly activities</li>
+            <li>Hire professional drivers for your daily activities</li>
             <li>Rent a car</li>
             <li>Rent an apartment</li>
             <li>Rent an equipments</li>
-            <li>Hire a skills</li>
+            <li>Hire a skill</li>
             <li>Advertise your products</li>
             <li>Advertise your company</li>
             <li>Buy all the products you want</li>
