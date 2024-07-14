@@ -4,7 +4,7 @@ import Pic from '../assets/bussi.jpeg';
 import MyCall from '../assets/picc.png';
 import Downl from '../assets/downl.jpeg';
 import MyCar from '../assets/Car.png';
-import MyOptions from '../assets/options.png';
+import MyOptions from '../assets/picx.png';
 import { MdOutlineMailOutline } from "react-icons/md";
 import { FaSquareWhatsapp } from "react-icons/fa6";
 import { IoCall } from "react-icons/io5";
