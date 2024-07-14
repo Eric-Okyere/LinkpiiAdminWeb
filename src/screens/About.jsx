@@ -3,8 +3,8 @@ import Logo from '../assets/screen.png';
 import Pic from '../assets/bussi.jpeg';
 import MyCall from '../assets/picc.png';
 import Downl from '../assets/downl.jpeg';
-import Car from '../assets/Car.png';
-import Options from '../assets/options.png';
+import MyCar from '../assets/Car.png';
+import MyOptions from '../assets/options.png';
 import { MdOutlineMailOutline } from "react-icons/md";
 import { FaSquareWhatsapp } from "react-icons/fa6";
 import { IoCall } from "react-icons/io5";
@@ -46,8 +46,8 @@ const About = () => {
       <h1 className='text-xl flex md:text-2xl justify-center pt-3'>Features</h1>
       <div className='flex flex-wrap justify-center'>
         <img src={MyCall} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='call' />
-        <img src={Car} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='car' />
-        <img src={Options} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='options' />
+        <img src={MyCar} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='car' />
+        <img src={MyOptions} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='options' />
       </div>
 
 
