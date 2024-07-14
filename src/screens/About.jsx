@@ -1,0 +1,78 @@
+import React from 'react';
+import Logo from '../assets/screen.png';
+import Pic from '../assets/pic.jpeg';
+import Call from '../assets/call.png';
+import Car from '../assets/Car.png';
+import Options from '../assets/options.png';
+import { MdOutlineMailOutline } from "react-icons/md";
+import { FaSquareWhatsapp } from "react-icons/fa6";
+import { IoCall } from "react-icons/io5";
+
+import { Link } from 'react-router-dom';
+
+const About = () => {
+  return (
+    <div className='p-4 min-h-screen font-serif'>
+      <div className="text-black flex flex-col items-center md:flex-row md:justify-center text-xl font-bold font-serif mb-4">
+        <img src={Logo} className='h-12 w-12 rounded-full md:h-16 md:w-16 animate-rotate' alt="logo" />
+        <h1 className='mt-2 md:mt-0 md:ml-4'>LinkPii</h1>
+      </div>
+
+      <h1 className='text-2xl md:text-3xl mb-4 flex justify-center'>About</h1>
+      <div className='md:flex justify-between'>
+      <div className='flex-0.7 text-center md:text-left font-serif md:text-2xl'>
+          <p className='font-bold'>Linkpii is platform that helps you:</p>
+            <li className=''>Sell your products</li>
+            <li>Hire professional drivers</li>
+            <li>Hire a car</li>
+            <li>Rent an apartment, equipment, and more</li>
+            <li>Buy all the products you want</li>
+            <li>Connect with customers all over the world</li>
+          
+        </div>
+
+        <div>
+          <img src={Pic} alt='pic' />
+        </div>
+      </div>
+
+      <h1 className='text-xl flex md:text-2xl justify-center'>Features</h1>
+      <div className='flex flex-wrap justify-center'>
+        <img src={Call} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='call' />
+        <img src={Car} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='car' />
+        <img src={Options} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='options' />
+      </div>
+
+
+      <h1 className='text-xl flex md:text-2xl justify-center'>Contacts</h1>
+    <div className='bg-gray-200  p-4 '>
+    <div className='md:flex justify-between'>
+   
+    <Link to="mailto://linkpiiapp@gmail.com" className='flex'>
+    <MdOutlineMailOutline size={50} /> <h1 className='pt-3'>linkpiiapp@gmail.com</h1>
+  
+    </Link>
+
+    <Link to="https://wa.me/233247747624" className='flex'>
+    <FaSquareWhatsapp size={50} color='green' />   <h1 className='pt-3'>+233209317581</h1>
+    </Link>
+
+    <Link className='flex'>
+  
+    <IoCall size={40} color='green' /> <h1  className='pt-2'> +233247747624</h1>
+    </Link>
+  
+
+ 
+
+ 
+    </div>
+    <h1 className='flex justify-center font-serif pt-6 md:text-2xl'>@Linkpii</h1>
+    </div>
+
+
+    </div>
+  );
+}
+
+export default About;

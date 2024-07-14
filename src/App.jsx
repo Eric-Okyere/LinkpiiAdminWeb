@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import AllCars from './components/AllCars';
 import AllUsers from './components/AllUsers';
@@ -30,17 +30,18 @@ import Buildings from './screens/Buildings';
 import RentCars from './screens/RentCars';
 import Equipment from './components/codes/Equipment';
 import Reports from './components/Reports';
-
-
+import About from './screens/About';
 
 function App() {
- 
+  const location = useLocation();
+
   return (
     <>
-      <Navbar />
+      {location.pathname !== '/' && <Navbar />}
       <Routes>
-        <Route  path="/" element={<AllProducts  />} />
-        <Route path="/approved" element={<ApprovedProducts  />} />
+        <Route path="/agric1" element={<AllProducts />} />
+        <Route path="/" element={<About />} />
+        <Route path="/approved" element={<ApprovedProducts />} />
         <Route path="/fashion" element={<Fashion />} />
         <Route path="/approvedfashion" element={<ApprovedFashion />} />
         <Route path="/cars" element={<AllCars />} />
@@ -68,8 +69,6 @@ function App() {
         <Route path="/carrent" element={<RentCars />} />
         <Route path="/quip" element={<Equipment />} />
         <Route path="/report" element={<Reports />} />
-        
-        
       </Routes>
     </>
   );

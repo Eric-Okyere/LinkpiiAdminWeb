@@ -129,7 +129,7 @@ const Navbar = () => {
 
 
           <li className={`text-black hover:text-blue-200 font-bold font-uniquifier ${location.pathname === '/' ? 'bg-green-300' : ''}`}>
-            <Link to="/">All Agric</Link>
+            <Link to="/agric1">All Agric</Link>
           </li>
           <li className={`text-black font-bold font-uniquifier hover:text-blue-200  ${location.pathname === '/approved' ? 'bg-green-300' : ''}`}>
             <Link to="/approved">Approved Agric</Link>
