@@ -1,7 +1,8 @@
 import React from 'react';
 import Logo from '../assets/screen.png';
 import Pic from '../assets/bussi.jpeg';
-import MyCall from '../assets/call1.png';
+import MyCall from '../assets/picc.png';
+import Downl from '../assets/downl.jpeg';
 import Car from '../assets/Car.png';
 import Options from '../assets/options.png';
 import { MdOutlineMailOutline } from "react-icons/md";
@@ -73,7 +74,12 @@ const About = () => {
 
  
     </div>
-    <h1 className='flex justify-center font-serif pt-6 md:text-2xl'>@Linkpii</h1>
+    <div className='flex justify-center font-serif pt-6'>
+    <h1 className=' md:text-2xl pt-6 mr-2'>@Linkpii</h1>
+    <img src={Downl} className='w-80 h-20' alt='down' />
+    </div>
+
+
     </div>
 
 
