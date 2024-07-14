@@ -1,7 +1,7 @@
 import React from 'react';
 import Logo from '../assets/screen.png';
 import Pic from '../assets/bussi.jpeg';
-import Call from '../assets/call.png';
+import MyCall from '../assets/call1.png';
 import Car from '../assets/Car.png';
 import Options from '../assets/options.png';
 import { MdOutlineMailOutline } from "react-icons/md";
@@ -44,7 +44,7 @@ const About = () => {
 
       <h1 className='text-xl flex md:text-2xl justify-center pt-3'>Features</h1>
       <div className='flex flex-wrap justify-center'>
-        <img src={Call} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='call' />
+        <img src={MyCall} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='call' />
         <img src={Car} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='car' />
         <img src={Options} className='w-full h-auto sm:w-1/2 md:w-1/3 p-2' alt='options' />
       </div>
