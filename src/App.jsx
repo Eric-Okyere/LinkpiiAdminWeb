@@ -40,35 +40,7 @@ function App() {
       {location.pathname !== '/' && <Navbar />}
       <Routes>
         <Route path="/agric1" element={<AllProducts />} />
-        <Route path="/" element={<About />} />
-        <Route path="/approved" element={<ApprovedProducts />} />
-        <Route path="/fashion" element={<Fashion />} />
-        <Route path="/approvedfashion" element={<ApprovedFashion />} />
-        <Route path="/cars" element={<AllCars />} />
-        <Route path="/users" element={<AllUsers />} />
-        <Route path="/approvedcars" element={<ApprovedCars />} />
-        <Route path="/advert" element={<Advert />} />
-        <Route path="/postadvert" element={<PostAdvert />} />
-        <Route path="/airtel" element={<Airtel />} />
-        <Route path="/airtelcode" element={<AirtelCode />} />
-        <Route path="/mtn" element={<MTN />} />
-        <Route path="/mtnpost" element={<MTNPost />} />
-        <Route path="/vodafone" element={<Vodafone />} />
-        <Route path="/vodafonepost" element={<VodafonePost />} />
-        <Route path="/emergency" element={<Emergency />} />
-        <Route path="/emergencypost" element={<EmergencyPost />} />
-        <Route path="/mechanics" element={<AllMechanics />} />
-        <Route path="/calls" element={<Call />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/servicesapproved" element={<ApprovedServices />} />
-        <Route path="/okada" element={<Okada />} />
-        <Route path="/spare" element={<SpareParts />} />
-        <Route path="/shop" element={<Shops />} />
-        <Route path="/whatsap" element={<Whatsapp />} />
-        <Route path="/building" element={<Buildings />} />
-        <Route path="/carrent" element={<RentCars />} />
-        <Route path="/quip" element={<Equipment />} />
-        <Route path="/report" element={<Reports />} />
+       
       </Routes>
     </>
   );
