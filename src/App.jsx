@@ -22,6 +22,7 @@ import AdminProductDetail from './screens/Product/AdminProductDetail';
 import AdminShopDetail from './screens/Shop/AdminShopDetail';
 import AdminAgricDetail from './screens/Agric/AdminAgricDetail';
 import AdminServicesDetail from './screens/Services/AdminServicesDetail';
+import Adds from './components/Adds';
 
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
         <Route path="/shoppage/:id" element={<AdminShopDetail />} />
         <Route path="/agricpage/:id" element={<AdminAgricDetail />} />
         <Route path="/adminservices/:id" element={<AdminServicesDetail />} />
+        <Route path="/adds" element={<Adds />} />
       </Routes>
     </>
   );
