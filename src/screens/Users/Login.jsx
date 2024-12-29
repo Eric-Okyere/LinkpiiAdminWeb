@@ -26,7 +26,7 @@ const Login = () => {
 
   useEffect(() => {
     if (login) {
-      window.location.href = "/"; // Redirect on successful login
+      window.location.href = "/dash"; 
     }
   }, [login]);
 
@@ -38,7 +38,7 @@ const Login = () => {
         setErrorMessage(res.error);
       } else {
         dispatch(loggedIn(res.user.id));
-        window.location.href = "/";
+        window.location.href = "/dash";
       }
     } catch (error) {
       console.error("Login Error:", error);
