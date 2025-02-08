@@ -63,13 +63,13 @@ const About = () => {
   
     </Link>
 
-    <Link to="https://wa.me/233247747624" className='flex'>
+    <Link to="https://wa.me/23309317581" className='flex'>
     <FaSquareWhatsapp size={50} color='green' />   <h1 className='pt-3'>+233209317581</h1>
     </Link>
 
     <Link className='flex'>
   
-    <IoCall size={40} color='green' /> <h1  className='pt-2'> +233247747624</h1>
+    <IoCall size={40} color='green' /> <h1  className='pt-2'> +233209317581</h1>
     </Link>
   
 
@@ -88,7 +88,7 @@ const About = () => {
 
     <div className=' flex justify-center mt-6 items-center text-center font-bold'>
     <Link className='text-white bg-black py-2 px-4 rounded-full'  to={"https://apps.apple.com/gh/app/linkpii/id6502578883"}>
-    Press me to use link
+    Press me to download for iOS
     </Link>
     </div>
     </div>
@@ -101,7 +101,7 @@ const About = () => {
 
 <div className=' flex justify-center mt-6 items-center text-center font-bold'>
 <Link className='text-white bg-black py-2 px-4 rounded-full'  to={"https://play.google.com/store/apps/details?id=com.ericok.palm"}>
-    Press me to use link
+    Press me to download for android
     </Link>
 </div>
    
