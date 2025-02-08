@@ -78,7 +78,7 @@ const About = () => {
  
     </div>
     
-    <div className='flex justify-between mb-10'>
+    <div className='flex justify-between'>
     <div className=' justify-center font-serif pt-6 '>
     {/* <h1 className=' md:text-2xl pt-6 mr-2'>@Linkpii</h1> */}
     <img src={Downl} className='w-80 md:h-18 lg:h-18 h-10 ' alt='down' />
