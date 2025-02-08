@@ -1,7 +1,5 @@
 import React from 'react';
-import Logo from '../assets/screen.png';
 import Apple from '../assets/AppleQr.jpg';
-import Pic from '../assets/bussi.jpeg';
 import MyCall from '../assets/picc.png';
 import Downl from '../assets/downl.jpeg';
 import Android from "../assets/Android.jpeg"
@@ -12,7 +10,7 @@ import { MdOutlineMailOutline } from "react-icons/md";
 import { FaSquareWhatsapp } from "react-icons/fa6";
 import { IoCall } from "react-icons/io5";
 import { Link } from 'react-router-dom';
-import Viddx from "../assets/viddx.mp4"
+import Vidd from "../assets/Viddx.mp4"
 
 
 
@@ -40,7 +38,7 @@ const About = () => {
 
         <div className='mr-12'>
         <video autoPlay={true} width="600" loop={true} controls>
-        <source src={Viddx} type="video/mp4" />
+        <source src={Vidd} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
         </div>
