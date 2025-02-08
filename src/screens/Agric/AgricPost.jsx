@@ -115,12 +115,12 @@ const AgricPost = ({ item }) => {
   return (
     <>
        <div className="pt-16 md:pt-28 m-6 ">
-      <Link to={"/dash"} className="flex justify-between md:justify-normal">
+      {/* <Link to={"/dash"} className="flex justify-between md:justify-normal">
       <IoArrowBack size={30} />
      
       <h1 className="text-xl font-bold md:ml-96">Post Agric Products</h1>
      
-      </Link>
+      </Link> */}
       </div>
 
     <div className="flex flex-col items-center sm:mx-8 md:mx-8">

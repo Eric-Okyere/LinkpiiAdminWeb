@@ -21,7 +21,7 @@ const HousingMana = (props) => {
         const storedToken = localStorage.getItem("keepLoggedIn");
 
         const response = await axios.get(
-          `${baseURL}buildings/user/${myProducts.user}`,
+          `${baseURL}buildings/user/${myProducts.user.id}`,
           { headers: { Authorization: `Bearer ${storedToken}` } }
         );
         setProductList(response.data);
@@ -74,12 +74,12 @@ const HousingMana = (props) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5a53d] pt-28">
+    <div className="flex flex-col h-full bg-[#f5a53d] pt-18">
     {/* Header */}
-    <div className="flex items-center justify-between px-4 mt-2 bg-[#f5a53d]">
-      <Link to="/dash">
+    <div className="flex items-center justify-center px-4 mt-2 bg-[#f5a53d]">
+      {/* <Link to="/dash">
         <IoArrowBack size={30} />
-      </Link>
+      </Link> */}
       <div className="relative w-3/4 rounded-full flex items-center px-4">
         <i className="fas fa-search text-black"></i>
         <input

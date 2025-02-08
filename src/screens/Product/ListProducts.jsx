@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { FcCancel } from "react-icons/fc";
 import { IoMdCheckmark } from "react-icons/io";
-import { MdDelete, MdModeEditOutline } from "react-icons/md";
-import { AiOutlineClose } from "react-icons/ai";
+
 
 const ListProducts = (props) => {
   return (
@@ -15,18 +14,18 @@ const ListProducts = (props) => {
       <img
         src={props.picture}
         alt="Product"
-        className="h-12 w-12 mr-2 object-cover"
+        className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
       />
       <img
         src={props.picturesec}
-        alt="Product secondary"
-        className="h-12 w-12 mr-2 object-cover"
+        alt="Poor Network"
+        className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
       />
-      <p className="truncate text-sm font-bold w-1/4">{props.name}</p>
-      <p className="w-1/6 truncate text-center">{props.price}</p>
-      <p className="w-1/6 flex justify-center">
+      <p className="md:ml-16 truncate w-1/6 text-sm md:text-lg md:font-bold font-bold md:w-44">{props.name}</p>
+      <p className="w-1/6 truncate md:text-lg md:font-bold text-center">{props.price}</p>
+      <p className="w-1/6 flex md:text-lg md:font-bold justify-center md:ml-16">
         {props.approved ? (
-          <IoMdCheckmark color="green" size={30} />
+          <IoMdCheckmark color="green"  size={30} />
         ) : (
           <FcCancel size={30} />
         )}

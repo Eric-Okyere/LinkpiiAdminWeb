@@ -26,27 +26,31 @@ const Login = () => {
 
   useEffect(() => {
     if (login) {
-      window.location.href = "/dash"; 
+      window.location.href = "/"; 
     }
   }, [login]);
 
   const handleLogin = async (values) => {
     try {
-      setLoading(true);
-      const res = await signin(values);
-      if (!res.success) {
-        setErrorMessage(res.error);
-      } else {
-        dispatch(loggedIn(res.user.id));
-        window.location.href = "/dash";
-      }
+        setLoading(true);
+        const res = await signin(values);
+        if (!res.success) {
+            setErrorMessage(res.error);
+        } else {
+            dispatch(loggedIn(res.user)); // Store full user data
+           
+        }
     } catch (error) {
-      console.error("Login Error:", error);
-      setErrorMessage("An error occurred during login. Please try again.");
+        console.error("Login Error:", error);
+        setErrorMessage("An error occurred during login. Please try again.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+
+
+
 
   return (
     <div className="flex min-h-screen bg-black items-center justify-center">
@@ -130,12 +134,12 @@ const Login = () => {
 
             {/* Forgotten Password */}
             <div className="mt-4 text-right">
-              <a
-                href="/forgotten"
+              <Link
+                to="/forgotpassword"
                 className="text-sm text-gray-400 hover:text-white"
               >
                 Forgotten Password?
-              </a>
+              </Link>
             </div>
 
             {/* Signup Link */}

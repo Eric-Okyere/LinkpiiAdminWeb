@@ -1,0 +1,108 @@
+/* From Uiverse.io by vinodjangid07 */
+.loader1 {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .truckWrapper {
+    width: 100px; /* Reduced width */
+    height: 40px; /* Reduced height */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+    justify-content: flex-end;
+    overflow-x: hidden;
+  }
+  
+  /* truck upper body */
+  .truckBody {
+    width: 80px; /* Reduced width */
+    height: fit-content;
+    margin-bottom: 4px; /* Adjust margin */
+    animation: motion 1s linear infinite;
+  }
+  
+  /* truck suspension animation */
+  @keyframes motion {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(2px); /* Adjust bounce */
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  
+  /* truck's tires */
+  .truckTires {
+    width: 90px; /* Reduced width */
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 8px 0px 10px; /* Adjust padding */
+    position: absolute;
+    bottom: 0;
+  }
+  
+  .truckTires svg {
+    width: 16px; /* Smaller tire size */
+  }
+  
+  .road {
+    width: 100%;
+    height: 1px; /* Reduced height */
+    background-color: #282828;
+    position: relative;
+    bottom: 0;
+    align-self: flex-end;
+    border-radius: 2px;
+  }
+  
+  .road::before {
+    content: "";
+    position: absolute;
+    width: 15px; /* Adjust width */
+    height: 100%;
+    background-color: #282828;
+    right: -50%;
+    border-radius: 2px;
+    animation: roadAnimation 1.4s linear infinite;
+    border-left: 8px solid white; /* Adjust stripe */
+  }
+  
+  .road::after {
+    content: "";
+    position: absolute;
+    width: 8px; /* Adjust width */
+    height: 100%;
+    background-color: #282828;
+    right: -65%;
+    border-radius: 2px;
+    animation: roadAnimation 1.4s linear infinite;
+    border-left: 3px solid white; /* Adjust stripe */
+  }
+  
+  .lampPost {
+    position: absolute;
+    bottom: 0;
+    right: -90%;
+    height: 40px; /* Reduced height */
+    animation: roadAnimation 1.4s linear infinite;
+  }
+  
+  @keyframes roadAnimation {
+    0% {
+      transform: translateX(0px);
+    }
+    100% {
+      transform: translateX(-200px); /* Adjust for smaller size */
+    }
+  }
+  

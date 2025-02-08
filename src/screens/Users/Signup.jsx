@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { signUp } from "../../Redux/actions";
 import { Link, useNavigate } from "react-router-dom";
 import baseURL from "../../assets/baseURL";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const initialValues = {
   name: "",
@@ -40,72 +41,28 @@ const validationSchema = yup.object({
 const Signup = () => {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-
-//   const checkForToxicComments = async (text) => {
-//     try {
-//       const response = await axios.post("/api/toxic/analyze", { text });
-//       return response.data.isToxic;
-//     } catch (error) {
-//       console.error(error);
-//       return false; // Assume text is not toxic on error
-//     }
-//   };
-
-//   const handleSignup = async (values, formikActions) => {
-//     setLoading(true);
-//     // const isToxic = await checkForToxicComments(`${values.name} ${values.lastname}`);
-//     // if (isToxic) {
-//     //   setLoading(false);
-//     //   return setMessage({ text: "Your input contains inappropriate language.", type: "error" });
-//     // }
-
-//     const res = { success: true, user: { id: "123" } }; // Replace with actual API call
-//     formikActions.setSubmitting(false);
-//     setLoading(false);
-
-//     if (!res.success) {
-//       return setMessage({ text: res.message, type: "error" });
-//     } else {
-//       formikActions.resetForm(); // Reset form values
-//       dispatch(signUp(res.user.id));
-//       setMessage({ text: "Signed up successfully!", type: "success" });
-//       setTimeout(() => navigate("/loginform"), 2000); // Navigate to login after a delay
-//     }
-//   };
-
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSignup = async (values, formikActions) => {
     setLoading(true);
-  
     try {
-      // Make POST request to backend API
-      const response = await axios.post(`${baseURL}create-user`, {
-        name: values.name,
-        lastname: values.lastname,
-        email: values.email,
-        phone: values.phone,
-        password: values.password,
-      });
-  
-      // If successful
+      const response = await axios.post(`${baseURL}create-user`, values);
       const { success, user } = response.data;
-  
       if (success) {
-        formikActions.resetForm(); // Reset form values
-        dispatch(signUp(user.id)); // Dispatch Redux action (if needed)
+        formikActions.resetForm();
+        dispatch(signUp(user.id));
         setMessage({ text: "Signed up successfully!", type: "success" });
-  
-        // Redirect to login page after a short delay
         setTimeout(() => navigate("/loginform"), 2000);
       } else {
-        // Handle any error from the server
         setMessage({ text: "Signup failed. Please try again.", type: "error" });
       }
     } catch (error) {
-      // Handle validation or server errors
       setMessage({
         text: error.response?.data?.message || "Something went wrong.",
         type: "error",
@@ -115,138 +72,43 @@ const Signup = () => {
       formikActions.setSubmitting(false);
     }
   };
-  
-
 
   return (
     <div className="bg-black min-h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-[#f5a53d]">Register with us</h2>
         {message.text && (
-          <div
-            className={`p-3 mb-4 rounded text-center ${
-              message.type === "error" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
-            }`}
-          >
-            {message.text}
-          </div>
+          <div className={`p-3 mb-4 rounded text-center ${message.type === "error" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>{message.text}</div>
         )}
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSignup}
-        >
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSignup}>
           {({ errors, touched, handleSubmit, handleChange, handleBlur, values }) => (
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* First Name */}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Enter your first name"
-                  onChange={handleChange("name")}
-                  onBlur={handleBlur("name")}
-                  value={values.name}
-                  className="w-full bg-gray-700 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {touched.name && errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                )}
+              <input type="text" placeholder="First Name" onChange={handleChange("name")} onBlur={handleBlur("name")} value={values.name} className="w-full bg-white p-2 border rounded" />
+              {touched.name && errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+              <input type="text" placeholder="Last Name" onChange={handleChange("lastname")} onBlur={handleBlur("lastname")} value={values.lastname} className="w-full bg-white p-2 border rounded" />
+              {touched.lastname && errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
+              <input type="email" placeholder="Email" onChange={handleChange("email")} onBlur={handleBlur("email")} value={values.email} className="w-full p-2 bg-white border rounded" />
+              {touched.email && errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+              <input type="tel" placeholder="Phone Number" onChange={handleChange("phone")} onBlur={handleBlur("phone")} value={values.phone} className="w-full p-2 bg-white border rounded" />
+              {touched.phone && errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+              <div className="relative">
+                <input type={showPassword ? "text" : "password"} placeholder="Password" onChange={handleChange("password")} onBlur={handleBlur("password")} value={values.password} className="w-full p-2 bg-white border rounded" />
+                <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-4 text-sm"> {showPassword?(<FaEye />):(<FaEyeSlash />)}</button>
               </div>
-              {/* Last Name */}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Enter your last name"
-                  onChange={handleChange("lastname")}
-                  onBlur={handleBlur("lastname")}
-                  value={values.lastname}
-                  className="w-full bg-gray-700 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {touched.lastname && errors.lastname && (
-                  <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
-                )}
+              {touched.password && errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+              <div className="relative">
+                <input type={showPassword ? "text" : "password"} placeholder="Confirm Password" onChange={handleChange("confirmPassword")} onBlur={handleBlur("confirmPassword")} value={values.confirmPassword} className="w-full p-2 bg-white border rounded" />
+                <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-4 text-sm"> {showPassword?(<FaEye />):(<FaEyeSlash />)}</button>
               </div>
-              {/* Email */}
-              <div>
-                <input
-                  type="email"
-                  placeholder="example@gmail.com"
-                  onChange={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
-                  className="w-full p-2 bg-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {touched.email && errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                )}
-              </div>
-              {/* Phone */}
-              <div>
-                <input
-                  type="tel"
-                  placeholder="Enter phone number"
-                  onChange={handleChange("phone")}
-                  onBlur={handleBlur("phone")}
-                  value={values.phone}
-                  className="w-full p-2  bg-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {touched.phone && errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-                )}
-              </div>
-              {/* Password */}
-              <div>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  onChange={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
-                  className="w-full p-2 bg-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {touched.password && errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                )}
-              </div>
-              {/* Confirm Password */}
-              <div>
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  onChange={handleChange("confirmPassword")}
-                  onBlur={handleBlur("confirmPassword")}
-                  value={values.confirmPassword}
-                  className="w-full p-2  bg-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-[#f5a53]"
-                />
-                {touched.confirmPassword && errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-                )}
-              </div>
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className={`w-full p-2 bg-black text-white rounded hover:bg-[#f5a53d] focus:outline-none ${
-                  loading && "opacity-50 cursor-not-allowed"
-                }`}
-                disabled={loading}
-              >
-                {loading ? "Signing up..." : "Signup"}
-              </button>
+              {touched.confirmPassword && errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+              <button type="submit" className={`w-full p-2 bg-black text-white rounded ${loading && "opacity-50 cursor-not-allowed"}`} disabled={loading}>{loading ? "Signing up..." : "Signup"}</button>
             </form>
           )}
         </Formik>
-
         <div className="mt-6 flex justify-between items-center">
-              <p className="text-gray-400 text-sm">
-                Already have an account?
-              </p>
-              <Link
-                to="/loginform"
-                className="bg-[#f5a53d] text-white py-2 px-4 rounded hover:bg-black"
-              >
-                Signin
-              </Link>
-            </div>
+          <p className="text-gray-400 text-sm">Already have an account?</p>
+          <Link to="/loginform" className="bg-[#f5a53d] text-white py-2 px-4 rounded hover:bg-black">Login</Link>
+        </div>
       </div>
     </div>
   );

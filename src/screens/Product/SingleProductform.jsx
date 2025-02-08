@@ -12,6 +12,7 @@ const SingleProductForm = ({ item }) => {
   const [video, setVideo] = useState(null);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [discount, setDiscount] = useState("");
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -35,6 +36,7 @@ const SingleProductForm = ({ item }) => {
         region,
         town,
         location,
+        discount,
         whatsapp,
         condition,
         picture,
@@ -45,6 +47,7 @@ const SingleProductForm = ({ item }) => {
       setName(name || "");
       setPrice(price || "");
       setPhone(phone || "");
+      setPhone(discount || "");
       setDescription(description || "");
       setRegion(region || "");
       setTown(town || "");
@@ -109,6 +112,7 @@ const SingleProductForm = ({ item }) => {
       formData.append("location", location);
       formData.append("region", region);
       formData.append("town", town);
+      formData.append("discount", discount);
       formData.append("whatsapp", whatsapp);
       formData.append("condition", condition);
       formData.append("category", category);
@@ -127,7 +131,7 @@ const SingleProductForm = ({ item }) => {
         const result = await response.json();
         alert("Product submitted successfully!");
         console.log("Submitted product:", result);
-        navigate("/listproducts");
+        navigate("/user", { state: { activeTab: "general" } });
       } else {
         const errorData = await response.json().catch(() => ({ error: "Unknown server error" }));
         alert(`Error: ${errorData.error || "Something went wrong!"}`);
@@ -150,12 +154,12 @@ const SingleProductForm = ({ item }) => {
   return (
     <>
      <div className="pt-16 md:pt-28 m-6 ">
-      <Link to={"/dash"} className="flex justify-between md:justify-normal">
+      {/* <Link to={"/user"} className="flex justify-between md:justify-normal">
       <IoArrowBack size={30} />
      
       <h1 className="text-xl font-bold md:ml-96">Post Your Product</h1>
      
-      </Link>
+      </Link> */}
       </div>
 
     <div className="flex flex-col items-center sm:mx-8 md:mx-8">
@@ -224,15 +228,42 @@ const SingleProductForm = ({ item }) => {
         <input
           type="number"
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+         onChange={(e) => {
+            const inputValue = e.target.value;
+
+            // Allow only numbers and ensure it doesn't start with '0' or '+'
+            if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
+              setPrice(inputValue);
+            }}}
           placeholder="Price"
+          className="w-full mb-4 p-2 border rounded"
+        />
+        <input
+          type="number"
+          value={discount}
+          onChange={(e) => setDiscount(e.target.value)}
+          placeholder="Give a discount. It is optional. 5, 10 ,15..."
           className="w-full mb-4 p-2 border rounded"
         />
         <input
           type="text"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="Phone Number"
+          placeholder="Phone Number +233, +44, +234"
+          className="w-full mb-4 p-2 border rounded"
+        />
+        <input
+          type="text"
+          value={whatsapp}
+          onChange={(e) => {
+            const inputValue = e.target.value;
+
+            // Allow only numbers and ensure it doesn't start with '0' or '+'
+            if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
+              setWhatsapp(inputValue);
+            }
+          }}
+          placeholder="WhatsApp Number 233, 44, 234"
           className="w-full mb-4 p-2 border rounded"
         />
         <textarea
@@ -262,13 +293,7 @@ const SingleProductForm = ({ item }) => {
           placeholder="Location"
           className="w-full mb-4 p-2 border rounded"
         />
-        <input
-          type="text"
-          value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
-          placeholder="WhatsApp Number"
-          className="w-full mb-4 p-2 border rounded"
-        />
+      
         <select
           value={condition}
           onChange={(e) => setCondition(e.target.value)}

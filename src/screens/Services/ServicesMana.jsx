@@ -6,6 +6,7 @@ import baseURL from "../../assets/baseURL";
 import { IoArrowBack } from "react-icons/io5";
 import { FcCancel } from "react-icons/fc";
 import { IoMdCheckmark } from "react-icons/io";
+import Loader from "../../components/Loader";
 
 
 const ServicesMana = () => {
@@ -20,7 +21,7 @@ const ServicesMana = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}services/user/${myProducts.user}`
+          `${baseURL}services/user/${myProducts.user.id}`
         );
         setProductList(response.data);
         setProductFilter(response.data);
@@ -72,12 +73,12 @@ const ServicesMana = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5a53d] pt-28">
+    <div className="flex flex-col h-full bg-[#f5a53d] pt-18">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 mt-2 bg-[#f5a53d]">
-        <Link to="/dash">
+      <div className="flex items-center justify-center px-4 mt-2 bg-[#f5a53d]">
+        {/* <Link to="/dash">
           <IoArrowBack size={30} />
-        </Link>
+        </Link> */}
         <div className="relative w-3/4 rounded-full flex items-center px-4">
           <i className="fas fa-search text-black"></i>
           <input
@@ -97,7 +98,8 @@ const ServicesMana = () => {
       <div className="flex-1 p-4">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full"></div>
+            <Loader />
+            {/* <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full">Linkpii</div> */}
           </div>
         ) : productFilter.length > 0 ? (
           <>

@@ -19,7 +19,7 @@ const ProductManagement = (props) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${baseURL}fashionpost/user/${myProducts.user}`
+          `${baseURL}fashionpost/user/${myProducts.user.id}`
         );
         setProductList(response.data);
         setProductFilter(response.data);
@@ -61,12 +61,12 @@ const ProductManagement = (props) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#f5a53d] pt-20">
+    <div className="flex flex-col h-screen bg-[#f5a53d] pt-18">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 mt-2 bg-[#f5a53d]">
-        <Link to="/dash">
+      <div className="flex items-center justify-center px-4 mt-2 bg-[#f5a53d]">
+        {/* <Link to="/dash">
           <IoArrowBack size={30} />
-        </Link>
+        </Link> */}
         <div className="relative w-3/4 rounded-full flex items-center px-4">
           <i className="fas fa-search text-black"></i>
           <input
@@ -95,7 +95,7 @@ const ProductManagement = (props) => {
               <div className="w-1/6">Image</div>
               <div className="w-1/6">Name</div>
               <div className="w-1/6">Price</div>
-              <div className="w-1/6 text-center">Approve</div>
+              <div className="w-1/6 text-center mr-4">Approve</div>
               <div className="w-1/6 text-center">Views</div>
             </div>
             {productFilter.map((item, index) => (

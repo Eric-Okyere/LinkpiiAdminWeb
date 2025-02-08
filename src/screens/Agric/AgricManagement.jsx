@@ -29,7 +29,7 @@ const AgricMana = () => {
         setToken(storedToken);
 
         const response = await axios.get(
-          `${baseURL}send/user/${myProducts.user}`
+          `${baseURL}send/user/${myProducts.user.id}`
         );
         setProductList(response.data);
         setProductFilter(response.data);
@@ -38,6 +38,7 @@ const AgricMana = () => {
         console.error(error);
       }
     };
+    console.log("my user Id:",myProducts)
 
     fetchData();
 
@@ -81,12 +82,12 @@ const AgricMana = () => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#f5a53d] pt-20">
+    <div className="flex flex-col h-full bg-[#f5a53d] pt-0">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 mt-2 md:mt-8 bg-[#f5a53d]">
-        <Link to="/dash">
+      <div className="flex items-center justify-center px-4 mt-2 md:mt-8 bg-[#f5a53d]">
+        {/* <Link to="/dash">
           <IoArrowBack size={30} />
-        </Link>
+        </Link> */}
         <div className="relative w-3/4 rounded-full flex items-center px-4">
           <i className="fas fa-search text-black"></i>
           <input
