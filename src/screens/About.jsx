@@ -78,7 +78,7 @@ const About = () => {
  
     </div>
     
-    <div className='md:flex justify-between'>
+    <div className='md:flex md:flex-row md:justify-between flex flex-col justify-center items-center'>
     <div className='justify-center font-serif pt-6 '>
     {/* <h1 className=' md:text-2xl pt-6 mr-2'>@Linkpii</h1> */}
     <img src={Downl} className='w-80 md:h-18 lg:h-18 h-10 ' alt='down' />
