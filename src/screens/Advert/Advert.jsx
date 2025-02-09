@@ -11,6 +11,7 @@ import 'swiper/css/navigation';
 import { Pagination, Navigation, Autoplay } from 'swiper/modules';
 import { TbPhoneCall } from "react-icons/tb";
 import Loader from '../../components/Loader';
+import { FaTimes } from "react-icons/fa";
 
 
 function Advert() {
@@ -261,6 +262,7 @@ function Advert() {
                                 {isModalVisible && selectedItem && (
                         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10">
                             <div className="bg-white p-6 rounded-lg w-4/5 max-w-md shadow-lg">
+                            <button onClick={() => setIsModalVisible(false)} className="text-black font-bold text-lg text-end flext justify-end items-end"><FaTimes /></button>
                                 <p className="text-lg font-bold text-gray-800 mb-4">
                                     Welcome to {selectedItem?.name}, feel free to call or chat with us.
                                 </p>
@@ -272,7 +274,7 @@ function Advert() {
                                         <FaWhatsappSquare size={35} color="green" />
                                     </button>
                                 </div>
-                                <button onClick={() => setIsModalVisible(false)} className="text-red-500 font-bold text-lg">Cancel</button>
+                                
                             </div>
                         </div>
                     )}

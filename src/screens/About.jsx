@@ -36,7 +36,7 @@ const About = () => {
           <li>and so on</li>
         </div>
 
-        <div className='mr-12'>
+        <div className='mr-8 ml-10 md:ml-0 lg:ml-0'>
         <video autoPlay={true} width="600" loop={true} controls>
         <source src={Vidd} type="video/mp4" />
         Your browser does not support the video tag.
@@ -78,8 +78,8 @@ const About = () => {
  
     </div>
     
-    <div className='flex justify-between'>
-    <div className=' justify-center font-serif pt-6 '>
+    <div className='md:flex justify-between'>
+    <div className='justify-center font-serif pt-6 '>
     {/* <h1 className=' md:text-2xl pt-6 mr-2'>@Linkpii</h1> */}
     <img src={Downl} className='w-80 md:h-18 lg:h-18 h-10 ' alt='down' />
     <img src={Apple} className='w-80 h-80' alt='down' />

@@ -65,6 +65,7 @@ const App = () => {
                 <Route path="*" element={<ErrorPage />} />  {/* Show error page for unknown routes */}
                 <Route path="/signupform" element={<Signup />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/forgotpassword" element={<ForgotPassword />} />
               </>
             ) : (
               <>
