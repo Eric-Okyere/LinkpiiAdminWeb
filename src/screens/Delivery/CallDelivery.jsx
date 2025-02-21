@@ -12,9 +12,12 @@ const CallDelivery = () => {
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({});
+  const [comments, setComments] = useState([]);
+   const [isCommentsLoading, setIsCommentsLoading] = useState(true);
+    const [newCommentPosted, setNewCommentPosted] = useState(false);
 
 
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.id);
 
   const fetchDriverDetails = async () => {
     try {

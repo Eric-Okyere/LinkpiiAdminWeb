@@ -44,6 +44,7 @@ const EquipmentScreen = () => {
         setFilteredProducts(productsData);
         setVisibleProducts(productsData.slice(0, 40));
         setCategories(categoriesData);
+        // console.log("All products:",productsData)
       } catch (err) {
         setError('Failed to fetch data. Connect your Wifi.');
       } finally {

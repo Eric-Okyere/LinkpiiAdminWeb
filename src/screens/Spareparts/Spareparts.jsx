@@ -37,7 +37,7 @@ const Spareparts = () => {
 
         const productsData = await productsResponse.json();
         const categoriesData = await categoriesResponse.json();
-       console.log(productsData)
+      //  console.log(productsData)
         setProducts(productsData);
         setFilteredProducts(productsData);
         setVisibleProducts(productsData.slice(0, 16));

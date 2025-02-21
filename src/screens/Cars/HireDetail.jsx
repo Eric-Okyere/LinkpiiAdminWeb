@@ -65,11 +65,15 @@ const HireDetail = () => {
       }
     } catch (error) {
       console.error("Error fetching user data or comments:", error);
-    } finally {
-      setIsCommentsLoading(false);
-      setNewCommentPosted(false);
-    }
+    } 
+    // finally {
+    //   setIsCommentsLoading(false);
+    //   setNewCommentPosted(false);
+    // }
   };
+
+
+  
 
   const handleButtonClick = async () => {
    

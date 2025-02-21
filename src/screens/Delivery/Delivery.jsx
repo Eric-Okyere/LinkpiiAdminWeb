@@ -19,12 +19,12 @@ const Delivery = () => {
     const fetchData = async () => {
       try {
         const productsResponse = await fetch(`${baseURL}okada/motor/approved`);
-        console.log(productsResponse);
+        // console.log(productsResponse);
         if (!productsResponse.ok) {
           throw new Error(`HTTP error! status: ${productsResponse.status}`);
         }
         const productsData = await productsResponse.json();
-        console.log(productsData);
+        // console.log(productsData);
 
         setProducts(productsData);
         setProductsFiltered(productsData);

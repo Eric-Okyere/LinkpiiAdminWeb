@@ -86,7 +86,7 @@ const EquipmentDetail = () => {
       const commentsResponse = await fetch(`${baseURL}equipmentcomment/comments/${id}`);
       const commentsData = await commentsResponse.json();
       setComments(commentsData.comments);
-      console.log("All Comments:", commentsData);
+      // console.log("All Comments:", commentsData);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }

@@ -38,7 +38,7 @@ const AgricMana = () => {
         console.error(error);
       }
     };
-    console.log("my user Id:",myProducts)
+    // console.log("my user Id:",myProducts)
 
     fetchData();
 

@@ -7,7 +7,7 @@ import { loggedOut } from "../../Redux/actions";
 import { useNavigate } from "react-router-dom";
 
 const MyProfile = () => {
-  const myUser = useSelector((state) => state.user);
+  const myUser = useSelector((state) => state.user.id);
   const [isModalVisibleChange, setIsModalVisibleChange] = useState(false);
   const [oldpassword, setOldPassword] = useState("");
   const [newpassword, setNewPassword] = useState("");
@@ -17,6 +17,8 @@ const MyProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+  const [imageKey, setImageKey] = useState(Date.now());
+  
 
 const handleLogout = () => {
   setIsLogoutModalVisible(true);
@@ -31,6 +33,7 @@ const cancelLogout = () => {
   setIsLogoutModalVisible(false);
 };
 
+// console.log("User Info", myUser)
   
   const [passwordVisible, setPasswordVisible] = useState({
     old: false,
@@ -43,20 +46,21 @@ const cancelLogout = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${baseURL}userbyid/${myUser.id}`);
+        const response = await fetch(`${baseURL}userbyid/${myUser}`);
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
         setFetchedUserData(data);
+        setImageKey(Date.now()); // Force image reload
       } catch (error) {
         console.error("Error fetching user data:", error);
         alert("Failed to fetch user data. Please try again.");
-      
       } finally {
         setLoading(false);
       }
     };
     fetchUserData();
-  }, []);
+  }, [myUser]);
+
 
   const toggleVisibility = (field) => {
     setPasswordVisible((prev) => ({ ...prev, [field]: !prev[field] }));
@@ -107,7 +111,16 @@ const cancelLogout = () => {
       {fetchedUserData ? (
         <>
           {fetchedUserData.avatar ? (
-            <img className="w-24 h-24 rounded-full mt-4" src={fetchedUserData.avatar} alt="Profile" />
+             <img
+             key={imageKey} // Force reload when avatar changes
+             className="w-24 h-24 rounded-full mt-4 object-cover"
+             src={fetchedUserData.avatar || fetchedUserData.picture}
+             alt="Profile"
+             onError={(e) => {
+               e.target.onerror = null;
+               e.target.src = "/fallback-avatar.png"; // Fallback image
+             }}
+           />
           ) : (
             <FaRegUser size={64} className="mt-4" />
           )}

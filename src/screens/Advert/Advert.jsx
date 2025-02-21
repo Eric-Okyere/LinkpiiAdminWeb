@@ -14,6 +14,7 @@ import Loader from '../../components/Loader';
 import { FaTimes } from "react-icons/fa";
 
 
+
 function Advert() {
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,8 +25,12 @@ function Advert() {
     const swiperRef = useRef(null);
     const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
     const [networkError, setNetworkError] = useState(false); 
+  
+
+  
 
 
+// console.log(myProducts)
 
 
     useEffect(() => {
@@ -52,15 +57,17 @@ function Advert() {
                 const response = await axios.get(`${baseURL}userbyid/${myProducts.user.id}`);
                 const data = response.data;
                 setUserData({ name: data.name, email: data.email, phone: data.phone });
-                
+                // console.log("User info",data)
                 if (data.report) {
                     navigate('/report'); 
                     return;
-                }
+                } 
+                
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
         };
+
 
         fetchData();
         fetchUserData();
@@ -68,12 +75,44 @@ function Advert() {
 
     const images = items.map((item) => item.picture).filter(Boolean);
 
-    const openDialAdvert = () => {
-        if (selectedItem?.phone) {
-            window.location.href = `tel:${selectedItem.phone}`;
+    const openDialAdvert = async () => {
+        if (!selectedItem) return;
+    
+        try {
+            // Send user data to the backend
+            const response = await fetch(`${baseURL}call`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: userData.name,
+                    email: userData.email,
+                    phone: userData.phone,
+                    receiverphone: selectedItem.phone,
+                    recname: selectedItem.name,
+                    pagename: "Advert Website",
+                }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to send user data. Server responded with ${response.status}`);
+            }
+    
+            const result = await response.json();
+            // console.log("User info sent successfully for call:", result);
+    
+            // Redirect to dial phone number
+            if (selectedItem?.phone) {
+                window.location.href = `tel:${selectedItem.phone}`;
+            }
+        } catch (error) {
+            console.error("Error sending user info to backend for call:", error);
         }
+    
         setIsModalVisible(false);
     };
+    
 
     const handleSlideChange = () => {
         const swiper = swiperRef.current?.swiper; 
@@ -135,7 +174,7 @@ function Advert() {
             }
     
             const result = await response.json();
-            console.log("User info sent successfully:", result);
+            // console.log("User info sent successfully:", result);
     
             // Open WhatsApp after successful API call
             openWhatsApp();
@@ -154,7 +193,7 @@ function Advert() {
         }
     
         const encodedMessage = encodeURIComponent(
-            `Hello ${selectedItem.name}, I'm interested in your product on Linkpii.`
+            `Hello ${selectedItem.name},I saw your advertisement Linkpii. Can I get more info?`
         );
         const whatsappURL = `https://wa.me/${selectedItem.whatsapp}?text=${encodedMessage}`;
     
@@ -193,6 +232,9 @@ function Advert() {
             </div>
         );
     }
+
+
+
 
     return (
         <div className="flex flex-col min-h-screen bg-[#f5a53d] md:pt-20 lg:pt-20 pt-16 px-4 md:px-12 font-serif">
@@ -298,6 +340,13 @@ function Advert() {
           </div>
         </div>
       )}
+
+
+
+
+
+
+
         </div>
     );
 }

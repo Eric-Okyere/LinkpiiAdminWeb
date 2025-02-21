@@ -7,6 +7,8 @@ import { loggedOut } from "../Redux/actions";
 import { MdOutlineHorizontalRule } from "react-icons/md";
 import baseURL from "../assets/baseURL";
 import { LuPhoneCall } from "react-icons/lu";
+import "react-phone-input-2/lib/style.css";
+import PhoneInput from "react-phone-input-2";
 
 const NavbarCompo = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +19,10 @@ const NavbarCompo = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [newPhoneNumber, setNewPhoneNumber] = useState('')
+   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false); 
+    const statelogin = useSelector((state) => state);
 
   useEffect(() => {
     if (login && ["/loginform", "/signupform"].includes(location.pathname)) {
@@ -24,6 +30,8 @@ const NavbarCompo = () => {
     }
   }, [login, location, navigate]);
 
+  
+console.log("State login",statelogin)
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -46,7 +54,13 @@ const NavbarCompo = () => {
           console.warn("User has no valid _id, logging out...");
           dispatch(loggedOut());
           navigate("/signupform", { replace: true });
-        }
+        } else if (data.report) {
+          navigate('/report'); 
+          return;
+      } 
+      else if (!data.phone) {
+          setIsPhoneModalVisible(true); 
+      }
       } catch (error) {
         console.error("Network error detected:", error);
         setNetworkError(true); // Show modal on network error
@@ -57,6 +71,48 @@ const NavbarCompo = () => {
       fetchUserData();
     }
   }, [loginId, dispatch, navigate]);
+
+
+  const handlePhoneSubmit = async (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+   
+    let formattedPhoneNumber = newPhoneNumber;
+
+    // Ensure the phone number starts with "+"
+    if (!formattedPhoneNumber.startsWith("+")) {
+      formattedPhoneNumber = `+${formattedPhoneNumber}`;
+    }
+  
+    // Remove the leading zero after the country code (e.g., "+2330" -> "+233")
+    formattedPhoneNumber = formattedPhoneNumber.replace(/^(\+\d{1,3})0/, "$1");
+  
+    console.log("Submitted phone number:", formattedPhoneNumber);
+  
+    try {
+      const response = await fetch(`${baseURL}phone/${loginId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone: formattedPhoneNumber }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("Phone number updated successfully!");
+        setIsPhoneModalVisible(false); // Close the modal
+      } else {
+        alert(data.message || "Failed to update phone number.");
+      }
+    } catch (error) {
+      console.error("Error submitting phone number:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+  
+
+
 
   return (
     <div>
@@ -141,6 +197,28 @@ const NavbarCompo = () => {
         </ul>
       </div>
 
+
+
+      {isModalVisible && selectedItem && (
+                        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10">
+                            <div className="bg-white p-6 rounded-lg w-4/5 max-w-md shadow-lg">
+                            <button onClick={() => setIsModalVisible(false)} className="text-black font-bold text-lg text-end flext justify-end items-end"><FaTimes /></button>
+                                <p className="text-lg font-bold text-gray-800 mb-4">
+                                    Welcome to {selectedItem?.name}, feel free to call or chat with us.
+                                </p>
+                                <div className="flex justify-between mb-4">
+                                    <button onClick={openDialAdvert} className="p-3 text-white text-lg">
+                                        <FaPhoneAlt size={30} color="green" />
+                                    </button>
+                                    <button onClick={WhatsApp} className="p-3 text-white text-lg">
+                                        <FaWhatsappSquare size={35} color="green" />
+                                    </button>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    )}
+
       {/* Network Error Modal */}
       {networkError && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -156,6 +234,36 @@ const NavbarCompo = () => {
           </div>
         </div>
       )}
+
+
+
+
+{isPhoneModalVisible && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <button onClick={() => setIsPhoneModalVisible(false)} className="absolute top-2 right-2">
+                            <FaTimes size={20} />
+                        </button>
+                        <h2 className="text-lg font-bold text-gray-800 mb-4">Add Your WhatsApp or Phone Number</h2>
+                        <form onSubmit={handlePhoneSubmit}>
+                           
+                            <PhoneInput
+                            type="tel"
+                                country={"gh"} // Default country
+                                value={newPhoneNumber}
+                                placeholder="Enter your whatsapp or phone number"
+                                 required
+                                 onChange={(value) => setNewPhoneNumber(value)}
+                                 enableSearch
+                                 enableAreaCodes
+                                />
+                            <button type="submit" className="bg-black mt-6 text-white px-4 py-2 rounded-md">
+                                Save Phone Number
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
     </div>
   );
 };

@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signUp } from "../../Redux/actions";
 import { Link, useNavigate } from "react-router-dom";
 import baseURL from "../../assets/baseURL";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { GoogleLogin } from '@react-oauth/google';
+import { loggedIn } from "../../Redux/actions";
 
 const initialValues = {
   name: "",
@@ -44,6 +46,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+    const login = useSelector((state) => state.login);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -73,8 +76,16 @@ const Signup = () => {
     }
   };
 
+  useEffect(() => {
+      if (login) {
+        window.location.href = "/"; 
+      }
+    }, [login]);
+  
+  
+
   return (
-    <div className="bg-black min-h-screen flex items-center justify-center">
+    <div className="bg-black min-h-screen flex flex-col items-center justify-center">
       <div className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-[#f5a53d]">Register with us</h2>
         {message.text && (
@@ -110,6 +121,42 @@ const Signup = () => {
           <Link to="/loginform" className="bg-[#f5a53d] text-white py-2 px-4 rounded hover:bg-black">Login</Link>
         </div>
       </div>
+
+
+
+
+
+      <div className="mt-4">
+<GoogleLogin
+  onSuccess={credentialResponse => {
+    const token = credentialResponse.credential;
+    fetch(`${baseURL}auth/google-signin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Store token and user data in localStorage or Redux
+        console.log("Google Sign-In Successful", data);
+        // Optionally dispatch to Redux
+        dispatch(loggedIn(data.user));
+        localStorage.setItem('authToken', data.token);
+      } else {
+        console.error("Google Sign-In Failed", data.message);
+      }
+    })
+    .catch(error => console.error("Error:", error));
+  }}
+  onError={() => {
+    console.error('Login Failed');
+  }}
+/>
+
+</div>
     </div>
   );
 };

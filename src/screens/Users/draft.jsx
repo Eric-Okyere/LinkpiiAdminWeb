@@ -8,7 +8,6 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
-import baseURL from "../../assets/baseURL";
 
 
 const initialValues = {
@@ -27,7 +26,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  loggedIn
+  
 
   useEffect(() => {
     if (login) {
@@ -42,7 +41,7 @@ const Login = () => {
         if (!res.success) {
             setErrorMessage(res.error);
         } else {
-            dispatch(loggedIn(res.user)); 
+            dispatch(loggedIn(res.user)); // Store full user data
            
         }
     } catch (error) {
@@ -55,32 +54,10 @@ const Login = () => {
 
 
 
-// const handleLogin = async (values) => {
-//   try {
-//       setLoading(true);
-//       const res = await signin(values);
-
-//       console.log("API Response:", res); // Debugging
-
-//       if (!res.success) {
-//           setErrorMessage(res.error);
-//       } else {
-//           console.log("User ID:", res.user.id); // Check if ID exists
-//           dispatch(loggedIn(res.user)); 
-//       }
-//   } catch (error) {
-//       console.error("Login Error:", error);
-//       setErrorMessage("An error occurred during login. Please try again.");
-//   } finally {
-//       setLoading(false);
-//   }
-// };
-
-
 
 
   return (
-    <div className="flex min-h-screen bg-black items-center justify-center flex-col">
+    <div className="flex min-h-screen bg-black items-center justify-center">
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -185,38 +162,15 @@ const Login = () => {
         )}
       </Formik>
 
-<div className="mt-10">
-<GoogleLogin
+      <GoogleLogin
   onSuccess={credentialResponse => {
-    const token = credentialResponse.credential;
-    fetch(`${baseURL}auth/google-signin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Store token and user data in localStorage or Redux
-        console.log("Google Sign-In Successful", data);
-        // Optionally dispatch to Redux
-        dispatch(loggedIn(data.user));
-        localStorage.setItem('authToken', data.token);
-      } else {
-        console.error("Google Sign-In Failed", data.message);
-      }
-    })
-    .catch(error => console.error("Error:", error));
+    const decoded = jwtDecode(credentialResponse?.credential);
+    console.log(decoded);
   }}
   onError={() => {
-    console.error('Login Failed');
+    console.log('Login Failed');
   }}
 />
-
-</div>
-
     </div>
   );
 };

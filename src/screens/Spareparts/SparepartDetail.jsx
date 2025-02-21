@@ -100,7 +100,7 @@ const SparepartDetail = () => {
       const commentsResponse = await fetch(`${baseURL}sparecomment/comments/${id}`);
       const commentsData = await commentsResponse.json();
       setComments(commentsData.comments);
-      console.log("All Comments:", commentsData);
+      // console.log("All Comments:", commentsData);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }

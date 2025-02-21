@@ -101,7 +101,7 @@ const About = () => {
 
 <div className=' flex justify-center mt-6 items-center text-center font-bold'>
 <Link className='text-white bg-black py-2 px-4 rounded-full'  to={"https://play.google.com/store/apps/details?id=com.ericok.palm"}>
-    Press me to download for android
+    Press me, download for android
     </Link>
 </div>
    

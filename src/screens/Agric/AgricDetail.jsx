@@ -90,7 +90,7 @@ const AgricDetail = () => {
       const commentsResponse = await fetch(`${baseURL}agriccomment/comments/${id}`);
       const commentsData = await commentsResponse.json();
       setComments(commentsData.comments);
-      console.log("All Comments:", commentsData);
+      // console.log("All Comments:", commentsData);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
@@ -405,22 +405,22 @@ const openDial = async () => {
       window.open(`tel:${product.phone}`, '_self');
 
       // Sending viewer comment
-      const responseview = await fetch(`${baseURL}productviewers/${item._id}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userid,
-          content: userData.phone,
-        }),
-      });
+      // const responseview = await fetch(`${baseURL}productviewers/${id}/comments`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     userId: userid,
+      //     content: userData.phone,
+      //   }),
+      // });
 
-      if (responseview.ok) {
-        console.log('Comment posted successfully.');
-      } else {
-        console.error('Failed to post comment.');
-      }
+      // if (responseview.ok) {
+      //   console.log('Comment posted successfully.');
+      // } else {
+      //   console.error('Failed to post comment.');
+      // }
     } else {
       console.error('Failed to send user data.');
     }
@@ -428,6 +428,12 @@ const openDial = async () => {
     console.error('Error sending user data:', error);
   }
 };
+
+
+
+
+
+
 
 
 const WhatsApp = async () => {
