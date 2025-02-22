@@ -47,6 +47,8 @@ import { useSelector } from "react-redux";
 import MyProfile from "./screens/Users/MyProfile";
 import Report from "./screens/Users/Report";
 import CallCenter from "./screens/Users/CallCenter";
+import PrivacyPolicy from "./components/Policy";
+import TermsOfUse from "./components/Terms";
 
 
 const App = () => {
@@ -66,6 +68,8 @@ const App = () => {
                 <Route path="/signupform" element={<Signup />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
+                <Route path="/policy" element={<PrivacyPolicy /> } />
+                <Route path="/terms" element={<TermsOfUse /> } />
               </>
             ) : (
               <>
@@ -115,6 +119,8 @@ const App = () => {
                 <Route path="/report" element={<Report />} />
                 <Route path="/callcenter" element={<CallCenter />} />
                 <Route path="*" element={<ErrorPage />} /> 
+                <Route path="/policy" element={<PrivacyPolicy /> } />
+                <Route path="/terms" element={<TermsOfUse /> } />
               </>
             )}
           </Routes>
