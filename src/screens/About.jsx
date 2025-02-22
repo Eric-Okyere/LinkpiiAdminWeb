@@ -105,11 +105,18 @@ const About = () => {
     </Link>
 </div>
    
+   
     </div>
     </div>
 
-    </div>
 
+    </div>
+   
+
+   <div className='flex justify-between mt-10'>
+    <Link to={"terms"}>Terms of Use</Link>
+    <Link to={"policy"}>Privacy Policy</Link>
+   </div>
 
     </div>
   );
