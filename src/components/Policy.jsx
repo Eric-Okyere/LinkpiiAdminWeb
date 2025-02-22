@@ -2,7 +2,7 @@ import React from "react";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="max-w-3xl mx-auto p-6 text-gray-800">
+    <div className="max-w-3xl mx-auto p-6 text-gray-800 mb-32">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
       <p className="mb-4">This privacy policy applies to the Linkpii app (hereby referred to as "Application") for mobile devices that was created by Eric Okyere (hereby referred to as "Service Provider") as a Free service. This service is intended for use "AS IS".</p>
       
