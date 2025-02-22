@@ -2,7 +2,7 @@ import React from "react";
 
 const TermsOfUse = () => {
   return (
-    <div className="container mx-auto p-6 text-gray-800 mb-32">
+    <div className="container mx-auto p-6 text-gray-800 mb-32 mt-28">
       <h1 className="text-3xl font-bold mb-4">Linkpii Terms of Use</h1>
       <p className="mb-4">
         These terms and conditions apply to the Linkpii app ("Application") for mobile devices created by Eric Okyere ("Service Provider") as a Free service.
