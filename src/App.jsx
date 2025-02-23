@@ -68,7 +68,7 @@ const App = () => {
                 <Route path="/signupform" element={<Signup />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
-                <Route path="/policy" element={<PrivacyPolicy /> } />
+                <Route path="/privacy-policy" element={<PrivacyPolicy /> } />
                 <Route path="/terms" element={<TermsOfUse /> } />
               </>
             ) : (
@@ -119,7 +119,7 @@ const App = () => {
                 <Route path="/report" element={<Report />} />
                 <Route path="/callcenter" element={<CallCenter />} />
                 <Route path="*" element={<ErrorPage />} /> 
-                <Route path="/policy" element={<PrivacyPolicy /> } />
+                <Route path="/privacy-policy" element={<PrivacyPolicy /> } />
                 <Route path="/terms" element={<TermsOfUse /> } />
               </>
             )}
