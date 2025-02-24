@@ -53,7 +53,9 @@ const cancelLogout = () => {
         setImageKey(Date.now()); // Force image reload
       } catch (error) {
         console.error("Error fetching user data:", error);
-        alert("Failed to fetch user data. Please try again.");
+        // alert("Failed to fetch user data. Please try again.");
+        dispatch(loggedOut());
+        navigate('/loginform');
       } finally {
         setLoading(false);
       }
