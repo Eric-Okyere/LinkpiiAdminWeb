@@ -58,14 +58,15 @@ const About = () => {
     <div className='bg-gray-200  p-4 '>
     <div className='md:flex justify-between'>
    
-    <Link to="mailto://linkpiiapp@gmail.com" className='flex'>
-    <MdOutlineMailOutline size={50} /> <h1 className='pt-3'>linkpiiapp@gmail.com</h1>
-  
-    </Link>
+    <a href="mailto:linkpiiapp@gmail.com" className='flex'>
+  <MdOutlineMailOutline size={50} />
+  <h1 className='pt-3'>linkpiiapp@gmail.com</h1>
+</a>
 
-    <Link to="https://wa.me/23309317581" className='flex'>
-    <FaSquareWhatsapp size={50} color='green' />   <h1 className='pt-3'>+233209317581</h1>
-    </Link>
+<a href="https://wa.me/23309317581" className='flex'>
+  <FaSquareWhatsapp size={50} color='green' />
+  <h1 className='pt-3'>+233209317581</h1>
+</a>
 
     <Link className='flex'>
   
@@ -115,7 +116,9 @@ const About = () => {
 
    <div className='flex justify-between mt-10'>
     <Link to={"terms"}>Terms of Use</Link>
-    <Link to={"privacy-policy"}>© 2025 Linkpii. Privacy Policy</Link>
+    <a href="https://linkpii.com/privacy-policy" target="_blank" rel="noopener noreferrer">
+  © 2025 Linkpii. Privacy Policy
+</a>
    </div>
 
     </div>
