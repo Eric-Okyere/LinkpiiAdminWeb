@@ -8,7 +8,10 @@ export default {
   theme: {
     extend: {
       fontFamily:{
-        uniquifier: ["Playfair Display", "serif"]
+        uniquifier: ["Playfair Display", "serif"],
+        fadeIn: "fadeIn 1s ease-out forwards",
+        fadeInSlow: "fadeIn 2s ease-out forwards",
+        fadeUp: "fadeUp 1s ease-out forwards",
       },
       keyframes: {
         rotate: {
@@ -24,11 +27,22 @@ export default {
           "100%": { transform: "translateX(-100vw)" }, // Move completely off-screen to the left
         },
 
+        fadeIn: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+        fadeUp: {
+          "0%": { opacity: 0, transform: "translateY(20px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
       },
       animation: {
         rotate: 'rotate 4s linear infinite',
         heartbeat: "heartbeat 1.5s ease-in-out infinite",
         slideScreen: "slideScreen 20s linear infinite",
+        fadeIn: "fadeIn 1s ease-out forwards",
+        fadeInSlow: "fadeIn 2s ease-out forwards",
+        fadeUp: "fadeUp 1s ease-out forwards",
       },
     },
   },
