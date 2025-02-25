@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import baseURL from "../../assets/baseURL";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 
 const initialValues = {
@@ -55,26 +56,10 @@ const Login = () => {
 
 
 
-// const handleLogin = async (values) => {
-//   try {
-//       setLoading(true);
-//       const res = await signin(values);
-
-//       console.log("API Response:", res); // Debugging
-
-//       if (!res.success) {
-//           setErrorMessage(res.error);
-//       } else {
-//           console.log("User ID:", res.user.id); // Check if ID exists
-//           dispatch(loggedIn(res.user)); 
-//       }
-//   } catch (error) {
-//       console.error("Login Error:", error);
-//       setErrorMessage("An error occurred during login. Please try again.");
-//   } finally {
-//       setLoading(false);
-//   }
-// };
+const handleGoogleLoginSuccess = (user, token) => {
+  dispatch(loggedIn(user));
+  localStorage.setItem('authToken', token);
+};
 
 
 
@@ -185,39 +170,14 @@ const Login = () => {
         )}
       </Formik>
 
+
 <div className="mt-10">
-<GoogleLogin
-  onSuccess={credentialResponse => {
-    const token = credentialResponse.credential;
-    fetch(`${baseURL}auth/google-signin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Store token and user data in localStorage or Redux
-        console.log("Google Sign-In Successful", data);
-        // Optionally dispatch to Redux
-        dispatch(loggedIn(data.user));
-        localStorage.setItem('authToken', data.token);
-      } else {
-        console.error("Google Sign-In Failed", data.message);
-      }
-    })
-    .catch(error => console.error("Error:", error));
-  }}
-  onError={() => {
-    console.error('Login Failed');
-  }}
-/>
+        <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
+      </div>
 
 </div>
 
-    </div>
+ 
   );
 };
 

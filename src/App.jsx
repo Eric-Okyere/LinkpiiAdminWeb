@@ -81,8 +81,8 @@ const App = () => {
                 <Route path="/rent" element={<RentTabView />} />
                 <Route path="/user" element={<Admin />} />
                 {/* <Route path="/dash" element={<Dashboard />} /> */}
-                <Route path="/signupform" element={<Signup />} />
-                <Route path="/loginform" element={<Login />} />
+                {/* <Route path="/signupform" element={<Signup />} />
+                <Route path="/loginform" element={<Login />} /> */}
                 <Route path="/listproduct" element={<Listproducts />} />
                 <Route path="/sigform" element={<SingleProductform />} />
                 <Route path="/shopform" element={<Shopform />} />

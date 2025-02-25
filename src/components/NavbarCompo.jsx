@@ -31,7 +31,7 @@ const NavbarCompo = () => {
   }, [login, location, navigate]);
 
   
-console.log("State login",statelogin)
+// console.log("State login",statelogin)
   useEffect(() => {
     const fetchUserData = async () => {
       try {
