@@ -9,6 +9,8 @@ import baseURL from "../../assets/baseURL";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { GoogleLogin } from '@react-oauth/google';
 import { loggedIn } from "../../Redux/actions";
+import PhoneInput from "react-phone-input-2";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 const initialValues = {
   name: "",
@@ -52,10 +54,51 @@ const Signup = () => {
     setShowPassword((prev) => !prev);
   };
 
+  // const handleSignup = async (values, formikActions) => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.post(`${baseURL}create-user`, values);
+  //     const { success, user } = response.data;
+  //     if (success) {
+  //       formikActions.resetForm();
+  //       dispatch(signUp(user.id));
+  //       setMessage({ text: "Signed up successfully!", type: "success" });
+  //       setTimeout(() => navigate("/loginform"), 2000);
+  //     } else {
+  //       setMessage({ text: "Signup failed. Please try again.", type: "error" });
+  //     }
+  //   } catch (error) {
+  //     setMessage({
+  //       text: error.response?.data?.message || "Something went wrong.",
+  //       type: "error",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //     formikActions.setSubmitting(false);
+  //   }
+  // };
+
+
+
   const handleSignup = async (values, formikActions) => {
+    let formattedPhoneNumber = values.phone;
+  
+    // Ensure phone number includes a "+" and the correct country code
+    if (!formattedPhoneNumber.startsWith("+")) {
+      formattedPhoneNumber = `+233${formattedPhoneNumber.replace(/^0+/, "")}`;
+    } else {
+      formattedPhoneNumber = formattedPhoneNumber.replace(/^(\+\d{1,3})0/, "$1");
+    }
+  
+    console.log("Submitted phone number:", formattedPhoneNumber);
+  
     setLoading(true);
     try {
-      const response = await axios.post(`${baseURL}create-user`, values);
+      const response = await axios.post(`${baseURL}create-user`, {
+        ...values,
+        phone: formattedPhoneNumber, // Use the formatted phone number
+      });
+  
       const { success, user } = response.data;
       if (success) {
         formikActions.resetForm();
@@ -75,12 +118,17 @@ const Signup = () => {
       formikActions.setSubmitting(false);
     }
   };
-
+  
   useEffect(() => {
       if (login) {
         window.location.href = "/"; 
       }
     }, [login]);
+
+    const handleGoogleLoginSuccess = (user, token) => {
+      dispatch(loggedIn(user));
+      localStorage.setItem('authToken', token);
+    };
   
   
 
@@ -100,8 +148,12 @@ const Signup = () => {
               {touched.lastname && errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
               <input type="email" placeholder="Email" onChange={handleChange("email")} onBlur={handleBlur("email")} value={values.email} className="w-full p-2 bg-white border rounded" />
               {touched.email && errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-              <input type="tel" placeholder="Phone Number" onChange={handleChange("phone")} onBlur={handleBlur("phone")} value={values.phone} className="w-full p-2 bg-white border rounded" />
+            
+              <PhoneInput inputClass="w-full p-2 bg-white border-none outline-none shadow-none rounded" type="tel"  country={"gh"} placeholder="Phone Number" onChange={(phone) => handleChange("phone")(`+${phone}`)} onBlur={handleBlur("phone")} value={values.phone} className="w-full p-2 bg-white rounded" />
+
+
               {touched.phone && errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+          
               <div className="relative">
                 <input type={showPassword ? "text" : "password"} placeholder="Password" onChange={handleChange("password")} onBlur={handleBlur("password")} value={values.password} className="w-full p-2 bg-white border rounded" />
                 <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-4 text-sm"> {showPassword?(<FaEye />):(<FaEyeSlash />)}</button>
@@ -126,38 +178,13 @@ const Signup = () => {
 
 
 
-      <div className="mt-4">
-<GoogleLogin
-  onSuccess={credentialResponse => {
-    const token = credentialResponse.credential;
-    fetch(`${baseURL}auth/google-signin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Store token and user data in localStorage or Redux
-        console.log("Google Sign-In Successful", data);
-        // Optionally dispatch to Redux
-        dispatch(loggedIn(data.user));
-        localStorage.setItem('authToken', data.token);
-      } else {
-        console.error("Google Sign-In Failed", data.message);
-      }
-    })
-    .catch(error => console.error("Error:", error));
-  }}
-  onError={() => {
-    console.error('Login Failed');
-  }}
-/>
+    
+      <div className="mt-10">
+        <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
+      </div>
 
 </div>
-    </div>
+    
   );
 };
 
