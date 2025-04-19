@@ -12,7 +12,7 @@ import PhoneInput from "react-phone-input-2";
 
 const NavbarCompo = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [networkError, setNetworkError] = useState(false); // Track network errors
+  const [networkError, setNetworkError] = useState(false); 
   const login = useSelector((state) => state.login);
   const loginId = useSelector((state) => state.user.id);
   const UserData = useSelector((state) => state.user);

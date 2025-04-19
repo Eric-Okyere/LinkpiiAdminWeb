@@ -5,7 +5,9 @@ import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
 import { useSelector } from "react-redux";
 import { LuPhoneCall } from "react-icons/lu";
-
+import axios from "axios";
+import { MdMyLocation } from "react-icons/md";
+import { GrLocationPin } from "react-icons/gr";
 const CallDriver = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,6 +23,18 @@ const CallDriver = () => {
     const [comment, setComment] = useState('');
     const [commentsToShow, setCommentsToShow] = useState(3);
      const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+     const [showModal, setShowModal] = useState(false);
+     const [form, setForm] = useState({ time:"",datepick:"",location:"", region: "Greater Accra",desregion:"Greater Accra", deslocation:"" });
+     const [userLocation, setUserLocation] = useState({ latitude: null, longitude: null });
+
+
+
+
+
+     const handleChange = (e) => {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    };
+  
 
   const user = useSelector((state) => state.user.id);
 
@@ -123,8 +137,48 @@ const CallDriver = () => {
   };
   
   
+const fetchUserLocation = () => {
+  if (!navigator.geolocation) {
+    console.error("Geolocation is not supported by this browser.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      setUserLocation({ latitude, longitude });
+
+      console.log("✅ Accurate location obtained:");
+      console.log("Latitude:", latitude);
+      console.log("Longitude:", longitude);
+      console.log("Accuracy (in meters):", accuracy);
+    },
+    (error) => {
+      console.error("❌ Geolocation error:", error.message);
+
+      // Optional retry logic
+      if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
+        console.log("Retrying in 3 seconds...");
+        setTimeout(fetchUserLocation, 3000);
+      }
+    },
+    {
+      enableHighAccuracy: true, // Try GPS first
+      timeout: 20000,           // Allow more time for accuracy
+      maximumAge: 0             // Don't allow cached location
+    }
+  );
+};
 
 
+  
+  
+  
+  
+
+  useEffect(() => {
+    fetchUserLocation(); 
+  }, []);
 
 
   useEffect(() => {
@@ -136,6 +190,8 @@ const CallDriver = () => {
       fetchUserData();
     }
   }, [driver]);
+
+
 
   if (loading) {
     return (
@@ -315,6 +371,39 @@ const CallDriver = () => {
 
 
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const appointmentData = {
+      username: userData.name,
+      userphone: userData.phone,
+      drivername: driver.name,
+      driverphone: driver.phone,
+      time: form.time,
+      region: form.region,
+      location: form.location,
+      desregion: form.desregion,
+      deslocation: form.deslocation,
+      datepick: form.datepick,
+      userlocation: {
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+      },
+    };
+  
+    try {
+      const res = await axios.post(`${baseURL}appointment`, appointmentData);
+      console.log("Appointment saved:", res.data);
+      setShowModal(false);
+    } catch (err) {
+      console.error("Error saving appointment:", err);
+    }
+  };
+  
+  
+
+
+
   return (
     <div className="font-serif mb-6 lg:mb-0 md:mt-16 lg:mt-16 ">
      
@@ -353,27 +442,40 @@ const CallDriver = () => {
               </button>
 
               <h1 className="text-lg font-semibold mt-4">Size: {driver?.size}</h1>
-              <h1 className="text-[#f5a53d] text-xl font-semibold pt-4">NOTE!</h1>
-              <h1 className="w-60  font-semibold">
+              <h1 className="text-[#f5a53d] md:text-lg text-sm  font-semibold pt-4">NOTE!</h1>
+              <h1 className="w-60  font-semibold text-sm md:text-lg">
                 Our drivers close at 6:00pm. Book an appointment with the driver
                 to pick your product at your convenient time.
               </h1>
-              <Link
-                // to={`/appointment/${driver._id}`}
-                onClick={()=>alert("Under development")}
-                className="mt-6 block bg-black text-white px-4 py-2 rounded-lg text-center w-40 animate-heartbeat font-bold"
-              >
-                Appointment
-              </Link>
+              <button
+        onClick={() => setShowModal(true)}
+        className="mt-6 block bg-black text-white px-4 py-2 rounded-lg text-center w-40 animate-heartbeat font-bold"
+      >
+        Appointment
+      </button>
             </div>
           </div>
 
           <div className="md:ml-6 mt-4 md:mt-0">
             <h1 className="text-2xl font-bold">{driver.name}</h1>
-            <p className="mt-2 text-lg font-semibold">Region: {driver.region}</p>
-            <p className="text-lg font-semibold">Town: {driver.town}</p>
-            <p className="text-lg font-semibold">Location: {driver.location}</p>
-            <p className="text-lg font-semibold">Car Number: {driver.carnum}</p>
+            <div className="flex items-center ">
+            <p className="mt-2 md:text-lg text-sm font-bold">Region:</p> 
+            <p className="mt-2 md:text-lg text-sm font-medium">{driver.region}</p>
+            </div>
+            <div className="flex items-center ">
+            <p className="mt-2 md:text-lg text-sm font-bold">Town:</p> 
+            <p className="mt-2 md:text-lg text-sm font-medium">{driver.town}</p>
+            </div>
+            <div className="flex items-center ">
+            <p className="mt-2 md:text-lg text-sm font-bold">Location:</p> 
+            <p className="mt-2 md:text-lg text-sm font-medium">{driver.location}</p>
+            </div>
+            <div className="flex items-center ">
+            <p className="mt-2 md:text-lg text-sm font-bold">Car No.:</p> 
+            <p className="mt-2 md:text-lg text-sm font-medium">{driver.carnum}</p>
+            </div>
+           
+          
             <img
               src={driver.driverpic}
               alt="Car"
@@ -382,8 +484,17 @@ const CallDriver = () => {
           </div>
         </div>
       </div>
-
-
+      {/* <button
+  onClick={() =>
+    window.open(
+      `https://www.google.com/maps?q=${userLocation.latitude},${userLocation.longitude}`,
+      "_blank"
+    )
+  }
+  className="px-4 py-2 bg-blue-600 text-white rounded"
+>
+  View on Map
+</button> */}
 
 {/* Comment */}
       <div className="mx-6 md:mx-0 pt-6 font-bold">
@@ -406,10 +517,10 @@ const CallDriver = () => {
           {comments.slice(0, commentsToShow).map((comment) => (
             <div key={comment._id} className="p-4 mb-4 bg-gray-100 rounded shadow-md">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-lg">{comment.user?.name || 'Anonymous'}</h3>
-                <span className="text-sm text-gray-500">{formatDate(comment.dateCreated)}</span>
+                <h3 className="font-bold md:text-lg text-sm">{comment.user?.name || 'Anonymous'}</h3>
+                <span className="text-sm text-gray-500 md:text-lg">{formatDate(comment.dateCreated)}</span>
               </div>
-              <p className="text-gray-700">{comment.content}</p>
+              <p className="text-gray-700 text-sm md:text-lg">{comment.content}</p>
 
               {/* Edit/Delete buttons */}
               {comment.user && comment.user._id === user && (
@@ -512,8 +623,137 @@ const CallDriver = () => {
         </div>
       </div>
     </div>
+    
   </div>
 )}
+
+
+
+{showModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
+      <h2 className="text-xl font-bold mb-4">Book Appointment</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+
+        <p className="text-xs">When do you want the product to be picked?</p>
+        <input
+          type="date"
+          name="datepick"
+          value={form.datepick}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+
+        <p className="text-xs">What time do you want the product to be picked?</p>
+        <input
+          type="time"
+          name="time"
+          value={form.time}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+        <div className="flex">
+     <p className="text-xs">Select the pickup region and location </p>
+     <MdMyLocation color="red" />
+     </div>
+        <select
+          name="region"
+          value={form.region}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        >
+          <option value="Ahafo">Ahafo</option>
+          <option value="Ashanti">Ashanti</option>
+          <option value="Bono">Bono</option>
+          <option value="Bono East">Bono East</option>
+          <option value="Central">Central</option>
+          <option value="Eastern">Eastern</option>
+          <option value="Greater Accra">Greater Accra</option>
+          <option value="North East">North East</option>
+          <option value="Northern">Northern</option>
+          <option value="Oti">Oti</option>
+          <option value="Savannah">Savannah</option>
+          <option value="Upper East">Upper East</option>
+          <option value="Upper West">Upper West</option>
+          <option value="Volta">Volta</option>
+          <option value="Western">Western</option>
+          <option value="Western North">Western North</option>
+        </select>
+
+        <input
+          type="text"
+          name="location"
+          value={form.location}
+          placeholder="Enter the pickup location"
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+        <div className="flex">
+        <p className="text-xs">Select the destination region and location</p>
+        <GrLocationPin color="red" />
+
+        </div>
+    
+        <select
+          name="desregion"
+          value={form.desregion}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        >
+          <option value="Ahafo">Ahafo</option>
+          <option value="Ashanti">Ashanti</option>
+          <option value="Bono">Bono</option>
+          <option value="Bono East">Bono East</option>
+          <option value="Central">Central</option>
+          <option value="Eastern">Eastern</option>
+          <option value="Greater Accra">Greater Accra</option>
+          <option value="North East">North East</option>
+          <option value="Northern">Northern</option>
+          <option value="Oti">Oti</option>
+          <option value="Savannah">Savannah</option>
+          <option value="Upper East">Upper East</option>
+          <option value="Upper West">Upper West</option>
+          <option value="Volta">Volta</option>
+          <option value="Western">Western</option>
+          <option value="Western North">Western North</option>
+        </select>
+
+        <input
+          type="text"
+          name="deslocation"
+          value={form.deslocation}
+          placeholder="Enter the destination"
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+
+        <div className="flex justify-between mt-4">
+          <button
+            type="submit"
+            className="bg-black text-white px-4 py-2 rounded"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowModal(false)}
+            className="bg-gray-300 px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+)}
+
 
     </div>
   );
