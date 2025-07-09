@@ -62,7 +62,7 @@ const ButtonNavigation = () => {
                 }`}
             >
                 <FiTruck className="sm:text-xl md:text-4xl text-2xl lg:text-3xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">Tabs</h1>
+                <h1 className="text-xs sm:text-sm md:text-base">KIA</h1>
             </button>
             <button
                 onClick={() => handleButtonClick("/buy?tab=0", "buy")}

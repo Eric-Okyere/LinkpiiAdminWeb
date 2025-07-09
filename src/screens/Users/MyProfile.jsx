@@ -50,6 +50,7 @@ const cancelLogout = () => {
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
         setFetchedUserData(data);
+        console.log(data)
         setImageKey(Date.now()); // Force image reload
       } catch (error) {
         console.error("Error fetching user data:", error);

@@ -21,7 +21,7 @@ function Advert() {
     const [isModalVisible, setIsModalVisible] = useState(false); 
     const [selectedItem, setSelectedItem] = useState(null); 
     const navigate = useNavigate(); 
-    const myProducts = useSelector((state) => state);
+    const UserState = useSelector((state) => state);
     const swiperRef = useRef(null);
     const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
     const [networkError, setNetworkError] = useState(false); 
@@ -30,7 +30,23 @@ function Advert() {
   
 
 
-// console.log(myProducts)
+// console.log(UserState)
+
+useEffect(() => {
+  const incrementPlatfUsed = async () => {
+    try {
+      await axios.get(`${baseURL}user/${UserState.user.id}/platused`);
+      console.log("✅ platfUsed incremented");
+    } catch (error) {
+      console.error("❌ Failed to increment platfUsed:", error.message);
+    }
+  };
+
+  if (UserState?.user?.id) {
+    incrementPlatfUsed();
+  }
+}, [UserState.user?.id]);
+
 
 
     useEffect(() => {
@@ -54,7 +70,7 @@ function Advert() {
 
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`${baseURL}userbyid/${myProducts.user.id}`);
+                const response = await axios.get(`${baseURL}userbyid/${UserState.user.id}`);
                 const data = response.data;
                 setUserData({ name: data.name, email: data.email, phone: data.phone });
                 // console.log("User info",data)
@@ -62,7 +78,7 @@ function Advert() {
                     navigate('/report'); 
                     return;
                 } 
-                
+                await updateLastSeen();
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
@@ -71,7 +87,19 @@ function Advert() {
 
         fetchData();
         fetchUserData();
-    }, [myProducts.user, navigate]);
+    }, [UserState.user, navigate]);
+
+
+    const updateLastSeen = async () => {
+  try {
+    await axios.put(`${baseURL}${UserState.user.id}/lastseen`);
+    console.log("Last seen updated");
+  } catch (error) {
+    console.error('Failed to update lastSeen:', error);
+  }
+};
+
+
 
     const images = items.map((item) => item.picture).filter(Boolean);
 

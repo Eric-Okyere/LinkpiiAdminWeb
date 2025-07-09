@@ -44,7 +44,7 @@ const Login = () => {
             setErrorMessage(res.error);
         } else {
             dispatch(loggedIn(res.user)); 
-           
+           console.log("Logged-in user:", res.user);
         }
     } catch (error) {
         console.error("Login Error:", error);
