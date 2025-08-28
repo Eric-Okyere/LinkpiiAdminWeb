@@ -24,7 +24,7 @@ const ButtonNavigation = () => {
             } else if (location.pathname === "/rent") {
                 setActiveButton("rent");
             }
-        } else if (location.pathname === "/advert") {
+        } else if (location.pathname === "/") {
             setActiveButton("advert");
         } else if (location.pathname === "/user") {
             setActiveButton("user");
@@ -47,7 +47,7 @@ const ButtonNavigation = () => {
     return (
         <div className="fixed bottom-0 left-0 w-full bg-[#f5a53d] border-t border-gray-300 flex md:justify-around lg:justify-around justify-center p-3">
             <button
-                onClick={() => handleButtonClick("/advert", "advert")}
+                onClick={() => handleButtonClick("/", "advert")}
                 className={`text-black rounded-md px-4 py-2 ${
                     activeButton === "advert" ? "bg-white" : "bg-[#f5a53d]"
                 }`}
@@ -55,15 +55,7 @@ const ButtonNavigation = () => {
                 <FaStar className="mx-3 sm:text-xl md:text-4xl text-2xl lg:text-3xl" />
                 <h1 className="text-xs sm:text-sm md:text-base">Adverts</h1>
             </button>
-            <button
-                onClick={() => handleButtonClick("/tabs?tab=0", "tabs")}
-                className={`text-black rounded-md px-4 py-2 ${
-                    activeButton === "tabs" ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-            >
-                <FiTruck className="sm:text-xl md:text-4xl text-2xl lg:text-3xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">KIA</h1>
-            </button>
+       
             <button
                 onClick={() => handleButtonClick("/buy?tab=0", "buy")}
                 className={`text-black rounded-md px-4 py-2 ${
@@ -73,6 +65,18 @@ const ButtonNavigation = () => {
                 <MdPhoneIphone className="sm:text-xl text-2xl md:text-4xl lg:text-3xl" />
                 <h1 className="text-xs sm:text-sm md:text-base">Buy</h1>
             </button>
+
+                 <button
+                onClick={() => handleButtonClick("/tabs?tab=0", "tabs")}
+                className={`text-black rounded-md px-4 py-2 ${
+                    activeButton === "tabs" ? "bg-white" : "bg-[#f5a53d]"
+                }`}
+            >
+                <FiTruck className="sm:text-xl md:text-4xl text-2xl lg:text-3xl" />
+                <h1 className="text-xs sm:text-sm md:text-base">KIA</h1>
+            </button>
+
+            
             <button
                 onClick={() => handleButtonClick("/rent?tab=0", "rent")}
                 className={`text-black rounded-md px-4 py-2 ${

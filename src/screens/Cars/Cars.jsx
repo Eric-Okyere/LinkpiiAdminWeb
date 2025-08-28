@@ -95,7 +95,22 @@ const MyDriver = () => {
                   key={item._id}
                   className="px-2 w-full md:w-auto bg-gray-200 rounded-lg shadow-md flex justify-between"
                 >
-                  <div>
+                  <div className="mt-2">
+                      <div className="flex gap-x-20 md:gap-x-10">
+                      <img
+                        src={item.carpic}
+                        alt={item._id}
+                        className="md:w-14 lg:w-14 w-14 object-cover rounded-full"
+                      />
+                      <Link
+                        to={`/calldriver/${item._id}`}
+                        className="mt-4 text-center h-10 text-4xl text-green-400 rounded-lg hover:bg-black"
+                      >
+                        <BiSolidPhoneCall />
+                      </Link>
+                    </div>
+
+                  <div className="md:pt-1">
                     <h3 className="md:text-lg md:w-40 w-48 md:font-semibold truncate overflow-hidden whitespace-nowrap">
                       {item.name}
                     </h3>
@@ -105,22 +120,12 @@ const MyDriver = () => {
                     <p className="text-sm md:font-semibold md:w-40 w-48 truncate overflow-hidden whitespace-nowrap">
                       {item.town}
                     </p>
-                    <div className="flex gap-x-20 md:gap-x-10">
-                      <img
-                        src={item.carpic}
-                        alt={item._id}
-                        className="md:w-14 lg:w-14 w-14 object-cover rounded-full"
-                      />
-                      <Link
-                        to={`/calldriver/${item._id}`}
-                        className="mt-2 text-center h-10 text-4xl text-green-400 rounded-lg hover:bg-black"
-                      >
-                        <BiSolidPhoneCall />
-                      </Link>
-                    </div>
-                    <p className="md:w-40 w-48 md:mt-4 truncate overflow-hidden whitespace-nowrap text-sm md:font-semibold">
+                  
+                    <p className="md:w-40  w-48 truncate overflow-hidden whitespace-nowrap text-sm md:font-semibold">
                       {item.location}
                     </p>
+
+                    </div>
                   </div>
                   <div>
                     <img
@@ -128,7 +133,7 @@ const MyDriver = () => {
                       alt={item.name}
                       className="md:w-[12vh] sm:w-[12vh] lg:w-[13vh] w-28 mt-2 object-cover rounded-lg"
                     />
-                    <h1 className="text-sm md:font-semibold lg:pt-1 sm:pt-2 md:pt-2">{item.carnum}</h1>
+                    <h1 className="text-sm md:font-semibold mt-2 md:mt-0">{item.carnum}</h1>
                   </div>
                 </div>
               ))}

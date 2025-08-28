@@ -49,6 +49,8 @@ import Report from "./screens/Users/Report";
 import CallCenter from "./screens/Users/CallCenter";
 import PrivacyPolicy from "./components/Policy";
 import TermsOfUse from "./components/Terms";
+import Home from "./screens/Home/Home";
+import HotDetail from "./screens/Home/HotDetail";
 
 
 const App = () => {
@@ -62,20 +64,22 @@ const App = () => {
           <Routes>
             {!isLoggedIn ? (
               <>
-                <Route path="/" element={<About />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/loginform" element={<Login />} />
-                <Route path="*" element={<ErrorPage />} />  {/* Show error page for unknown routes */}
+                <Route path="*" element={<ErrorPage />} />  
                 <Route path="/signupform" element={<Signup />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/detail/:type/:id" element={<HotDetail />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy /> } />
                 <Route path="/terms" element={<TermsOfUse /> } />
               </>
             ) : (
               <>
-                <Route path="/" element={<About />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/advert" element={<Advert />} />
+                <Route path="/detail/:type/:id" element={<HotDetail />} />
                 <Route path="/tabs" element={<TabView />} />
                 <Route path="/buy" element={<BuyTabView />} />
                 <Route path="/rent" element={<RentTabView />} />

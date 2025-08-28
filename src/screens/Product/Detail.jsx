@@ -42,7 +42,6 @@ const Detail = () => {
 
 
 
-
   const images = [product?.picture, product?.picturesec].filter(Boolean);
   const videos = [product?.video, product?.videosec].filter(Boolean);
   
@@ -554,7 +553,7 @@ const openWhatsApp = (phoneNumber, message = "") => {
       
     </Swiper>
 
-</div>
+       </div>
 
 
         
