@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+  /* Safari fix for break-inside bug */
+@supports (-webkit-touch-callout: none) {
+  .break-inside-avoid {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+
 /* From Uiverse.io by ilkhoeri */ 
 .wrapper {
     width: 100%;
@@ -64,3 +72,4 @@
       );
   }
   
+

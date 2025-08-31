@@ -3,37 +3,105 @@ import baseURL from '../../assets/baseURL';
 import { FaPhoneAlt, FaWhatsappSquare, FaTimes } from 'react-icons/fa';
 import { TbPhoneCall } from "react-icons/tb";
 import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { Pagination, Navigation, Autoplay } from 'swiper/modules';
 import Loader from '../../components/Loader';
-import { FaArrowRightFromBracket } from "react-icons/fa6";
-import Categories from '../Agric/Categories';
+import axios from 'axios';
+import PhoneInput from "react-phone-input-2";
 
 function Home() {
-  const [items, setItems] = useState([]); // adverts
+  const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisibleNum, setIsModalVisibleNum] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const navigate = useNavigate();
   const UserState = useSelector((state) => state);
   const swiperRef = useRef(null);
-  const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
-  const [networkError, setNetworkError] = useState(false);
-
-  // all products
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [columns, setColumns] = useState([[], [], []]); // Masonry layout
-  const [categories, setCategories] = useState([]);
-
+  const [columns, setColumns] = useState([]);
+  const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
   const fallbackImage = "https://via.placeholder.com/300x200?text=No+Image";
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
 
-  // increment platform used
+  // fetch user data
+  const fetchUserData = async () => {
+    try {
+
+       if (!UserState?.user?.id) {
+      console.warn("No user ID found, skipping fetchUserData");
+      return;
+    }
+
+
+      const response = await axios.get(`${baseURL}userbyid/${UserState.user.id}`);
+      const data = response.data;
+      setUserData({ name: data.name, email: data.email, phone: data.phone });
+      if (data.report) {
+        navigate('/report');
+        return;
+      }
+
+       if (!data.phone) {
+      setIsModalVisibleNum(true);
+      return;
+    }
+      await updateLastSeen();
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchUserData();
+  }, [UserState.user, navigate]);
+
+  // fetch adverts & products
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const advertResponse = await fetch(`${baseURL}advert`);
+        const adverts = await advertResponse.json();
+
+        const [fashion, building, shop] = await Promise.all([
+          fetch(`${baseURL}fashionpost/hot`).then(res => res.json()),
+          fetch(`${baseURL}buildings/hot/building`).then(res => res.json()),
+          fetch(`${baseURL}shops/hot/shops`).then(res => res.json()),
+        ]);
+
+        const combined = [
+          ...fashion.map(p => ({ ...p, type: "fashion" })),
+          ...building.map(p => ({ ...p, type: "building" })),
+          ...shop.map(p => ({ ...p, type: "shop" })),
+        ];
+
+        setProducts(combined);
+        setItems(adverts);
+
+        // split into columns
+        const numCols = 5;
+        const colArray = Array.from({ length: numCols }, () => []);
+        combined.forEach((product, i) => {
+          colArray[i % numCols].push(product);
+        });
+        setColumns(colArray);
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [UserState.user?.id]);
+
+  // increment platfUsed
   useEffect(() => {
     const incrementPlatfUsed = async () => {
       try {
@@ -45,72 +113,48 @@ function Home() {
     if (UserState?.user?.id) incrementPlatfUsed();
   }, [UserState.user?.id]);
 
-  // fetch adverts + products
-  const fetchData = async () => {
-    try {
-      // adverts separate
-      const advertResponse = await fetch(`${baseURL}advert`);
-      if (!advertResponse.ok) throw new Error("Failed to fetch adverts");
-      const advertData = await advertResponse.json();
+  const images = items.map((item) => item.picture).filter(Boolean);
 
-      // other hot products
-      const [fashionResponse, buildingResponse, shopResponse] = await Promise.all([
-        fetch(`${baseURL}fashionpost/hot`),
-        fetch(`${baseURL}buildings/hot/building`),
-        fetch(`${baseURL}shops/hot/shops`),
-      ]);
+const handleProductClick = async (product) => {
+  if (UserState.login === false) {
+    navigate("/loginform");
+    return;
+  }
 
-      if (!fashionResponse.ok || !buildingResponse.ok || !shopResponse.ok) {
-        throw new Error("Failed to fetch some product data");
-      }
+  try {
+    let url = "";
 
-      const fashionData = await fashionResponse.json();
-      const buildingData = await buildingResponse.json();
-      const shopData = await shopResponse.json();
-
-      // combine with type + random heights
-      const combined = [
-        ...fashionData.map(item => ({ ...item, type: "fashion", imgHeight: 60 + Math.random() * 80 })),
-        ...buildingData.map(item => ({ ...item, type: "building", imgHeight: 60 + Math.random() * 80 })),
-        ...shopData.map(item => ({ ...item, type: "shop", imgHeight: 60 + Math.random() * 80 })),
-      ];
-
-      // distribute into masonry columns
-      const cols = [[], [], []];
-      let columnHeights = [0, 0, 0];
-      combined.forEach(item => {
-        const shortest = columnHeights.indexOf(Math.min(...columnHeights));
-        cols[shortest].push(item);
-        columnHeights[shortest] += item.imgHeight;
-      });
-
-      setColumns(cols);
-      setItems(advertData);
-      setProducts(combined);
-      setFilteredProducts(combined);
-
-      setIsLoading(false);
-      setNetworkError(false);
-    } catch (error) {
-      console.error("Error fetching data:", error.message);
-      setIsLoading(false);
-      setNetworkError(true);
+    if (product.type === "fashion") {
+      url = `${baseURL}fashionpost/products/${product._id}`;
+    } else if (product.type === "building") {
+      url = `${baseURL}buildings/products/${product._id}`;
+    } else if (product.type === "shop") {
+      url = `${baseURL}shops/products/${product._id}`;
+    } else {
+      console.warn("Unknown product type:", product.type);
+      return;
     }
-  };
 
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get(`${baseURL}userbyid/${UserState.user.id}`);
-      const data = response.data;
-      setUserData({ name: data.name, email: data.email, phone: data.phone });
+    const response = await axios.get(url);
+    const fullProductData = response.data;
 
-      if (data.report) {
-        navigate('/report');
-        return;
+    // ✅ Pass full product data to detail page
+    navigate(`/detail/${product.type}/${product._id}`, { state: { ...fullProductData } });
+  } catch (error) {
+    console.error("Error fetching product details:", error);
+  }
+};
+
+
+  // 👉 opens modal for active advert
+  const handlePressCallButton = () => {
+    if (swiperRef.current?.swiper) {
+      const activeIndex = swiperRef.current.swiper.activeIndex;
+      const item = items[activeIndex];
+      if (item) {
+        setSelectedItem(item);
+        setIsModalVisible(true);
       }
-      await updateLastSeen();
-    } catch (error) {
-      console.error('Error fetching user data:', error);
     }
   };
 
@@ -122,33 +166,6 @@ function Home() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchUserData();
-  }, [UserState.user, navigate]);
-
-  // swiper images (adverts)
-  const images = items.map((item) => item.picture).filter(Boolean);
-
-  const handleSlideChange = () => {
-    const swiper = swiperRef.current?.swiper;
-    if (swiper) {
-      const currentSlide = swiper.slides[swiper.activeIndex];
-      swiper.params.autoplay.delay = currentSlide?.dataset.type === "video" ? 10000 : 3000;
-      swiper.autoplay.start();
-    }
-  };
-
-  const handlePressCallButton = () => {
-    if (swiperRef.current?.swiper) {
-      const activeIndex = swiperRef.current.swiper.activeIndex;
-      const item = items[activeIndex];
-      setSelectedItem(item);
-      setIsModalVisible(true);
-    }
-  };
-
-  // open dial / whatsapp for advert
   const openDialAdvert = async () => {
     if (!selectedItem) return;
     try {
@@ -206,14 +223,12 @@ function Home() {
     setIsModalVisible(false);
   };
 
-  const openDial = () => window.location.href = "tel:+233209317581";
   const openOfficeWhatsapp = () => {
     const url = "https://wa.me/233209317581";
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) window.location.href = url;
     else window.open(url, "_blank");
   };
 
-  // loader
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
@@ -222,144 +237,158 @@ function Home() {
     );
   }
 
-
-const handleProductClick = async (product) => {
+ const handleSaveUserData = async () => {
   try {
-    let productData;
+    const payload = { ...userData }; 
+     const response = await axios.put(`${baseURL}card/${UserState.user.id}/details`, payload);
+    if (response.status === 200) {
+      // ✅ Success: close modal
+      setIsModalVisibleNum(false);
 
-    if (product.type === "fashion") {
-      const response = await fetch(`${baseURL}fashionpost/products/${product._id}`);
-      if (!response.ok) throw new Error("Failed to fetch fashion product details");
-      productData = await response.json();
-    } else if (product.type === "building") {
-      const response = await fetch(`${baseURL}buildings/products/${product._id}`);
-      if (!response.ok) throw new Error("Failed to fetch building product details");
-      productData = await response.json();
-    } else if (product.type === "shop") {
-      const response = await fetch(`${baseURL}shops/products/${product._id}`);
-      if (!response.ok) throw new Error("Failed to fetch shop product details");
-      productData = await response.json();
+      // update user state
+      setUserData(payload);
     }
-
-    // Navigate with product data
-    navigate(`/detail/${product.type}/${product._id}`, { state: { ...productData, type: product.type } });
-  } catch (error) {
-    console.error("Error fetching product details:", error);
-    alert("Something went wrong. Please check your internet connection.");
+  
+  } catch (err) {
+    console.error("Error saving user data", err);
   }
 };
 
 
 
+
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5a53d] md:pt-20 lg:pt-20 pt-16 px-4 md:px-12 font-serif">
+    <div className="flex flex-col min-h-[100vh] bg-[#f5a53d] pt-16 sm:pt-20 md:pt-24 px-4 sm:px-6 md:px-8 font-serif">
 
       {/* Advert Slider */}
-      <div className="shadow-md rounded-lg mt-10 mb-10">
+      <div className="shadow-md rounded-lg mb-10">
         <Swiper
           ref={swiperRef}
           modules={[Pagination, Navigation, Autoplay]}
-          // pagination={{ clickable: true }}
-          // navigation
           autoplay={{ delay: 3000, disableOnInteraction: false }}
-          onSlideChange={handleSlideChange}
-          className="relative overflow-hidden rounded-lg"
+          className="rounded-lg"
         >
-          {images.length > 0 &&
-            images.map((image, index) => (
-              <SwiperSlide key={index} className="flex justify-center items-center">
-                <img className="w-[260vh] h-[50vh] sm:h-[60vh] md:h-[70vh] object-contain" src={image} alt={`Slide ${index}`} />
-                <button
-                  onClick={handlePressCallButton}
-                  className="absolute bg-transparent p-1 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 text-green-500 z-30 animate-heartbeat"
-                >
-                  <TbPhoneCall className="md:text-5xl text-3xl"  />
-                <h1 className='-ml-1'>Call now</h1>
-                </button>
-              </SwiperSlide>
-            ))}
+          {images.map((image, index) => (
+            <SwiperSlide key={index} className="flex justify-center items-center">
+              <img
+                src={image}
+                alt={`Slide ${index}`}
+                className="w-[260vh] h-[50vh] sm:h-[60vh] md:h-[70vh] object-contain"
+              />
+              <button
+                onClick={handlePressCallButton}
+                className="absolute bg-transparent p-2 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500 z-30 animate-heartbeat"
+              >
+                <TbPhoneCall className="md:text-5xl text-3xl" />
+                {/* <h1 className="text-sm md:text-base">Call now</h1> */}
+              </button>
+            </SwiperSlide>
+          ))}
         </Swiper>
 
-         <div className="flex justify-between mx-4 md:mx-32 ">
-        <button onClick={openDial} className="text-green-500">
-          <FaPhoneAlt className='text-xl md:text-2xl' />
-        </button>
+        {/* Bottom bar */}
+        <div className="flex justify-between mx-4 md:mx-32 ">
+          <button onClick={handlePressCallButton} className="text-green-500">
+            <FaPhoneAlt className='text-xl md:text-2xl' />
+          </button>
           <div className='flex justify-center font-bold md:text-lg lg:text-lg  text-sm animate-heartbeat'>
-       <h4 className='text-[10px] md:text-sm md:mt-5'>Send your flier to be posted here for advertisement. </h4>
+            <h4 className='text-[10px] md:text-sm md:mt-5'>
+              Send your flier to be posted here for advertisement.
+            </h4>
+          </div>
+          <button onClick={openOfficeWhatsapp} className="text-green-500">
+            <FaWhatsappSquare className='text-xl md:text-2xl' />
+          </button>
+        </div>
+      </div>
+
+      {/* Product Grid */}
+      {isSafari ? (
+        // Safari → GRID
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-10">
+          {products.map((product) => (
+            <div
+              key={product._id}
+              onClick={() => handleProductClick(product)}
+              className="bg-gray-200 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
+            >
+              {product.discount && (
+                <div className="absolute bg-[#f5a53d] text-black text-xs font-bold px-2 py-1 rounded-tr-lg rounded-bl-lg">
+                  {product.discount}% OFF
                 </div>
-        <button onClick={openOfficeWhatsapp} className="text-green-500">
-          <FaWhatsappSquare className='text-xl md:text-2xl'/>
-        </button>
-      </div>
-      </div>
-
-      {/* Office contact buttons */}
-     
-
-       {/* <div className='flex justify-center font-bold -mt-8 text-sm md:text-xl lg:text-xl'>
-                                <h1 className=''>Use your thumb or your mouse pointer to stop the adds.</h1>
-                                </div> */}
-                                
-
-
-               
-
-     
-      {/* Masonry Products */}
-      <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mb-10">
-        {columns.map((col, colIndex) => (
-          <div key={colIndex} className="flex flex-col gap-4">
-            {col.map((product) => (
-              <div key={product._id}  onClick={() => handleProductClick(product)}>
-                 <div className="mb-2 bg-gray-200 rounded-lg shadow-lg p-3 break-inside-avoid">
-                   {product.discount && (
-                    <div className="absolute bg-[#f5a53d] text-black text-xs font-bold px-2 py-1 rounded-tr-lg rounded-bl-lg ">
-                      {product.discount}% OFF
-                    </div>
-                   )}
-                    {/* Product Image */}
+              )}
+              <img
+                src={product.picture || fallbackImage}
+                alt={product.name || "No Image"}
+                className="w-full aspect-[4/3] object-cover"
+              />
+              <div className="p-3">
+                <h3 className="text-sm font-semibold truncate">{product.name}</h3>
+                {!product.price ? (
+                  <p className="text-md text-[#f5a53d] font-bold">Call for price</p>
+                ) : (
+                  <p className="text-md text-[#f5a53d] font-bold">Gh¢{product.price}</p>
+                )}
+                <p className="text-xs text-gray-600 truncate">
+                  {product.region}, {product.town}, {product.location}
+                </p>
+                {product.condition && (
+                  <p className="text-xs text-end text-[#f5a53d]">{product.condition}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Others → Masonry
+        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mb-10">
+          {columns.map((col, colIndex) => (
+            <div key={colIndex} className="flex flex-col gap-4">
+              {col.map((product) => (
+                <div key={product._id} onClick={() => handleProductClick(product)}>
+                  <div className="mb-2 bg-gray-200 rounded-lg shadow-lg p-3 break-inside-avoid">
+                    {product.discount && (
+                      <div className="absolute bg-[#f5a53d] text-black text-xs font-bold px-2 py-1 rounded-tr-lg rounded-bl-lg ">
+                        {product.discount}% OFF
+                      </div>
+                    )}
                     <img
                       src={product.picture || fallbackImage}
                       alt={product.name || "No Image"}
                       className="w-full object-cover rounded-lg"
-                      style={{ height: `${120 + Math.random() * 100}px` }} // Random heights
+                      style={{ height: `${120 + Math.random() * 100}px` }}
                     />
-
-                    {/* Product Details */}
                     <div className="mt-3 w-full text-center sm:text-left">
                       <h3 className="text-sm font-semibold truncate">{product.name}</h3>
-                      {!product.price ?
-                    (<>
-                    <h3 className="text-md text-[#f5a53d] font-bold">Call for price</h3>
-                    </>
-                    ):(
-                    <>
-                     <p className="text-md text-[#f5a53d] font-bold">Gh¢{product.price}</p>
-                    </>)  
-                    }
-                     
+                      {!product.price ? (
+                        <h3 className="text-md text-[#f5a53d] font-bold">Call for price</h3>
+                      ) : (
+                        <p className="text-md text-[#f5a53d] font-bold">Gh¢{product.price}</p>
+                      )}
                       <p className="text-xs text-gray-600 truncate">
                         {product.region}, {product.town}, {product.location}
                       </p>
                       {product.condition && (
-                         <p className="text-xs text-end text-[#f5a53d] ">
-                        {product.condition}
-                      </p>
+                        <p className="text-xs text-end text-[#f5a53d]">{product.condition}</p>
                       )}
-                     
                     </div>
                   </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
 
-      {/* Advert Modal */}
+      {/* Modal */}
       {isModalVisible && selectedItem && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10">
           <div className="bg-white p-6 rounded-lg w-4/5 max-w-md shadow-lg">
-            <button onClick={() => setIsModalVisible(false)} className="text-black font-bold text-lg float-right">
+            <button
+              onClick={() => setIsModalVisible(false)}
+              className="text-black font-bold text-lg float-right"
+            >
               <FaTimes />
             </button>
             <p className="text-lg font-bold text-gray-800 mb-4">
@@ -377,8 +406,47 @@ const handleProductClick = async (product) => {
         </div>
       )}
 
-      {/* Network Error */}
-    
+
+      {isModalVisibleNum && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-lg p-6 w-96 max-w-full">
+      <h2 className="text-lg font-semibold mb-4 text-center">
+        Add Your Phone Number
+      </h2>
+      <p className="text-sm text-gray-500 mb-4 text-center">
+        We need your phone number to continue.
+      </p>
+
+      {/* Phone input with country selector */}
+      <PhoneInput
+  country={"gh"} // default Ghana 🇬🇭
+  value={userData.phone}
+  onChange={(phone) => {
+    // If phone starts with +countryCode followed by 0, strip the 0
+    const countryCode = "+" + phone.split(" ")[0]; // e.g. +233
+    let cleaned = phone;
+
+    if (cleaned.startsWith(countryCode + "0")) {
+      cleaned = countryCode + cleaned.slice(countryCode.length + 1); 
+    }
+
+    setUserData({ ...userData, phone: cleaned });
+  }}
+  inputClass="!w-full !h-11 !text-base !rounded-lg !border !border-gray-300 focus:!ring-2 focus:!ring-[#f5a53d]"
+  containerClass="mb-4"
+/>
+
+
+      <button
+        onClick={handleSaveUserData}
+        className="w-full bg-[#f5a53d] text-white py-2 rounded-lg font-bold hover:opacity-90 transition"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
