@@ -357,7 +357,7 @@ const handleProductClick = async (product) => {
                       src={product.picture || fallbackImage}
                       alt={product.name || "No Image"}
                       className="w-full object-cover rounded-lg"
-                      style={{ height: `${120 + Math.random() * 100}px` }}
+                      style={{ height: "50%" }}
                     />
                     <div className="mt-3 w-full text-center sm:text-left">
                       <h3 className="text-sm font-semibold truncate">{product.name}</h3>
