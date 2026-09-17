@@ -3,8 +3,8 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css"; // Ensure this is properly loaded
 import { FaTools } from "react-icons/fa";
 import { BsTruck } from "react-icons/bs";
-import { BiSolidCar } from "react-icons/bi";
 import { FaBasketShopping } from "react-icons/fa6";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import CarRent from "./CarRent";
 import Cars from "./Cars";
@@ -12,7 +12,15 @@ import Mechanics from "./Mechanics";
 import CarAnimation from "./CarAnimation";
 import Hire from "./Hire";
 import Spareparts from "../Spareparts/Spareparts";
-import { useLocation, useNavigate } from "react-router-dom";
+import Container from "@/components/ui/Container";
+import { tabItemClass, tabListClass } from "@/components/ui/tabStyles";
+
+const tabs = [
+  { label: "Order KIA" },
+  { label: "Truck", Icon: BsTruck },
+  { label: "Mechanics", Icon: FaTools },
+  { label: "Spare Parts", Icon: FaBasketShopping },
+];
 
 export default function TabView() {
   const location = useLocation();
@@ -30,72 +38,48 @@ export default function TabView() {
   }, [selectedIndex, navigate]);
 
   return (
-    <div className="flex flex-col h-full pt-4 md:pt-20">
-      <Tabs
-        selectedIndex={selectedIndex}
-        onSelect={(index) => setSelectedIndex(index)}
-      >
-        <TabList className="flex justify-around bg-white p-4 shadow-md fixed top-20 md:top-24 left-0 right-0 z-10">
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 0 ? "bg-[#f5a53d] text-white rounded-lg" : ""
-            }`}
-          >
-            <div className="flex justify-center">
-              <CarAnimation />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base">Order KIA</div>
-          </Tab>
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 1 ? "bg-[#f5a53d] text-white rounded-lg" : ""
-            }`}
-          >
-            <div className="flex justify-center">
-              <BiSolidCar className="text-4xl sm:text-2xl md:text-3xl " />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base pt-1">Truck</div>
-          </Tab>
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 2 ? "bg-[#f5a53d] text-white rounded-lg" : ""
-            }`}
-          >
-            <div className="flex justify-center">
-              <FaTools className="text-4xl sm:text-2xl md:text-3xl" />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base pt-1">Mechanics</div>
-          </Tab>
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 3 ? "bg-[#f5a53d] text-white rounded-lg" : ""
-            }`}
-          >
-            <div className="flex justify-center">
-              <FaBasketShopping className="text-4xl sm:text-2xl md:text-3xl" />
-            </div>
-            <h1 className="text-xs sm:text-sm md:text-base pt-1">Spare Parts</h1>
-          </Tab>
-        </TabList>
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-10">
+      <Container>
+        <h1 className="font-display text-2xl font-bold text-ink-900 mb-4">
+          KIA &amp; Rides
+        </h1>
+        <Tabs
+          selectedIndex={selectedIndex}
+          onSelect={(index) => setSelectedIndex(index)}
+        >
+          <TabList className={`${tabListClass} sticky top-16 sm:top-20 z-20`}>
+            {tabs.map(({ label, Icon }, index) => (
+              <Tab key={label} className={tabItemClass(selectedIndex === index)}>
+                <div className="flex justify-center">
+                  {Icon ? (
+                    <Icon className="text-lg sm:text-xl" />
+                  ) : (
+                    <div className="scale-[0.55] sm:scale-75">
+                      <CarAnimation />
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] sm:text-sm font-semibold">
+                  {label}
+                </span>
+              </Tab>
+            ))}
+          </TabList>
 
-        <div className="pt-28">
-          <TabPanel className="flex-grow p-4">
+          <TabPanel className="pt-5">
             <Cars />
           </TabPanel>
-          <TabPanel className="flex-grow p-4">
+          <TabPanel className="pt-5">
             <Hire />
           </TabPanel>
-          <TabPanel className="flex-grow p-4">
+          <TabPanel className="pt-5">
             <Mechanics />
           </TabPanel>
-          <TabPanel className="flex-grow p-4">
+          <TabPanel className="pt-5">
             <Spareparts />
           </TabPanel>
-        </div>
-      </Tabs>
+        </Tabs>
+      </Container>
     </div>
-  
-
-  
   );
 }

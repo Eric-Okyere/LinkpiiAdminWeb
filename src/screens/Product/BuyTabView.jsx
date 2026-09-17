@@ -9,81 +9,68 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ShopScreen from '../Shop/ShopScreen';
 import ServicesScreen from '../Services/ServicesScreen';
 import AgricScreen from '../Agric/AgricScreen';
+import Container from '@/components/ui/Container';
+import { tabItemClass, tabListClass } from '@/components/ui/tabStyles';
+
+const tabs = [
+  { label: 'Buy a product', Icon: FaBasketShopping },
+  { label: 'Buy in Bulk', Icon: FaShoppingCart },
+  { label: 'Services', Icon: GiAutoRepair },
+  { label: 'Agric', Icon: GiFruitBowl },
+];
 
 export default function BuyTabView() {
-   const location = useLocation();
-    const navigate = useNavigate();
-  
-    // Get the tab index from the URL (state passed through routing)
-    const initialIndex = new URLSearchParams(location.search).get("tab") || 0;
-  
-    const [selectedIndex, setSelectedIndex] = useState(Number(initialIndex));
-  
-    // Update URL when selected tab changes
-    useEffect(() => {
-      // Update the URL query parameter when the tab changes
-      navigate(`?tab=${selectedIndex}`, { replace: true });
-    }, [selectedIndex, navigate]);
-  return (
-    <div className="flex flex-col h-full pt-24">
-      <Tabs  selectedIndex={selectedIndex}
-        onSelect={(index) => setSelectedIndex(index)}>
-        <TabList className="flex justify-around bg-white p-4 shadow-md">
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 0 ? 'bg-[#f5a53d] text-white rounded-lg' : ''
-            }`}
-          >
-            <div className="flex justify-center">
-              <FaBasketShopping className="text-lg sm:text-2xl md:text-3xl" />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base">Buy a product</div>
-          </Tab>
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 1 ? 'bg-[#f5a53d] text-white rounded-lg' : ''
-            }`}
-          >
-            <div className="flex justify-center">
-              <FaShoppingCart className="text-lg sm:text-2xl md:text-3xl" />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base">Buy in Bulk</div>
-          </Tab>
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 2 ? 'bg-[#f5a53d] text-white rounded-lg' : ''
-            }`}
-          >
-            <div className="flex justify-center">
-              <GiAutoRepair className="text-lg sm:text-2xl md:text-3xl" />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base">Services</div>
-          </Tab>
-          <Tab
-            className={`flex-1 text-center py-2 text-sm cursor-pointer ${
-              selectedIndex === 3 ? 'bg-[#f5a53d] text-white rounded-lg' : ''
-            }`}
-          >
-            <div className="flex justify-center">
-              <GiFruitBowl className="text-lg sm:text-2xl md:text-3xl" />
-            </div>
-            <div className="text-xs sm:text-sm md:text-base">Agric</div>
-          </Tab>
-        </TabList>
+  const location = useLocation();
+  const navigate = useNavigate();
 
-        <TabPanel className="flex-grow p-4">
-          <General />
-        </TabPanel>
-        <TabPanel className="flex-grow p-4">
-          <ShopScreen />
-        </TabPanel>
-        <TabPanel className="flex-grow p-4">
-          <ServicesScreen />
-        </TabPanel>
-        <TabPanel className="flex-grow p-4">
-          <AgricScreen />
-        </TabPanel>
-      </Tabs>
+  // Get the tab index from the URL (state passed through routing)
+  const initialIndex = new URLSearchParams(location.search).get("tab") || 0;
+
+  const [selectedIndex, setSelectedIndex] = useState(Number(initialIndex));
+
+  // Update URL when selected tab changes
+  useEffect(() => {
+    // Update the URL query parameter when the tab changes
+    navigate(`?tab=${selectedIndex}`, { replace: true });
+  }, [selectedIndex, navigate]);
+
+  return (
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-10">
+      <Container>
+        <h1 className="font-display text-2xl font-bold text-ink-900 mb-4">
+          Buy
+        </h1>
+        <Tabs
+          selectedIndex={selectedIndex}
+          onSelect={(index) => setSelectedIndex(index)}
+        >
+          <TabList className={`${tabListClass} sticky top-16 sm:top-20 z-20`}>
+            {tabs.map(({ label, Icon }, index) => (
+              <Tab key={label} className={tabItemClass(selectedIndex === index)}>
+                <div className="flex justify-center">
+                  <Icon className="text-lg sm:text-xl" />
+                </div>
+                <span className="text-[11px] sm:text-sm font-semibold">
+                  {label}
+                </span>
+              </Tab>
+            ))}
+          </TabList>
+
+          <TabPanel className="pt-5">
+            <General />
+          </TabPanel>
+          <TabPanel className="pt-5">
+            <ShopScreen />
+          </TabPanel>
+          <TabPanel className="pt-5">
+            <ServicesScreen />
+          </TabPanel>
+          <TabPanel className="pt-5">
+            <AgricScreen />
+          </TabPanel>
+        </Tabs>
+      </Container>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -11,6 +12,9 @@ import { LuPhoneCall } from "react-icons/lu";
 import { FaWhatsappSquare } from "react-icons/fa";
 import { BsFlagFill } from "react-icons/bs";
 import { useSelector } from "react-redux";
+import Container from "../../components/ui/Container";
+import ListingCard from "../../components/ui/ListingCard";
+import SectionHeading from "../../components/ui/SectionHeading";
 
 function HotDetail() {
   const { type, id } = useParams();
@@ -37,14 +41,7 @@ function HotDetail() {
   const [loading, setLoading] = useState(true);
   const [isPosting, setIsPosting] = useState(false);
 
-
-
-
-
-
-
   const fallbackImage = "https://via.placeholder.com/300x200?text=No+Image";
-
 
   const getCommentsUrl = (id, type) => {
     if (type === "fashion") return `${baseURL}comment/comments/${id}`;
@@ -92,10 +89,6 @@ function HotDetail() {
 
 
 
-// console.log("All comment:",comments)
-// console.log("UserStateId:",UserState)
-
-
   // Fetch main item
   useEffect(() => {
     const fetchDetail = async () => {
@@ -130,7 +123,6 @@ useEffect(() => {
 
         if (data) {
           setUserData(data);
-          // console.log("✅ User fetched:", data.name); // log API response directly
         } else {
           console.warn("⚠️ No valid user data received:", data);
           setUserData(null);
@@ -149,8 +141,6 @@ useEffect(() => {
 
   if (id) fetchUser();
 }, [id]);
-
-// console.log("UserDataName:",userData.name)
 
   // Fetch related products
   useEffect(() => {
@@ -179,7 +169,7 @@ useEffect(() => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="flex items-center justify-center h-screen bg-ink-50">
         <Loader />
       </div>
     );
@@ -193,9 +183,9 @@ const handleCommentSubmit = async (e) => {
 
   setIsPosting(true); // ✅ start loading
 
-  const payload = { 
-    userId: userData?.id || UserState, 
-    content: newComment.trim() 
+  const payload = {
+    userId: userData?.id || UserState,
+    content: newComment.trim()
   };
 
   let endpoint = '';
@@ -252,14 +242,9 @@ const handleCommentSubmit = async (e) => {
 };
 
 
-
-
-
-
-
   if (!item) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-ink-50">
         <p className="text-red-500 font-bold">Item not found</p>
       </div>
     );
@@ -297,7 +282,7 @@ const openDial = async () => {
       window.open(`tel:${item.phone}`, '_self');
       }
 
-    
+
   } catch (error) {
     console.error('Error sending user data:', error);
   }
@@ -328,11 +313,9 @@ const WhatsApp = async () => {
       throw new Error("Failed to send user data.");
     }
 
-    console.log("User info sent successfully");
-
     // Open WhatsApp with the provided number and message
     openWhatsApp(
-      item.whatsapp, 
+      item.whatsapp,
       `Hello! I saw ${item.name} on Linkpii, I'm interested in your product on Linkpii.com. Can I get more details?`
     );
   } catch (error) {
@@ -349,8 +332,6 @@ const openWhatsApp = (phoneNumber, message = "") => {
 
   const encodedMessage = encodeURIComponent(message);
   const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-
-  console.log("Opening WhatsApp URL:", whatsappURL);
 
   // Use location.href instead of window.open for mobile
   if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
@@ -370,7 +351,7 @@ const openWhatsApp = (phoneNumber, message = "") => {
     "Infringes copyright",
   ];
 
-  
+
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
@@ -501,349 +482,302 @@ const handleDeleteComment = async (commentId) => {
   }
 };
 
-
-
-  
+  const pageTitle = item.name;
+  const metaDescription = item.description
+    ? item.description.slice(0, 155)
+    : item.price
+    ? `${item.name} for Gh¢${item.price} on Linkpii, Ghana's online marketplace.`
+    : `${item.name} on Linkpii, Ghana's online marketplace.`;
 
   return (
-    <div className="p-4 sm:p-6 md:p-12 bg-gray-50 min-h-screen font-serif mt-24">
-      {/* Back Button */}
-      {/* <button
-        onClick={() => navigate(-1)}
-        className="mb-4 px-4 py-2 bg-[#f5a53d] text-white rounded-lg shadow"
-      >
-        Go Back
-      </button> */}
+    <div className="min-h-screen bg-ink-50 pt-20 pb-10 sm:pt-24">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={metaDescription} />
+        {item.picture && <meta property="og:image" content={item.picture} />}
+      </Helmet>
 
-      {/* Responsive Layout: Carousel + Info */}
-      <div className="flex flex-col justify-center lg:flex-row gap-10">
-        {/* Carousel Section */}
-        <div className="w-full lg:w-1/2">
-          <Swiper
-            modules={[Pagination, Navigation, Autoplay]}
-            pagination={{ clickable: true }}
-            navigation
-            loop={true}
-            autoplay={{ delay: 3000, disableOnInteraction: false }}
-            slidesPerView={1}
-            className="rounded-lg shadow-lg"
-          >
-            {/* First Image */}
-            {item.picture && (
-              <SwiperSlide>
-                <img
-                  src={item.picture || fallbackImage}
-                  alt={item.name}
-                  className="w-full max-h-[250px] sm:max-h-[350px] lg:max-h-[500px] object-cover rounded-lg"
-                />
-              </SwiperSlide>
-            )}
+      <Container>
+        {/* Responsive Layout: Carousel + Info */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
+          {/* Carousel Section */}
+          <div className="lg:sticky lg:top-24">
+            <Swiper
+              modules={[Pagination, Navigation, Autoplay]}
+              pagination={{ clickable: true }}
+              navigation
+              loop={true}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              slidesPerView={1}
+              className="overflow-hidden rounded-2xl shadow-card"
+            >
+              {/* First Image */}
+              {item.picture && (
+                <SwiperSlide>
+                  <img
+                    src={item.picture || fallbackImage}
+                    alt={item.name}
+                    className="max-h-[280px] w-full object-cover sm:max-h-[400px] lg:max-h-[520px]"
+                  />
+                </SwiperSlide>
+              )}
 
-            {/* Second Image */}
-            {item.picturesec && (
-              <SwiperSlide>
-                <img
-                  src={item.picturesec || fallbackImage}
-                  alt={`${item.name}-second`}
-                  className="w-full max-h-[250px] sm:max-h-[350px] lg:max-h-[500px] object-cover rounded-lg"
-                />
-              </SwiperSlide>
-            )}
+              {/* Second Image */}
+              {item.picturesec && (
+                <SwiperSlide>
+                  <img
+                    src={item.picturesec || fallbackImage}
+                    alt={`${item.name}-second`}
+                    className="max-h-[280px] w-full object-cover sm:max-h-[400px] lg:max-h-[520px]"
+                  />
+                </SwiperSlide>
+              )}
 
-            {/* Video */}
-            {item.video && (
-              <SwiperSlide>
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full max-h-[250px] sm:max-h-[350px] lg:max-h-[500px] rounded-lg object-cover"
-                  src={item.video}
-                />
-              </SwiperSlide>
-            )}
-          </Swiper>
-        </div>
-
-        {/* Item Info Section */}
-         <div className=" text-center lg:text-start md:text-start md:mt-0 lg:mt-0 -ml-6 px-4 sm:px-6 md:px-8 lg:px-12 max-w-full">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{item.name}</h1>
-        <div className="space-y-2 ml-8 md:ml-0 sm:ml-0 lg:ml-0">
-         {item.discount&&(
-            <>
-              <div className="flex justify-between ">
-            <p className="text-sm text-gray-500 line-through">
-              Gh¢{item.price}
-            </p>
-            <p className="text-md text-[#f5a53d] font-bold">
-              Gh¢{(item.price - (item.price * item.discount) / 100).toFixed(2)}
-            </p>
+              {/* Video */}
+              {item.video && (
+                <SwiperSlide>
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="max-h-[280px] w-full object-cover sm:max-h-[400px] lg:max-h-[520px]"
+                    src={item.video}
+                  />
+                </SwiperSlide>
+              )}
+            </Swiper>
           </div>
 
-          <div className="flex justify-between ">
-            <p className="text-md text-[#f5a53d] font-bold">{item.discount}% OFF</p>
-
-            <p className="text-md text-black font-semibold">
-              You save Gh¢{((item.price * item.discount) / 100).toFixed(2)}!
+          {/* Item Info Section */}
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink-900 sm:text-3xl">{item.name}</h1>
+            <p className="mt-1 text-sm text-ink-500">
+              {item.region || 'N/A'}, {item.town || 'N/A'}, {item.location || 'N/A'}
             </p>
 
-            
-            </div>
-          </>
-         )}
-         
-           {
-            !item.discount && !item.price &&(
-              <strong className="text-[#f5a53d] text-lg sm:text-xl">Call and let's talk about the price.</strong>
-            )
-           } 
-
-           {
-            !item.discount && item.price &&(
-              <strong className="text-[#f5a53d] text-lg sm:text-xl">Gh¢{item.price}</strong>
-            )
-           } 
-        
-        </div>
-        
-         <p className="mt-4 text-base sm:text-lg md:text-xl">
-          {item.description || 'No description available.'}
-        </p>
-        
-        {item.condition && (
-          <div className="mt-2 flex justify-between ml-10 md:ml-0 sm:ml-0 lg:ml-0">
-           <strong className="text-md sm:text-xl">Condition:</strong>
-           <strong className="text-md sm:text-xl text-[#f5a53d]">{item?.condition}</strong>
-       </div>
-        )}
-          
-   
-      <div className="flex justify-center">
-        <p className="mt-2 text-base sm:text-lg md:text-xl">
-       {item.region || 'N/A'},   {item.town || 'N/A'},  {item.location || 'N/A'}
-        </p>
-       
-       </div>
-      
-        {/* Call and WhatsApp Buttons */}
-        <div className="flex flex-col sm:flex-row  ml-10 md:ml-0 sm:ml-0 lg:ml-0 sm:justify-between space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
-          <button
-            onClick={openDial}
-            className="flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-center w-full sm:w-40 animate-heartbeat"
-          >
-            <LuPhoneCall size={26} className="text-green-500" />
-            <p className="ml-4">Call Now</p>
-          </button>
-      
-          <button
-            onClick={WhatsApp}
-            className="flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-center w-full sm:w-40 animate-heartbeat"
-          >
-            <FaWhatsappSquare size={26} className="text-green-500" />
-            <p className="ml-4">WhatsApp</p>
-          </button>
-        </div>
-      
-        {/* Report Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex ml-6 md:ml-0 sm:ml-0 lg:ml-0 justify-center mt-4 w-full px-4 py-2 text-sm font-medium text-red-500 bg-black rounded-md hover:bg-[#f5a53d] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-        >
-          <BsFlagFill className="mt-1 mr-2" color="red" /> Report
-        </button>
-
-        {/* Comment Section */}
-<div className="mt-6 bg-white shadow-md rounded-xl p-4 ml-10 md:ml-0 sm:ml-0 lg:ml-0">
-
-  {/* Comment Form */}
-  <form
-    onSubmit={handleCommentSubmit}
-    className="mt-4 flex items-center gap-2"
-  >
-    <input
-      type="text"
-      placeholder="Write a comment..."
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-      className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    />
-  <button
-  type="submit"
-  disabled={!newComment.trim() || isPosting}
-  className="px-4 py-2 bg-[#f5a53d] text-white rounded-lg hover:bg-black disabled:bg-gray-400 flex items-center gap-2"
->
-  {isPosting ? (
-    <>
-      <span className="w-4 h-4 border-2 border-[#f5a53d] border-t-transparent rounded-full animate-spin"></span>
-     
-    </>
-  ) : (
-    "Post"
-  )}
-</button>
-
-  </form>
-
-  <h2 className="text-lg font-semibold text-gray-800 mb-3 mt-4">
-    💬 Comments ({comments.length})
-  </h2>
-
-  {isCommentsLoading ? (
-   <div className="flex justify-center items-center h-20">
-       <span className="w-4 h-4 border-2 border-[#f5a53d] border-t-transparent rounded-full animate-spin"></span>
-     </div>
-  ) : comments.length > 0 ? (
-    <>
-      <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
-{comments.slice(0, visibleCount).map((comment, idx) => {
-  
-
-  return (
-    <div key={idx} className="border-b pb-2 last:border-none">
-      {editingCommentId === comment._id ? (
-        <form
-          onSubmit={(e) => handleEditComment(e, comment._id)}
-          className="flex items-center gap-2"
-        >
-          <input
-            type="text"
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-            className="flex-1 px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-          />
-          <button
-            type="submit"
-            className="px-3 py-1 bg-[#f5a53d] text-white rounded-lg hover:bg-black text-sm"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditingCommentId(null)}
-            className="px-3 py-1 bg-gray-400 text-white rounded-lg hover:bg-gray-500 text-sm"
-          >
-            Cancel
-          </button>
-        </form>
-      ) : (
-        <>
-          <p className="text-sm text-gray-700">
-            <span className="font-semibold text-gray-900">
-              {comment.user?.name || comment.userId || "Unknown User"}:
-            </span>{" "}
-            {comment.content}
-          </p>
-          <p className="text-xs text-gray-500">
-            {new Date(comment.dateCreated).toLocaleString()}
-          </p>
-
-          {/* ✅ Show Edit/Delete only if logged-in user is the owner */}
-          {comment.user?._id === UserState && (
-            <div className="flex gap-2 mt-1">
-              <button
-                onClick={() => {
-                  setEditingCommentId(comment._id);
-                  setEditedContent(comment.content);
-                }}
-                className="text-xs text-blue-600 hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteComment(comment._id)}
-                className="text-xs text-red-600 hover:underline"
-              >
-                Delete
-              </button>
-            </div>
-        )}
-        </>
-      )}
-    </div>
-  );
-})}
-
-      </div>
-
-      {comments.length > visibleCount && (
-        <div className="mt-3 flex justify-center">
-          <button
-            onClick={() => setVisibleCount((prev) => prev + 3)}
-            className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg"
-          >
-            Load more
-          </button>
-        </div>
-      )}
-    </>
-  ) : (
-    <p className="text-gray-500">No comments yet. Be the first!</p>
-  )}
-
-</div>
-
-
-
-
-      
-      
-      </div>
-
-
-
-
-
-
-      </div>
-
-      {/* Related Products */}
-      {related.length > 0 && (
-        <div className="my-10">
-          <h3 className="text-xl font-bold mb-4">Related Products</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {related.map((rel) => (
-              <div
-                key={rel.id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition cursor-pointer"
-                onClick={() => {
-                  navigate(`/detail/${type}/${rel.id}`);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
-                <img
-                  src={rel.picture || fallbackImage}
-                  alt={rel.name}
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-                <div className="p-4">
-                  <h4 className="font-semibold text-lg truncate">{rel.name}</h4>
-                  <p className="text-sm text-gray-600">
-                    {rel.price ? `Gh¢${rel.price}` : "Call for price"}
+            {/* Price / contact card */}
+            <div className="mt-4 rounded-2xl border border-ink-100 bg-white p-5 shadow-card">
+              {item.discount ? (
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-sm text-ink-400 line-through">Gh¢{item.price}</span>
+                    <span className="rounded-full bg-accent-500 px-2.5 py-1 text-xs font-bold text-white">
+                      {item.discount}% OFF
+                    </span>
+                  </div>
+                  <p className="mt-1 text-2xl font-bold text-brand-700">
+                    Gh¢{(item.price - (item.price * item.discount) / 100).toFixed(2)}
                   </p>
-
-                   <p className="text-xs text-gray-600 truncate">
-                        {rel.region}, {rel.town}
-                      </p>
-                    
+                  <p className="mt-1 text-sm text-ink-500">
+                    You save Gh¢{((item.price * item.discount) / 100).toFixed(2)}!
+                  </p>
                 </div>
+              ) : item.price ? (
+                <p className="text-2xl font-bold text-brand-700">Gh¢{item.price}</p>
+              ) : (
+                <p className="text-lg font-bold text-brand-700">Call and let&apos;s talk about the price.</p>
+              )}
+
+              {item.condition && (
+                <div className="mt-3 flex items-center justify-between border-t border-ink-100 pt-3 text-sm">
+                  <span className="font-semibold text-ink-600">Condition</span>
+                  <span className="font-semibold text-brand-700">{item.condition}</span>
+                </div>
+              )}
+
+              {/* Call and WhatsApp Buttons */}
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={openDial}
+                  className="animate-heartbeat flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 font-semibold text-white shadow-glow transition-colors hover:bg-brand-700"
+                >
+                  <LuPhoneCall size={22} />
+                  Call Now
+                </button>
+
+                <button
+                  onClick={WhatsApp}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-green-700"
+                >
+                  <FaWhatsappSquare size={22} />
+                  WhatsApp
+                </button>
               </div>
-            ))}
+
+              {/* Report Button */}
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 px-4 py-2.5 text-sm font-semibold text-red-500 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200"
+              >
+                <BsFlagFill /> Report
+              </button>
+            </div>
+
+            {/* Description card */}
+            <div className="mt-5 rounded-2xl border border-ink-100 bg-white p-5 shadow-card">
+              <h2 className="font-display text-lg font-bold text-ink-900">Description</h2>
+              <p className="mt-2 text-sm text-ink-600 sm:text-base">
+                {item.description || 'No description available.'}
+              </p>
+            </div>
+
+            {/* Comment Section */}
+            <div className="mt-5 rounded-2xl border border-ink-100 bg-white p-5 shadow-card">
+              {/* Comment Form */}
+              <form
+                onSubmit={handleCommentSubmit}
+                className="flex items-center gap-2"
+              >
+                <input
+                  type="text"
+                  placeholder="Write a comment..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="flex-1 rounded-xl border border-ink-200 bg-ink-50 px-3 py-2 text-sm text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+                <button
+                  type="submit"
+                  disabled={!newComment.trim() || isPosting}
+                  className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-brand-700 disabled:bg-ink-300"
+                >
+                  {isPosting ? (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  ) : (
+                    "Post"
+                  )}
+                </button>
+              </form>
+
+              <h2 className="mb-3 mt-4 text-lg font-semibold text-ink-800">
+                Comments ({comments.length})
+              </h2>
+
+              {isCommentsLoading ? (
+                <div className="flex h-20 items-center justify-center">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
+                </div>
+              ) : comments.length > 0 ? (
+                <>
+                  <div className="max-h-72 space-y-4 overflow-y-auto pr-2">
+                    {comments.slice(0, visibleCount).map((comment, idx) => {
+                      return (
+                        <div key={idx} className="border-b border-ink-100 pb-2 last:border-none">
+                          {editingCommentId === comment._id ? (
+                            <form
+                              onSubmit={(e) => handleEditComment(e, comment._id)}
+                              className="flex items-center gap-2"
+                            >
+                              <input
+                                type="text"
+                                value={editedContent}
+                                onChange={(e) => setEditedContent(e.target.value)}
+                                className="flex-1 rounded-lg border border-ink-200 px-3 py-1 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                              />
+                              <button
+                                type="submit"
+                                className="rounded-lg bg-brand-600 px-3 py-1 text-sm text-white hover:bg-brand-700"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingCommentId(null)}
+                                className="rounded-lg bg-ink-400 px-3 py-1 text-sm text-white hover:bg-ink-500"
+                              >
+                                Cancel
+                              </button>
+                            </form>
+                          ) : (
+                            <>
+                              <p className="text-sm text-ink-700">
+                                <span className="font-semibold text-ink-900">
+                                  {comment.user?.name || comment.userId || "Unknown User"}:
+                                </span>{" "}
+                                {comment.content}
+                              </p>
+                              <p className="text-xs text-ink-400">
+                                {new Date(comment.dateCreated).toLocaleString()}
+                              </p>
+
+                              {/* ✅ Show Edit/Delete only if logged-in user is the owner */}
+                              {comment.user?._id === UserState && (
+                                <div className="mt-1 flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setEditingCommentId(comment._id);
+                                      setEditedContent(comment.content);
+                                    }}
+                                    className="text-xs text-brand-600 hover:underline"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteComment(comment._id)}
+                                    className="text-xs text-red-600 hover:underline"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {comments.length > visibleCount && (
+                    <div className="mt-3 flex justify-center">
+                      <button
+                        onClick={() => setVisibleCount((prev) => prev + 3)}
+                        className="rounded-lg bg-ink-100 px-4 py-2 text-sm text-ink-700 hover:bg-ink-200"
+                      >
+                        Load more
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-ink-500">No comments yet. Be the first!</p>
+              )}
+            </div>
           </div>
         </div>
-      )}
 
+        {/* Related Products */}
+        {related.length > 0 && (
+          <div className="mt-10">
+            <SectionHeading title="Related Products" />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {related.map((rel) => (
+                <ListingCard
+                  key={rel.id}
+                  onClick={() => {
+                    navigate(`/detail/${type}/${rel.id}`);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  image={rel.picture || fallbackImage}
+                  title={rel.name}
+                  price={rel.price ? `Gh¢${rel.price}` : undefined}
+                  meta={[rel.region, rel.town].filter(Boolean).join(", ")}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </Container>
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-11/12 sm:w-96 bg-white rounded-lg shadow-lg">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl sm:w-96">
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Report Options</h3>
+              <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
+                <h3 className="font-display text-lg font-medium text-ink-900">Report Options</h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="rounded-full p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus:outline-none"
                 >
                   <svg
                     className="w-5 h-5"
@@ -859,13 +793,13 @@ const handleDeleteComment = async (commentId) => {
                   </svg>
                 </button>
               </div>
-      
+
               {/* Modal Content */}
               <div className="p-4 space-y-4">
                 <div>
                   <label
                     htmlFor="selectedOption"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-ink-700"
                   >
                     Selected Option
                   </label>
@@ -874,17 +808,17 @@ const handleDeleteComment = async (commentId) => {
                     id="selectedOption"
                     value={selectedOption}
                     readOnly
-                    className="w-full px-3 py-2 mt-1 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 w-full rounded-xl border border-ink-200 px-3 py-2 text-sm shadow-sm focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
                     placeholder="Select an option"
                   />
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-ink-100">
                   {options.map((option) => (
                     <button
                       key={option}
                       onClick={() => handleOptionClick(option)}
-                      className={`block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${
-                        selectedOption === option ? 'bg-[#f5a53d] text-white' : ''
+                      className={`block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-ink-50 ${
+                        selectedOption === option ? 'bg-brand-600 text-white hover:bg-brand-600' : 'text-ink-700'
                       }`}
                     >
                       {option}
@@ -892,20 +826,20 @@ const handleDeleteComment = async (commentId) => {
                   ))}
                 </div>
               </div>
-      
+
               {/* Modal Footer */}
-              <div className="flex justify-end px-4 py-2 border-t border-gray-200">
+              <div className="flex justify-end border-t border-ink-100 px-4 py-3">
                 <button
                   onClick={handleCompliants}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+                  className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
                 >
                   Report
                 </button>
               </div>
               {complaintError && (
-                <h1 className="text-red-500 mt-1 flex justify-center">
+                <p className="mt-1 flex justify-center pb-3 text-sm text-red-500">
                   {complaintError}
-                </h1>
+                </p>
               )}
             </div>
           </div>

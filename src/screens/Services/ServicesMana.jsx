@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import baseURL from "../../assets/baseURL";
-import { IoArrowBack } from "react-icons/io5";
 import { FcCancel } from "react-icons/fc";
 import { IoMdCheckmark } from "react-icons/io";
+import { FiSearch } from "react-icons/fi";
 import Loader from "../../components/Loader";
+import Container from "../../components/ui/Container";
+import EmptyState from "../../components/ui/EmptyState";
+import SectionHeading from "../../components/ui/SectionHeading";
 
 
 const ServicesMana = () => {
@@ -57,34 +60,25 @@ const ServicesMana = () => {
     }
   };
 
-  const ListHeader = () => (
-    <div className="flex flex-row bg-[#f5a53d] py-2 px-1">
-      <div className="w-1/6 font-semibold">Image</div>
-      <div className="w-1/6 font-semibold">Image</div>
-      <div className="w-1/6 font-semibold">Name</div>
-      <div className="w-1/6 font-semibold">Region</div>
-      <div className="w-1/6 font-semibold">Approve</div>
-      <div className="w-1/6 font-semibold text-center">Views</div>
-    </div>
-  );
-
   const handleProductClick = (product) => {
     navigate(`/adminservices/${product.id}`); // Navigate to the product detail page
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5a53d] pt-18">
-      {/* Header */}
-      <div className="flex items-center justify-center px-4 mt-2 bg-[#f5a53d]">
-        {/* <Link to="/dash">
-          <IoArrowBack size={30} />
-        </Link> */}
-        <div className="relative w-3/4 rounded-full flex items-center px-4">
-          <i className="fas fa-search text-black"></i>
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-12">
+      <Container>
+        <SectionHeading
+          eyebrow="Manage"
+          title="My services"
+          subtitle="Every service you've posted, in one place — tap a card to review it."
+        />
+
+        <div className="relative mb-6 max-w-md">
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
           <input
             type="text"
             placeholder="Search by name"
-            className="w-full rounded-3xl focus:border-none h-12 border-none outline-none"
+            className="h-11 w-full rounded-xl border border-transparent bg-white pl-10 pr-3 text-sm text-ink-800 shadow-soft placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
@@ -92,57 +86,57 @@ const ServicesMana = () => {
             }}
           />
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 p-4">
         {loading ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center py-20">
             <Loader />
-            {/* <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full">Linkpii</div> */}
           </div>
         ) : productFilter.length > 0 ? (
-          <>
-            <ListHeader />
-            {productFilter.map((item, index) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {productFilter.map((item) => (
               <div
                 key={item.id}
-                className={`flex items-center justify-between p-2 ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-                onClick={() => handleProductClick(item)} // Add navigation on click
+                onClick={() => handleProductClick(item)}
+                className="group cursor-pointer overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover"
               >
-                <img
-                  src={item.picture}
-                  alt="Product"
-                  className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
-                />
-                <img
-                  src={item.picturesec}
-                  alt="Product secondary"
-                  className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
-                />
-                <p  className="truncate text-sm sm:text-base md:text-lg lg:text-xl font-bold text-center w-1/4 sm:w-1/5 md:w-1/6">
-                  {item.name}
-                </p>
-                <p className="w-1/6 truncate md:flex md:text-lg md:font-bold md:justify-center">{item.region}</p>
-                <p className="w-1/6 flex justify-center md:mr-20">
-                  {item.approved ? (
-                    <IoMdCheckmark color="green" size={30} />
-                  ) : (
-                    <FcCancel size={30} />
-                  )}
-                </p>
-                <p className="w-1/6 md:text-lg md:font-bold text-center">{item.views}</p>
+                <div className="flex h-32 gap-0.5">
+                  <img
+                    src={item.picture}
+                    alt="Product"
+                    className="h-full w-1/2 object-cover"
+                  />
+                  <img
+                    src={item.picturesec}
+                    alt="Product secondary"
+                    className="h-full w-1/2 object-cover"
+                  />
+                </div>
+                <div className="p-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="truncate text-sm font-semibold text-ink-900">{item.name}</h3>
+                    {item.approved ? (
+                      <IoMdCheckmark className="shrink-0 text-green-600" size={18} />
+                    ) : (
+                      <FcCancel className="shrink-0" size={18} />
+                    )}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="truncate text-xs text-ink-500">{item.region}</span>
+                    <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-semibold text-ink-600">
+                      {item.views} views
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
-          </>
-        ) : (
-          <div className="text-center text-lg font-medium">
-            No products found. Please add products to manage.
           </div>
+        ) : (
+          <EmptyState
+            title="No products found"
+            subtitle="Please add products to manage."
+          />
         )}
-      </div>
+      </Container>
     </div>
   );
 };

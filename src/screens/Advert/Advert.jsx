@@ -12,6 +12,7 @@ import { Pagination, Navigation, Autoplay } from 'swiper/modules';
 import { TbPhoneCall } from "react-icons/tb";
 import Loader from '../../components/Loader';
 import { FaTimes } from "react-icons/fa";
+import Container from '../../components/ui/Container';
 
 
 
@@ -255,7 +256,7 @@ useEffect(() => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-screen bg-gray-100">
+            <div className="flex items-center justify-center h-screen bg-ink-50">
                <Loader />
             </div>
         );
@@ -265,116 +266,118 @@ useEffect(() => {
 
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#f5a53d] md:pt-20 lg:pt-20 pt-16 px-4 md:px-12 font-serif">
-            <div className="shadow-md rounded-lg p-6 md:p-8 mb-10">
-                <div className="flex flex-col gap-8">
-                    <div className="flex-1">
-                        <Swiper
-                            ref={swiperRef}
-                            modules={[Pagination, Navigation, Autoplay]}
-                            pagination={{ clickable: true }}
-                            navigation
-                            autoplay={{
-                                delay: 3000, // Default to 3 seconds
-                                disableOnInteraction: false,
-                            }}
-                            onSlideChange={handleSlideChange}
-                            className="relative overflow-hidden rounded-lg"
-                        >
-                            {/* Images */}
-                            {images.length > 0 &&
-                                images.map((image, index) => (
-                                    <SwiperSlide key={index} className="flex justify-center items-center">
-                                        <img className="object-contain w-[90%] max-h-[70vh]" src={image} alt={`Slide ${index}`} />
-                                    
-                           <button     
-                            onClick={handlePressCallButton}  
-                            className="absolute bg-[#f5a53d] p-1 rounded-full md:mt-40 lg:top-[50%] top-[50%] left-1/2 transform -translate-x-1/2 text-green-500 z-30 animate-heartbeat"
-                        >
-                           <TbPhoneCall className='md:text-5xl text-3xl lg:text'/>
-                        </button>
-                                    </SwiperSlide>
-                                ))}
+        <div className="flex flex-col min-h-screen bg-ink-50 pt-16 pb-10 sm:pt-20 md:pt-24">
+            <Container>
+                <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white p-4 shadow-card sm:p-6 md:p-8">
+                    <div className="flex flex-col gap-6">
+                        <div className="relative flex-1 overflow-hidden rounded-2xl bg-ink-900">
+                            <Swiper
+                                ref={swiperRef}
+                                modules={[Pagination, Navigation, Autoplay]}
+                                pagination={{ clickable: true }}
+                                navigation
+                                autoplay={{
+                                    delay: 3000, // Default to 3 seconds
+                                    disableOnInteraction: false,
+                                }}
+                                onSlideChange={handleSlideChange}
+                                className="relative overflow-hidden rounded-2xl"
+                            >
+                                {/* Images */}
+                                {images.length > 0 &&
+                                    images.map((image, index) => (
+                                        <SwiperSlide key={index} className="flex justify-center items-center">
+                                            <img className="object-contain w-[90%] max-h-[70vh]" src={image} alt={`Slide ${index}`} />
 
-                          
-                        </Swiper>
-
-                       
-                       
-                    </div>
-
-                                <div className='flex justify-center font-bold -mt-8 text-sm md:text-xl lg:text-xl'>
-                                <h1 className=''>Use your thumb or your mouse pointer to stop the adds.</h1>
-                                </div>
-                                
-
-
-                                <div className='flex justify-center font-bold md:text-lg lg:text-lg -mt-6 text-sm animate-heartbeat'>
-                                    <h1>Send us your flier for advertisement using the buttons below.</h1>
-                                </div>
-                   
-
-
-                       <div className="flex justify-between -mt-6 mx-4 md:mx-32 lg:mx-32">
-                        
-                        <button onClick={openDial} className="text-green-500">
-                            <FaPhoneAlt size={36} />
-                        </button>
-
-                        <button onClick={openOfficeWhatsapp} className="text-green-500">
-                            <FaWhatsappSquare size={40} />
-                        </button>
-                    </div>
-
-
-
-
-                                {isModalVisible && selectedItem && (
-                        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10">
-                            <div className="bg-white p-6 rounded-lg w-4/5 max-w-md shadow-lg">
-                            <button onClick={() => setIsModalVisible(false)} className="text-black font-bold text-lg text-end flext justify-end items-end"><FaTimes /></button>
-                                <p className="text-lg font-bold text-gray-800 mb-4">
-                                    Welcome to {selectedItem?.name}, feel free to call or chat with us.
-                                </p>
-                                <div className="flex justify-between mb-4">
-                                    <button onClick={openDialAdvert} className="p-3 text-white text-lg">
-                                        <FaPhoneAlt size={30} color="green" />
-                                    </button>
-                                    <button onClick={WhatsApp} className="p-3 text-white text-lg">
-                                        <FaWhatsappSquare size={35} color="green" />
-                                    </button>
-                                </div>
-                                
-                            </div>
+                                            <button
+                                                onClick={handlePressCallButton}
+                                                className="animate-heartbeat absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-green-600 shadow-soft"
+                                            >
+                                                <TbPhoneCall className="text-3xl md:text-5xl" />
+                                            </button>
+                                        </SwiperSlide>
+                                    ))}
+                            </Swiper>
                         </div>
-                    )}
 
+                        <p className="text-center text-sm font-semibold text-ink-700 md:text-lg">
+                            Use your thumb or your mouse pointer to stop the adds.
+                        </p>
 
+                        <p className="animate-heartbeat text-center text-sm font-bold text-brand-600 md:text-lg">
+                            Send us your flier for advertisement using the buttons below.
+                        </p>
+
+                        <div className="flex items-center justify-center gap-6">
+                            <button
+                                onClick={openDial}
+                                aria-label="Call Linkpii"
+                                className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-green-600 shadow-soft transition-colors hover:bg-brand-100"
+                            >
+                                <FaPhoneAlt size={26} />
+                            </button>
+
+                            <button
+                                onClick={openOfficeWhatsapp}
+                                aria-label="Chat with Linkpii on WhatsApp"
+                                className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-600 shadow-soft transition-colors hover:bg-green-100"
+                            >
+                                <FaWhatsappSquare size={30} />
+                            </button>
+                        </div>
+
+                        {isModalVisible && selectedItem && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+                                <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                                    <div className="mb-4 flex items-start justify-between gap-4">
+                                        <p className="text-lg font-bold text-ink-800">
+                                            Welcome to {selectedItem?.name}, feel free to call or chat with us.
+                                        </p>
+                                        <button
+                                            onClick={() => setIsModalVisible(false)}
+                                            className="shrink-0 rounded-full p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-800"
+                                            aria-label="Close"
+                                        >
+                                            <FaTimes />
+                                        </button>
+                                    </div>
+                                    <div className="flex justify-center gap-4">
+                                        <button
+                                            onClick={openDialAdvert}
+                                            className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100"
+                                            aria-label="Call"
+                                        >
+                                            <FaPhoneAlt size={22} />
+                                        </button>
+                                        <button
+                                            onClick={WhatsApp}
+                                            className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-600 transition-colors hover:bg-green-100"
+                                            aria-label="WhatsApp"
+                                        >
+                                            <FaWhatsappSquare size={26} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
-
+            </Container>
 
             {networkError && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-          <h2 className="text-xl font-bold text-red-500">No internet connection</h2>
-          <p className="text-gray-700 mt-2">Check your internet connection and try again</p>
-            <button
-              className="mt-4 bg-[#f5a53d] text-white px-4 py-2 rounded-md"
-              onClick={() => window.location.reload()}
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      )}
-
-
-
-
-
-
-
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                        <h2 className="font-display text-xl font-bold text-red-500">No internet connection</h2>
+                        <p className="mt-2 text-sm text-ink-600">Check your internet connection and try again</p>
+                        <button
+                            className="mt-4 rounded-xl bg-brand-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-brand-700"
+                            onClick={() => window.location.reload()}
+                        >
+                            Refresh Page
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

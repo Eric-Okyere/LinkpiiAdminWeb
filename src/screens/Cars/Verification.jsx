@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaWhatsappSquare, FaPhoneAlt } from 'react-icons/fa';
-import screen from "../../assets/screen.png";
+import { TbShieldCheck } from 'react-icons/tb';
 import baseURL from '../../assets/baseURL';
+import Loader from '../../components/Loader';
 
 const Verification = () => {
     const myProducts = useSelector((state) => state.user._id);
@@ -32,7 +33,7 @@ const Verification = () => {
     const openDial = () => {
         window.location.href = "tel:+233247747624";
     };
-    
+
     const openWhatsApp = () => {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile) {
@@ -43,46 +44,60 @@ const Verification = () => {
     };
 
     return (
-        <div className="flex flex-col bg-black min-h-screen pt-24 md:pt-32 pb-10 text-white">
-            <div className="flex justify-center mb-8">
-                <img src={screen} alt="Splash" className="w-48 h-48" />
-            </div>
+        <div className="flex min-h-screen flex-col items-center justify-center bg-ink-50 px-6 pb-10 pt-20 sm:pt-24">
+            <div className="w-full max-w-md rounded-2xl border border-ink-100 bg-white p-8 text-center shadow-card">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
+                    <TbShieldCheck size={28} />
+                </div>
 
-            <div className="text-center mb-8">
-                <h1 className="text-lg font-bold">Call Requirements</h1>
-            </div>
+                <h1 className="font-display text-2xl font-bold text-ink-900">Call Requirements</h1>
 
-            {loading ? (
-                <p className="text-center">Loading...</p>
-            ) : userData ? (
-                <>
-                    <div className="text-center mb-6">
-                        <p className="mb-4 text-lg font-bold">
-                            Name: <span className="text-orange-400">{userData.name} {userData.lastname}</span>
-                        </p>
-                        <p className="mb-4 text-lg font-bold">
-                            Email: <span className="text-orange-400">{userData.email}</span>
-                        </p>
-                        <p className="mb-4 text-lg font-bold">
-                            Phone Number: <span className="text-orange-400">{userData.phone}</span>
-                        </p>
-                        <p className="mb-4 text-lg font-bold mx-4">
-                            <span className="text-orange-400">{userData.name}</span> send your picture and your Ghana card or any national ID for verification before you can call a driver or a mechanic.
-                        </p>
+                {loading ? (
+                    <div className="mt-6 flex justify-center">
+                        <Loader />
                     </div>
+                ) : userData ? (
+                    <>
+                        <div className="mt-6 space-y-3 text-left">
+                            <p className="text-sm text-ink-600">
+                                Name: <span className="font-semibold text-ink-900">{userData.name} {userData.lastname}</span>
+                            </p>
+                            <p className="text-sm text-ink-600">
+                                Email: <span className="font-semibold text-ink-900">{userData.email}</span>
+                            </p>
+                            <p className="text-sm text-ink-600">
+                                Phone Number: <span className="font-semibold text-ink-900">{userData.phone}</span>
+                            </p>
+                            <p className="rounded-xl border border-accent-100 bg-accent-50 p-3.5 text-sm text-ink-700">
+                                <span className="font-semibold text-accent-700">{userData.name}</span>, send your
+                                picture and your Ghana card or any national ID for verification before you can
+                                call a driver or a mechanic.
+                            </p>
+                        </div>
 
-                    <div className="flex justify-between space-x-6 mt-10 mx-24 md:mx-96">
-                        <button onClick={openWhatsApp} aria-label="Open WhatsApp" className="text-green-500 hover:scale-110 transition-transform">
-                            <FaWhatsappSquare size={40} />
-                        </button>
-                        <button onClick={openDial} aria-label="Call Phone Number" className="text-green-500 hover:scale-110 transition-transform">
-                            <FaPhoneAlt size={36} />
-                        </button>
-                    </div>
-                </>
-            ) : (
-                <p className="text-center text-red-500">Failed to load user data</p>
-            )}
+                        <div className="mt-8 flex justify-center gap-6">
+                            <button
+                                onClick={openWhatsApp}
+                                aria-label="Open WhatsApp"
+                                className="flex flex-col items-center gap-2 rounded-xl px-6 py-3 text-green-600 transition-colors hover:bg-green-50"
+                            >
+                                <FaWhatsappSquare size={36} />
+                                <span className="text-sm font-semibold">WhatsApp</span>
+                            </button>
+                            <button
+                                onClick={openDial}
+                                aria-label="Call Phone Number"
+                                className="flex flex-col items-center gap-2 rounded-xl px-6 py-3 text-brand-600 transition-colors hover:bg-brand-50"
+                            >
+                                <FaPhoneAlt size={32} />
+                                <span className="text-sm font-semibold">Call</span>
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <p className="mt-6 text-sm text-red-500">Failed to load user data</p>
+                )}
+            </div>
         </div>
     );
 };

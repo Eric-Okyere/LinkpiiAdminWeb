@@ -4,25 +4,48 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import Logo from "../assets/screen.png";
 import { loggedOut } from "../Redux/actions";
-import { MdOutlineHorizontalRule } from "react-icons/md";
 import baseURL from "../assets/baseURL";
 import { LuPhoneCall } from "react-icons/lu";
+import { FiPlusCircle, FiGrid, FiTruck } from "react-icons/fi";
+import { FaStar, FaHireAHelper } from "react-icons/fa";
+import { MdPhoneIphone } from "react-icons/md";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
 
+const postLinks = [
+  { to: "/sigform", label: "Sell a single product" },
+  { to: "/shopform", label: "Post your shop" },
+  { to: "/servicesform", label: "Offer a service" },
+  { to: "/agricpost", label: "Sell agric produce" },
+];
+
+const rentLinks = [
+  { to: "/housing", label: "Post building / hotel for rent" },
+  { to: "/equipment", label: "Post equipment for rent" },
+];
+
+// Primary navigation for desktop widths - the same destinations as the
+// mobile bottom tab bar, since that bar is hidden above the lg breakpoint
+// (see ButtonNavigation.jsx) and desktop users expect this in the header,
+// not pinned to the bottom of the viewport.
+const primaryNav = [
+  { key: "advert", path: "/", label: "Adverts", Icon: FaStar, match: (p) => p === "/" },
+  { key: "buy", path: "/buy?tab=0", label: "Buy", Icon: MdPhoneIphone, match: (p) => p === "/buy" },
+  { key: "tabs", path: "/tabs?tab=0", label: "KIA", Icon: FiTruck, match: (p) => p === "/tabs" },
+  { key: "rent", path: "/rent?tab=0", label: "Rent", Icon: FaHireAHelper, match: (p) => p === "/rent" },
+];
+
 const NavbarCompo = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [networkError, setNetworkError] = useState(false); 
+  const [networkError, setNetworkError] = useState(false);
   const login = useSelector((state) => state.login);
   const loginId = useSelector((state) => state.user.id);
   const UserData = useSelector((state) => state.user);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [newPhoneNumber, setNewPhoneNumber] = useState('')
-   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
-    const [isModalVisible, setIsModalVisible] = useState(false); 
-    const statelogin = useSelector((state) => state);
+  const [newPhoneNumber, setNewPhoneNumber] = useState("");
+  const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
 
   useEffect(() => {
     if (login && ["/loginform", "/signupform"].includes(location.pathname)) {
@@ -30,8 +53,6 @@ const NavbarCompo = () => {
     }
   }, [login, location, navigate]);
 
-  
-// console.log("State login",statelogin)
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -55,15 +76,14 @@ const NavbarCompo = () => {
           dispatch(loggedOut());
           navigate("/signupform", { replace: true });
         } else if (data.report) {
-          navigate('/report'); 
+          navigate("/report");
           return;
-      } 
-      else if (!data.phone) {
-          setIsPhoneModalVisible(true); 
-      }
+        } else if (!data.phone) {
+          setIsPhoneModalVisible(true);
+        }
       } catch (error) {
         console.error("Network error detected:", error);
-        setNetworkError(true); // Show modal on network error
+        setNetworkError(true);
       }
     };
 
@@ -72,22 +92,17 @@ const NavbarCompo = () => {
     }
   }, [loginId, dispatch, navigate]);
 
-
   const handlePhoneSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-   
+    e.preventDefault();
+
     let formattedPhoneNumber = newPhoneNumber;
 
-    // Ensure the phone number starts with "+"
     if (!formattedPhoneNumber.startsWith("+")) {
       formattedPhoneNumber = `+${formattedPhoneNumber}`;
     }
-  
-    // Remove the leading zero after the country code (e.g., "+2330" -> "+233")
+
     formattedPhoneNumber = formattedPhoneNumber.replace(/^(\+\d{1,3})0/, "$1");
-  
-    console.log("Submitted phone number:", formattedPhoneNumber);
-  
+
     try {
       const response = await fetch(`${baseURL}phone/${loginId}`, {
         method: "PUT",
@@ -96,12 +111,11 @@ const NavbarCompo = () => {
         },
         body: JSON.stringify({ phone: formattedPhoneNumber }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        alert("Phone number updated successfully!");
-        setIsPhoneModalVisible(false); // Close the modal
+        setIsPhoneModalVisible(false);
       } else {
         alert(data.message || "Failed to update phone number.");
       }
@@ -110,123 +124,200 @@ const NavbarCompo = () => {
       alert("An error occurred. Please try again.");
     }
   };
-  
-
-
 
   return (
     <div>
-      <nav className="fixed top-0 left-0 w-full flex items-center justify-between bg-gray-100 p-4 shadow-md z-50">
-        <Link to="/">
-          <div className="flex items-center">
+      <nav className="fixed top-0 left-0 w-full z-50 px-2 pt-2 sm:px-4 sm:pt-3">
+        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 rounded-2xl border border-ink-100 bg-white/95 px-3 py-2 shadow-card backdrop-blur sm:px-5 sm:py-2.5">
+          <Link to="/" className="flex items-center gap-2.5" onClick={() => setIsOpen(false)}>
             <img
               src={Logo}
-              className="h-12 w-12 rounded-full md:h-16 md:w-16 lg:w-16 lg:h-16 animate-rotate"
-              alt="logo"
+              className="h-9 w-9 rounded-xl object-cover ring-2 ring-brand-100 md:h-11 md:w-11"
+              alt="Linkpii logo"
             />
-            <h1 className="mx-10 text-black text-2xl font-bold font-serif">
-              Linkpii
-            </h1>
-          </div>
-        </Link>
+            <span className="font-display text-lg font-extrabold tracking-tight text-ink-900 md:text-xl">
+              Link<span className="text-brand-600">pii</span>
+            </span>
+          </Link>
 
-        <div>
-          {login ? (
-            <>
-              {["/user", "/sigform", "/shopform", "/servicesform", "/agricpost", "/housing", "/equipment"].includes(location.pathname) && (
-                <div className="flex items-center space-x-4">
-                  <h1 className="hidden md:block lg:block cursor-pointer text-xl font-semibold text-black" onClick={() => setIsOpen(!isOpen)}>
-                    Post
-                  </h1>
-                  <button className="text-2xl text-black md:hidden lg:hidden" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle navigation">
-                    {isOpen ? <FaTimes /> : <FaBars />}
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <Link to="/loginform" className="block px-4 py-2 text-black hover:text-[#f5a53d] text-lg md:inline-block md:ml-auto" onClick={() => setIsOpen(false)}>
-              Login
-            </Link>
+          {login && (
+            <div className="hidden items-center gap-1 lg:flex">
+              {primaryNav.map(({ key, path, label, Icon, match }) => {
+                const active = match(location.pathname);
+                return (
+                  <Link
+                    key={key}
+                    to={path}
+                    className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                      active
+                        ? "bg-brand-50 text-brand-700"
+                        : "text-ink-600 hover:bg-ink-50 hover:text-brand-700"
+                    }`}
+                  >
+                    <Icon className="text-base" />
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
           )}
+
+          <div>
+            {login ? (
+              <div className="flex items-center gap-2">
+                {[
+                  "/user",
+                  "/sigform",
+                  "/shopform",
+                  "/servicesform",
+                  "/agricpost",
+                  "/housing",
+                  "/equipment",
+                ].includes(location.pathname) && (
+                  <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700 sm:px-4"
+                    aria-label="Toggle post menu"
+                  >
+                    <FiPlusCircle className="text-base" />
+                    <span className="hidden sm:inline">Post</span>
+                  </button>
+                )}
+                <Link
+                  to="/user"
+                  className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-600 transition-colors hover:bg-ink-50 hover:text-brand-700 sm:flex"
+                >
+                  <FiGrid />
+                  Dashboard
+                </Link>
+                <button
+                  className="rounded-xl p-2 text-xl text-ink-700 transition-colors hover:bg-ink-50 sm:hidden"
+                  onClick={() => setIsOpen(!isOpen)}
+                  aria-label="Toggle navigation"
+                >
+                  {isOpen ? <FaTimes /> : <FaBars />}
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/loginform"
+                className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700 sm:px-5"
+                onClick={() => setIsOpen(false)}
+              >
+                Log in
+              </Link>
+            )}
+          </div>
         </div>
       </nav>
 
+      {/* Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className={`fixed top-0 left-0 w-64 h-full bg-black text-white transform ${isOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 ease-in-out z-50`}>
-        <div className="flex justify-end m-4">
-          <button onClick={() => setIsOpen(false)}>
-            <FaTimes size={20} />
+      <div
+        className={`fixed top-0 left-0 z-50 h-full w-80 max-w-[85vw] transform overflow-y-auto rounded-r-3xl bg-white text-ink-800 shadow-2xl transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="relative bg-ink-950 px-6 pb-6 pt-5">
+          <button
+            onClick={() => setIsOpen(false)}
+            aria-label="Close menu"
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-1.5 text-white/80 hover:bg-white/20 hover:text-white"
+          >
+            <FaTimes size={16} />
           </button>
+
+          <img
+            src={Logo}
+            className="h-14 w-14 rounded-2xl object-cover ring-4 ring-white/15"
+            alt="Linkpii logo"
+          />
+
+          <Link to="/profile" onClick={() => setIsOpen(false)} className="mt-4 block">
+            <p className="truncate font-display text-base font-bold text-white">{UserData.name}</p>
+            <p className="truncate text-xs text-brand-200">{UserData.email}</p>
+          </Link>
         </div>
 
-        <div className="flex justify-center">
-          <img src={Logo} className="md:w-40 lg:w-40 w-32 -mt-10" alt="pic" />
-        </div>
-
-        <Link to={"/profile"} onClick={() => setIsOpen(false)}>
-          <h1 className="truncate w-full mx-1">{UserData.name}</h1>
-          <h1 className="truncate w-full mx-1">{UserData.email}</h1>
-          <MdOutlineHorizontalRule className="w-20 mx-auto" />
-        </Link>
-
-        <ul className="space-y-4 mx-6">
-          <li>
-            <Link to="/user" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>
+        <nav className="space-y-7 px-6 py-6">
+          <div>
+            <Link
+              to="/user"
+              className="flex items-center gap-2 font-semibold text-ink-800 hover:text-brand-700"
+              onClick={() => setIsOpen(false)}
+            >
+              <FiGrid className="text-brand-600" />
               Dashboard
             </Link>
-          </li>
+          </div>
 
-          <h1 className="flex justify-center text-[#f5a53d] font-bold">Business Post</h1>
-          <li><Link to="/sigform" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>Sell Single Product</Link></li>
-          <li><Link to="/shopform" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>Post Your Shop</Link></li>
-          <li><Link to="/servicesform" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>Provide Service</Link></li>
-          <li><Link to="/agricpost" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>Sell Agric Products</Link></li>
+          <div>
+            <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-ink-400">
+              Sell something
+            </h3>
+            <ul className="space-y-1 border-l-2 border-brand-100 pl-3">
+              {postLinks.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="block rounded-lg px-2 py-1.5 text-sm text-ink-600 hover:bg-brand-50 hover:text-brand-700"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <h1 className="flex justify-center text-[#f5a53d] font-bold">Rent Post</h1>
-          <li><Link to="/housing" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>Post Building/Hotel</Link></li>
-          <li><Link to="/equipment" className="block text-white hover:text-[#f5a53d]" onClick={() => setIsOpen(false)}>Post Equipment for Rent</Link></li>
+          <div>
+            <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-ink-400">
+              Rent something out
+            </h3>
+            <ul className="space-y-1 border-l-2 border-accent-100 pl-3">
+              {rentLinks.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="block rounded-lg px-2 py-1.5 text-sm text-ink-600 hover:bg-accent-50 hover:text-accent-700"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <h1 className="flex justify-center text-[#f5a53d] font-bold">Help</h1>
-          <li>
-            <Link className="flex" to={"/callcenter"}>
-              <LuPhoneCall size={26} className="text-green-500" />
-              <span className="block hover:text-[#f5a53d] cursor-pointer ml-4">Call Center</span>
+          <div className="border-t border-ink-100 pt-5">
+            <Link
+              to="/callcenter"
+              className="flex items-center gap-3 rounded-xl bg-ink-50 px-3 py-2.5 text-sm font-semibold text-ink-700 hover:bg-ink-100"
+              onClick={() => setIsOpen(false)}
+            >
+              <LuPhoneCall size={18} className="text-brand-600" />
+              Call Center
             </Link>
-          </li>
-        </ul>
+          </div>
+        </nav>
       </div>
 
-
-
-      {isModalVisible && selectedItem && (
-                        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10">
-                            <div className="bg-white p-6 rounded-lg w-4/5 max-w-md shadow-lg">
-                            <button onClick={() => setIsModalVisible(false)} className="text-black font-bold text-lg text-end flext justify-end items-end"><FaTimes /></button>
-                                <p className="text-lg font-bold text-gray-800 mb-4">
-                                    Welcome to {selectedItem?.name}, feel free to call or chat with us.
-                                </p>
-                                <div className="flex justify-between mb-4">
-                                    <button onClick={openDialAdvert} className="p-3 text-white text-lg">
-                                        <FaPhoneAlt size={30} color="green" />
-                                    </button>
-                                    <button onClick={WhatsApp} className="p-3 text-white text-lg">
-                                        <FaWhatsappSquare size={35} color="green" />
-                                    </button>
-                                </div>
-                                
-                            </div>
-                        </div>
-                    )}
-
-      {/* Network Error Modal */}
       {networkError && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-          <h2 className="text-xl font-bold text-red-500">No internet connection</h2>
-          <p className="text-gray-700 mt-2">Check your internet connection and try again</p>
-          <button
-              className="mt-4 bg-[#f5a53d] text-white px-4 py-2 rounded-md"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-xs rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <h2 className="text-lg font-bold text-red-500">No internet connection</h2>
+            <p className="mt-2 text-sm text-ink-500">
+              Check your internet connection and try again
+            </p>
+            <button
+              className="mt-4 rounded-xl bg-brand-600 px-4 py-2 font-semibold text-white hover:bg-brand-700"
               onClick={() => window.location.reload()}
             >
               Refresh Page
@@ -235,35 +326,38 @@ const NavbarCompo = () => {
         </div>
       )}
 
-
-
-
-{isPhoneModalVisible && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-                        <button onClick={() => setIsPhoneModalVisible(false)} className="absolute top-2 right-2">
-                            <FaTimes size={20} />
-                        </button>
-                        <h2 className="text-lg font-bold text-gray-800 mb-4">Add Your WhatsApp or Phone Number</h2>
-                        <form onSubmit={handlePhoneSubmit}>
-                           
-                            <PhoneInput
-                            type="tel"
-                                country={"gh"} // Default country
-                                value={newPhoneNumber}
-                                placeholder="Enter your whatsapp or phone number"
-                                 required
-                                 onChange={(value) => setNewPhoneNumber(value)}
-                                 enableSearch
-                                 enableAreaCodes
-                                />
-                            <button type="submit" className="bg-black mt-6 text-white px-4 py-2 rounded-md">
-                                Save Phone Number
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
+      {isPhoneModalVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <h2 className="mb-1 text-lg font-bold text-ink-900">
+              Add your WhatsApp or phone number
+            </h2>
+            <p className="mb-4 text-sm text-ink-500">
+              Buyers and sellers need a way to reach you.
+            </p>
+            <form onSubmit={handlePhoneSubmit}>
+              <PhoneInput
+                type="tel"
+                country={"gh"}
+                value={newPhoneNumber}
+                placeholder="Enter your WhatsApp or phone number"
+                required
+                onChange={(value) => setNewPhoneNumber(value)}
+                enableSearch
+                enableAreaCodes
+                inputClass="!w-full !h-11 !text-base !rounded-xl !border !border-ink-200 focus:!ring-2 focus:!ring-brand-200"
+                containerClass="mb-4"
+              />
+              <button
+                type="submit"
+                className="mt-2 w-full rounded-xl bg-brand-600 py-2.5 font-bold text-white transition-colors hover:bg-brand-700"
+              >
+                Save phone number
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

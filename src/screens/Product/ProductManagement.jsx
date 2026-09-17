@@ -3,8 +3,12 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import ListProduct from "./ListProducts";
 import baseURL from "../../assets/baseURL";
-import { IoArrowBack } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { FiSearch } from "react-icons/fi";
+import Loader from "../../components/Loader";
+import Container from "../../components/ui/Container";
+import EmptyState from "../../components/ui/EmptyState";
+import SectionHeading from "../../components/ui/SectionHeading";
 
 const ProductManagement = (props) => {
   const [productList, setProductList] = useState([]);
@@ -61,18 +65,20 @@ const ProductManagement = (props) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#f5a53d] pt-18">
-      {/* Header */}
-      <div className="flex items-center justify-center px-4 mt-2 bg-[#f5a53d]">
-        {/* <Link to="/dash">
-          <IoArrowBack size={30} />
-        </Link> */}
-        <div className="relative w-3/4 rounded-full flex items-center px-4">
-          <i className="fas fa-search text-black"></i>
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-12">
+      <Container>
+        <SectionHeading
+          eyebrow="Manage"
+          title="My products"
+          subtitle="Every product you've posted, in one place — tap a card to review it."
+        />
+
+        <div className="relative mb-6 max-w-md">
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
           <input
             type="text"
             placeholder="Search by name"
-            className="w-full rounded-3xl h-12 border-none outline-none"
+            className="h-11 w-full rounded-xl border border-transparent bg-white pl-10 pr-3 text-sm text-ink-800 shadow-soft placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
@@ -80,24 +86,13 @@ const ProductManagement = (props) => {
             }}
           />
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 p-4">
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full"></div>
+          <div className="flex items-center justify-center py-20">
+            <Loader />
           </div>
         ) : productFilter.length > 0 ? (
-          <>
-            <div className="flex flex-row bg-[#f5a53d] py-2 px-1 text-lg font-bold">
-              <div className="w-1/6">Image</div>
-              <div className="w-1/6">Image</div>
-              <div className="w-1/6">Name</div>
-              <div className="w-1/6">Price</div>
-              <div className="w-1/6 text-center mr-4">Approve</div>
-              <div className="w-1/6 text-center">Views</div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {productFilter.map((item, index) => (
               <ListProduct
                 key={item.id}
@@ -107,13 +102,14 @@ const ProductManagement = (props) => {
                 onViewDetails={() => handleViewDetails(item)} // Pass details handler
               />
             ))}
-          </>
-        ) : (
-          <div className="text-center text-lg font-medium">
-            No products found. Please add some products to manage.
           </div>
+        ) : (
+          <EmptyState
+            title="No products found"
+            subtitle="Please add products to manage."
+          />
         )}
-      </div>
+      </Container>
     </div>
   );
 };

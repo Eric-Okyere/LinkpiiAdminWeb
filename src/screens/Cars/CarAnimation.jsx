@@ -1,6 +1,4 @@
-import React from 'react'
-import "./CarAnimation.css"
-
+import "./CarAnimation.css";
 
 const CarAnimation = () => {
   return (

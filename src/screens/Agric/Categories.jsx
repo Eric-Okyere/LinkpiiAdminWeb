@@ -13,12 +13,15 @@ const Categories = ({ categories, onCategoryClick }) => {
   };
 
   return (
-    <div className="w-full px-4 pt-1 md:pt-4 flex justify-center">
-      {/* <h1 className="text-2xl font-bold mb-4">Categories</h1> */}
-      <div className="flex overflow-x-auto space-x-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+    <div className="w-full px-1 py-3">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 pb-1">
         <button
           onClick={() => handleCategoryClick(null)}
-          className={`text-center w-28 rounded-lg p-2 hover:bg-gray-400 ${selectedCategoryId === null ? 'bg-black text-white' : 'bg-gray-300'}`}
+          className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            selectedCategoryId === null
+              ? 'bg-ink-900 text-white shadow-soft'
+              : 'bg-white text-ink-600 border border-ink-200 hover:border-brand-300'
+          }`}
         >
           All
         </button>
@@ -26,14 +29,18 @@ const Categories = ({ categories, onCategoryClick }) => {
           <button
             key={category._id}
             onClick={() => handleCategoryClick(category._id)}
-            className={`flex-shrink-0 text-center w-fit flex items-center rounded-lg p-1 hover:bg-gray-400 ${selectedCategoryId === category._id ? 'bg-black text-white' : 'bg-gray-300'}`}
+            className={`shrink-0 flex items-center gap-2 rounded-full pl-1.5 pr-4 py-1.5 text-sm font-semibold transition-colors ${
+              selectedCategoryId === category._id
+                ? 'bg-brand-600 text-white shadow-soft'
+                : 'bg-white text-ink-600 border border-ink-200 hover:border-brand-300'
+            }`}
           >
             <img
               src={category.icon}
               alt={category.name}
-              className="w-10 h-10 md:w-10 md:h-10 object-cover rounded-lg mx-auto"
+              className="w-7 h-7 object-cover rounded-full bg-white"
             />
-            <p className=" text-lg font-medium ml-2 ">{category.name}</p>
+            {category.name}
           </button>
         ))}
       </div>

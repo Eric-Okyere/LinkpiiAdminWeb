@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import baseURL from '../../assets/baseURL';
 import Categories from './Categories';
 import Loader from "../../components/Loader"
-import { FaArrowRightFromBracket } from "react-icons/fa6";
 import HireSearch from './HireSearch';
-import { MdCancel } from "react-icons/md";
+import SearchBar from "@/components/ui/SearchBar";
+import ListingCard from "@/components/ui/ListingCard";
+import EmptyState from "@/components/ui/EmptyState";
+import LoadMoreButton from "@/components/ui/LoadMoreButton";
 
 const Hire = () => {
   const [products, setProducts] = useState([]);
@@ -17,7 +19,7 @@ const Hire = () => {
   const [currentIndex, setCurrentIndex] = useState(16);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [input, setInput] = useState("");
-  const [regionInput, setRegionInput] = useState(""); 
+  const [regionInput, setRegionInput] = useState("");
   const [productFiltered, setProductsFiltered] = useState([]);
 
   const location = useLocation();
@@ -116,7 +118,7 @@ const Hire = () => {
 
         return (
           region.includes(text.toLowerCase()) ||
-          town.includes(text.toLowerCase()) || 
+          town.includes(text.toLowerCase()) ||
           location.includes(text.toLowerCase())
         );
       })
@@ -130,99 +132,48 @@ const Hire = () => {
   };
 
   return (
-    <div className="pb-8 font-serif">
+    <div className="pb-8">
       {loading ? (
-        <div className='flex justify-center items-center'><Loader /></div>
-        
+        <div className="flex justify-center items-center py-20"><Loader /></div>
       ) : (
         <>
-          <div className="w-full right-3 mt-6 mb-4 relative flex">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => searchProducts(e.target.value)}
-              placeholder="Search for product"
-              className="w-full h-10 p-3 border  rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
-            />
-            <input
-              type="text"
-              value={regionInput}
-              onChange={(e) => searchByRegion(e.target.value)}
-              placeholder="Search by region, town or location"
-              className="w-full h-10 p-3 border rounded-lg ml-2 focus:outline-none focus:ring-1 focus:ring-black"
-            />
-            {input || regionInput ? (
-              <button
-                onClick={clearSearch}
-                className="-mt-1 ml-2 p-2 rounded-full hover:text-gray-800"
-              >
-                <MdCancel color="black"  className="text-3xl"/>
-              </button>
-            ) : null}
-          </div>
-  
+          <SearchBar
+            keyword={input}
+            onKeywordChange={searchProducts}
+            keywordPlaceholder="Search for a truck"
+            region={regionInput}
+            onRegionChange={searchByRegion}
+            onClear={clearSearch}
+            className="mb-2"
+          />
+
           {input || regionInput ? (
             <HireSearch productFiltered={productFiltered} />
           ) : (
             <>
-              <div className="flex justify-end mb-0 md:hidden">
-                <FaArrowRightFromBracket className="text-xs" />
-              </div>
-  
               <Categories categories={categories} onCategoryClick={handleCategoryClick} />
-  
-              <div className="flex flex-wrap justify-center gap-6 p-2">
-                {filteredProducts.length === 0 ? (
-                  <div className="text-center text-gray-500 text-lg col-span-full">
-                    No products found. Please try a different category or search term.
-                  </div>
-                ) : (
-                  visibleProducts.map((product) => (
-                    <Link to={`/hiredetail/${product._id}`} key={product._id}>
-                      <div className="p-2 bg-gray-200 rounded-lg w-80 shadow-md flex lg md:w-80">
-                        <img
-                          src={product.picture || fallbackImage}
-                          alt={product.name || "No Image"}
-                          className="md:w-20 sm:w-30 lg:w-30 w-20 object-cover rounded-lg"
-                        />
-                        <div className="ml-2">
-                          <h3 className="md:text-sm md:font-semibold md:w-52 lg:w-52 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.name}
-                          </h3>
-                          <h3 className="md:text-sm md:font-semibold md:w-52 lg:w-52 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.description}
-                          </h3>
-                          <p className="truncate overflow-hidden whitespace-nowrap md:w-52 lg:w-56 w-40 sm:w-52 text-sm text-[#f5a53d] font-semibold">
-                            Gh¢{product.price}
-                          </p>
-                          <p className="text-sm md:w-60 lg:w-60 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.region}
-                          </p>
-                          <p className="text-sm md:w-60 lg:w-60 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.town}
-                          </p>
-  
-                          <div className="text-end px-4">
-                            <p className="text-sm text-[#f5a53d] px-2 md:px-2 truncate overflow-hidden whitespace-nowrap">
-                              {product?.condition}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-  
-              {filteredProducts.length > visibleProducts.length && (
-                <div className="flex justify-center mt-8">
-                  <button
-                    onClick={handleLoadMore}
-                    className="px-6 py-2 text-white bg-black hover:bg-[#f5a53d] rounded-lg"
-                  >
-                    Load More
-                  </button>
+
+              {filteredProducts.length === 0 ? (
+                <EmptyState title="No trucks found" subtitle="Try a different category or search term." />
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+                  {visibleProducts.map((product) => (
+                    <ListingCard
+                      key={product._id}
+                      href={`/hiredetail/${product._id}`}
+                      image={product.picture || fallbackImage}
+                      title={product.name}
+                      subtitle={product.description}
+                      price={product.price ? `Gh¢${product.price}` : undefined}
+                      meta={[product.region, product.town].filter(Boolean).join(', ')}
+                      tag={product.condition}
+                    />
+                  ))}
                 </div>
+              )}
+
+              {filteredProducts.length > visibleProducts.length && (
+                <LoadMoreButton onClick={handleLoadMore} />
               )}
             </>
           )}

@@ -1,102 +1,119 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux"; // Import useSelector
-import { IoIosAddCircle } from "react-icons/io";
-import { FaHireAHelper, FaStar } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { FiPlusCircle } from "react-icons/fi";
+import { FaStar, FaHireAHelper } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md";
 import { FiTruck } from "react-icons/fi";
 
+const tabs = [
+  { key: "advert", path: "/", label: "Adverts", Icon: FaStar },
+  { key: "buy", path: "/buy?tab=0", label: "Buy", Icon: MdPhoneIphone },
+  { key: "tabs", path: "/tabs?tab=0", label: "KIA", Icon: FiTruck },
+  { key: "rent", path: "/rent?tab=0", label: "Rent", Icon: FaHireAHelper },
+];
+
 const ButtonNavigation = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [activeButton, setActiveButton] = useState("");
-    const isLoggedIn = useSelector((state) => state.login); // Get login state
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const [activeButton, setActiveButton] = useState("");
+  const isLoggedIn = useSelector((state) => state.login);
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const tab = params.get("tab");
+  useEffect(() => {
+    const tab = searchParams.get("tab");
 
-        if (["0", "1", "2", "3"].includes(tab)) {
-            if (location.pathname === "/buy") {
-                setActiveButton("buy");
-            } else if (location.pathname === "/tabs") {
-                setActiveButton("tabs");
-            } else if (location.pathname === "/rent") {
-                setActiveButton("rent");
-            }
-        } else if (location.pathname === "/") {
-            setActiveButton("advert");
-        } else if (location.pathname === "/user") {
-            setActiveButton("user");
-        } else {
-            setActiveButton("");
-        }
-    }, [location]);
+    if (["0", "1", "2", "3"].includes(tab)) {
+      if (pathname === "/buy") {
+        setActiveButton("buy");
+      } else if (pathname === "/tabs") {
+        setActiveButton("tabs");
+      } else if (pathname === "/rent") {
+        setActiveButton("rent");
+      }
+    } else if (pathname === "/") {
+      setActiveButton("advert");
+    } else if (pathname === "/user") {
+      setActiveButton("user");
+    } else {
+      setActiveButton("");
+    }
+  }, [pathname, searchParams]);
 
-    const handleButtonClick = (path, button) => {
-        setActiveButton(button);
-        navigate(path);
-    };
+  const handleButtonClick = (path, button) => {
+    setActiveButton(button);
+    navigate(path);
+  };
 
-    if (!isLoggedIn || location.pathname === "/report") return null;
+  if (!isLoggedIn || pathname === "/report") return null;
 
-
-
-
-
+  const renderTab = ({ key, path, label, Icon }) => {
+    const active = activeButton === key;
     return (
-        <div className="fixed bottom-0 left-0 w-full bg-[#f5a53d] border-t border-gray-300 flex md:justify-around lg:justify-around justify-center p-3">
-            <button
-                onClick={() => handleButtonClick("/", "advert")}
-                className={`text-black rounded-md px-4 py-2 ${
-                    activeButton === "advert" ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-            >
-                <FaStar className="mx-3 sm:text-xl md:text-4xl text-2xl lg:text-3xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">Adverts</h1>
-            </button>
-       
-            <button
-                onClick={() => handleButtonClick("/buy?tab=0", "buy")}
-                className={`text-black rounded-md px-4 py-2 ${
-                    activeButton === "buy" ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-            >
-                <MdPhoneIphone className="sm:text-xl text-2xl md:text-4xl lg:text-3xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">Buy</h1>
-            </button>
-
-                 <button
-                onClick={() => handleButtonClick("/tabs?tab=0", "tabs")}
-                className={`text-black rounded-md px-4 py-2 ${
-                    activeButton === "tabs" ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-            >
-                <FiTruck className="sm:text-xl md:text-4xl text-2xl lg:text-3xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">KIA</h1>
-            </button>
-
-            
-            <button
-                onClick={() => handleButtonClick("/rent?tab=0", "rent")}
-                className={`text-black rounded-md px-4 py-2 ${
-                    activeButton === "rent" ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-            >
-                <FaHireAHelper className="sm:text-xl text-2xl md:text-4xl lg:text-3xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">Rent</h1>
-            </button>
-            <button
-                onClick={() => handleButtonClick("/user", "user")}
-                className={`text-black rounded-md px-4 py-2 ${
-                    activeButton === "user" ? "bg-white" : "bg-[#f5a53d]"
-                }`}
-            >
-                <IoIosAddCircle className="mx-3 text-3xl sm:text-4xl md:text-5xl lg:text-4xl" />
-                <h1 className="text-xs sm:text-sm md:text-base">My Post</h1>
-            </button>
-        </div>
+      <button
+        key={key}
+        onClick={() => handleButtonClick(path, key)}
+        className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 transition-colors ${
+          active ? "bg-brand-50" : ""
+        }`}
+      >
+        <span
+          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+            active ? "text-brand-600" : "text-ink-400"
+          }`}
+        >
+          <Icon className="text-lg" />
+        </span>
+        <span
+          className={`text-[10.5px] font-semibold ${
+            active ? "text-brand-700" : "text-ink-400"
+          }`}
+        >
+          {label}
+        </span>
+      </button>
     );
+  };
+
+  // Split the tabs so "My Post" sits in the middle of the bar (2 tabs,
+  // FAB, 2 tabs) instead of trailing at the end.
+  const midpoint = Math.ceil(tabs.length / 2);
+  const firstHalf = tabs.slice(0, midpoint);
+  const secondHalf = tabs.slice(midpoint);
+
+  return (
+    // Mobile/tablet only — desktop widths (lg+) get this same navigation
+    // inline in the header (see NavbarCompo's primaryNav) instead of a bar
+    // pinned to the bottom of the viewport, which is a phone-app convention
+    // that doesn't belong on a desktop website.
+    <div className="fixed bottom-0 left-0 z-50 w-full px-2 pb-2 sm:px-4 sm:pb-3 lg:hidden">
+      <div className="mx-auto flex max-w-md items-center justify-between gap-0.5 rounded-2xl border border-ink-100 bg-white/95 px-1.5 py-1.5 shadow-card backdrop-blur">
+        {firstHalf.map(renderTab)}
+
+        <button
+          onClick={() => handleButtonClick("/user", "user")}
+          className="flex flex-1 flex-col items-center gap-0.5 py-1.5"
+        >
+          <span
+            className={`-mt-5 flex h-11 w-11 items-center justify-center rounded-full shadow-glow ring-4 ring-white transition-colors ${
+              activeButton === "user" ? "bg-accent-600" : "bg-accent-500"
+            }`}
+          >
+            <FiPlusCircle className="text-xl text-white" />
+          </span>
+          <span
+            className={`text-[10.5px] font-semibold ${
+              activeButton === "user" ? "text-accent-600" : "text-ink-400"
+            }`}
+          >
+            My Post
+          </span>
+        </button>
+
+        {secondHalf.map(renderTab)}
+      </div>
+    </div>
+  );
 };
 
 export default ButtonNavigation;

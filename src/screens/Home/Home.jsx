@@ -1,33 +1,44 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import baseURL from '../../assets/baseURL';
 import { FaPhoneAlt, FaWhatsappSquare, FaTimes } from 'react-icons/fa';
-import { TbPhoneCall } from "react-icons/tb";
+import { FiHeadphones } from 'react-icons/fi';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-import { Pagination, Navigation, Autoplay } from 'swiper/modules';
 import Loader from '../../components/Loader';
 import axios from 'axios';
 import PhoneInput from "react-phone-input-2";
+import Container from '../../components/ui/Container';
+import BigCarousel from '../../components/ui/BigCarousel';
+import SearchBar from '../../components/ui/SearchBar';
+import ListingCard from '../../components/ui/ListingCard';
+import EmptyState from '../../components/ui/EmptyState';
+
+const categoryFilters = [
+  { key: "all", label: "Everything" },
+  { key: "fashion", label: "Products" },
+  { key: "shop", label: "Shops" },
+  { key: "building", label: "Housing" },
+];
 
 function Home() {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalVisibleNum, setIsModalVisibleNum] = useState(false);
+  const [isSupportModalVisible, setIsSupportModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const navigate = useNavigate();
   const UserState = useSelector((state) => state);
   const swiperRef = useRef(null);
   const [products, setProducts] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeRegion, setActiveRegion] = useState("all");
   const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
   const fallbackImage = "https://via.placeholder.com/300x200?text=No+Image";
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  
+
 
   // fetch user data
   const fetchUserData = async () => {
@@ -84,14 +95,6 @@ function Home() {
 
         setProducts(combined);
         setItems(adverts);
-
-        // split into columns
-        const numCols = 5;
-        const colArray = Array.from({ length: numCols }, () => []);
-        combined.forEach((product, i) => {
-          colArray[i % numCols].push(product);
-        });
-        setColumns(colArray);
         setIsLoading(false);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -100,6 +103,35 @@ function Home() {
     };
     fetchData();
   }, [UserState.user?.id]);
+
+  // Distinct regions present in the loaded listings, for the region filter.
+  const regions = useMemo(
+    () => Array.from(new Set(products.map((p) => p.region).filter(Boolean))).sort(),
+    [products]
+  );
+
+  // Apply the search box + category/region filters client-side to the
+  // already-loaded "hot"/featured items shown on the homepage.
+  const filteredProducts = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    return products.filter((product) => {
+      const matchesCategory = activeCategory === "all" || product.type === activeCategory;
+      const matchesRegion = activeRegion === "all" || product.region === activeRegion;
+      const matchesSearch = !term || (product.name || "").toLowerCase().includes(term);
+      return matchesCategory && matchesRegion && matchesSearch;
+    });
+  }, [products, searchTerm, activeCategory, activeRegion]);
+
+  // Re-split the filtered results into masonry columns whenever the filters
+  // (or the underlying data) change.
+  useEffect(() => {
+    const numCols = 5;
+    const colArray = Array.from({ length: numCols }, () => []);
+    filteredProducts.forEach((product, i) => {
+      colArray[i % numCols].push(product);
+    });
+    setColumns(colArray);
+  }, [filteredProducts]);
 
   // increment platfUsed
   useEffect(() => {
@@ -227,11 +259,17 @@ const handleProductClick = async (product) => {
     const url = "https://wa.me/233209317581";
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) window.location.href = url;
     else window.open(url, "_blank");
+    setIsSupportModalVisible(false);
+  };
+
+  const openOfficeCall = () => {
+    window.location.href = "tel:+233209317581";
+    setIsSupportModalVisible(false);
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="flex items-center justify-center h-screen bg-ink-50">
         <Loader />
       </div>
     );
@@ -239,7 +277,7 @@ const handleProductClick = async (product) => {
 
  const handleSaveUserData = async () => {
   try {
-    const payload = { ...userData }; 
+    const payload = { ...userData };
      const response = await axios.put(`${baseURL}card/${UserState.user.id}/details`, payload);
     if (response.status === 200) {
       // ✅ Success: close modal
@@ -248,204 +286,273 @@ const handleProductClick = async (product) => {
       // update user state
       setUserData(payload);
     }
-  
+
   } catch (err) {
     console.error("Error saving user data", err);
   }
 };
 
-
-
-
-
   return (
-    <div className="flex flex-col min-h-[100vh] bg-[#f5a53d] pt-16 sm:pt-20 md:pt-24 px-4 sm:px-6 md:px-8 font-serif">
+    <div className="min-h-screen bg-ink-50 pt-16 sm:pt-20 pb-10">
+      {/* Page hero */}
+      <div className="bg-ink-950 pb-10 pt-6 sm:pb-14 sm:pt-8">
+        <Container>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-300">
+                Ghana&apos;s marketplace
+              </p>
+              <h1 className="mt-1.5 font-display text-2xl font-extrabold text-white sm:text-3xl md:text-4xl">
+                Buy, sell &amp; rent anything near you
+              </h1>
+            </div>
 
-      {/* Advert Slider */}
-      <div className="shadow-md rounded-lg mb-10">
-        <Swiper
-          ref={swiperRef}
-          modules={[Pagination, Navigation, Autoplay]}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
-          className="rounded-lg"
-        >
-          {images.map((image, index) => (
-            <SwiperSlide key={index} className="flex justify-center items-center">
-              <img
-                src={image}
-                alt={`Slide ${index}`}
-                className="w-[260vh] h-[50vh] sm:h-[60vh] md:h-[70vh] object-contain"
-              />
+            {/* Linkpii Support — for advertisers who want their flyer
+                posted in the big carousel below; either icon opens the
+                same support sheet with both contact options. */}
+            <div className="flex shrink-0 items-center gap-2">
               <button
-                onClick={handlePressCallButton}
-                className="absolute bg-transparent p-2 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500 z-30 animate-heartbeat"
+                type="button"
+                onClick={() => setIsSupportModalVisible(true)}
+                aria-label="Chat with Linkpii Support on WhatsApp"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-green-400 transition-colors hover:bg-white/20"
               >
-                <TbPhoneCall className="md:text-5xl text-3xl" />
-                {/* <h1 className="text-sm md:text-base">Call now</h1> */}
+                <FaWhatsappSquare className="text-xl" />
               </button>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-
-        {/* Bottom bar */}
-        <div className="flex justify-between mx-4 md:mx-32 ">
-          <button onClick={handlePressCallButton} className="text-green-500">
-            <FaPhoneAlt className='text-xl md:text-2xl' />
-          </button>
-          <div className='flex justify-center font-bold md:text-lg lg:text-lg  text-sm animate-heartbeat'>
-            <h4 className='text-[10px] md:text-sm md:mt-5'>
-              Send your flier to be posted here for advertisement.
-            </h4>
+              <button
+                type="button"
+                onClick={() => setIsSupportModalVisible(true)}
+                aria-label="Call Linkpii Support"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+              >
+                <FaPhoneAlt className="text-base" />
+              </button>
+            </div>
           </div>
-          <button onClick={openOfficeWhatsapp} className="text-green-500">
-            <FaWhatsappSquare className='text-xl md:text-2xl' />
-          </button>
-        </div>
+
+          <p className="mt-2 max-w-2xl text-sm text-brand-100 sm:text-base">
+            Products, shops, housing, equipment, services and more — all in one place.
+          </p>
+        </Container>
       </div>
 
-      {/* Product Grid */}
-      {isSafari ? (
-        // Safari → GRID
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-10">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              onClick={() => handleProductClick(product)}
-              className="bg-gray-200 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
-            >
-              {product.discount && (
-                <div className="absolute bg-[#f5a53d] text-black text-xs font-bold px-2 py-1 rounded-tr-lg rounded-bl-lg">
-                  {product.discount}% OFF
-                </div>
-              )}
-              <img
-                src={product.picture || fallbackImage}
-                alt={product.name || "No Image"}
-                className="w-full aspect-[4/3] object-cover"
+      <Container className="-mt-6 sm:-mt-8">
+        {/* Advert Slider */}
+        <BigCarousel images={images} onCallPress={handlePressCallButton} swiperRef={swiperRef} />
+
+        <div className="mb-6 mt-3 flex items-center justify-center gap-2 text-sm">
+          <span className="text-ink-500">Want your flyer featured here?</span>
+          <button
+            onClick={() => setIsSupportModalVisible(true)}
+            className="font-semibold text-brand-600 hover:text-brand-700"
+          >
+            Contact Linkpii Support
+          </button>
+        </div>
+
+        {/* Search + filters — sit just above the product grid they filter */}
+        <div className="mb-6">
+          <SearchBar
+            keyword={searchTerm}
+            onKeywordChange={setSearchTerm}
+            keywordPlaceholder="Search listings by name..."
+            onClear={() => setSearchTerm("")}
+          />
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {categoryFilters.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setActiveCategory(cat.key)}
+                aria-pressed={activeCategory === cat.key}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors sm:text-sm ${
+                  activeCategory === cat.key
+                    ? "bg-accent-500 text-white shadow-soft"
+                    : "bg-ink-100 text-ink-600 hover:bg-ink-200"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+
+            {regions.length > 0 && (
+              <select
+                value={activeRegion}
+                onChange={(e) => setActiveRegion(e.target.value)}
+                aria-label="Filter by region"
+                className="ml-auto rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink-600 focus:outline-none focus:ring-2 focus:ring-brand-200 sm:text-sm"
+              >
+                <option value="all">All regions</option>
+                {regions.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        </div>
+
+        {/* Product Grid */}
+        {filteredProducts.length === 0 ? (
+          <EmptyState
+            title="No listings match your search"
+            subtitle="Try a different keyword, category or region."
+          />
+        ) : isSafari ? (
+          // Safari → GRID
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-10">
+            {filteredProducts.map((product) => (
+              <ListingCard
+                key={product._id}
+                onClick={() => handleProductClick(product)}
+                image={product.picture || fallbackImage}
+                title={product.name}
+                price={product.price ? `Gh¢${product.price}` : undefined}
+                meta={[product.region, product.town, product.location].filter(Boolean).join(", ")}
+                badge={product.discount ? `${product.discount}% OFF` : null}
+                tag={product.condition}
               />
-              <div className="p-3">
-                <h3 className="text-sm font-semibold truncate">{product.name}</h3>
-                {!product.price ? (
-                  <p className="text-md text-[#f5a53d] font-bold">Call for price</p>
-                ) : (
-                  <p className="text-md text-[#f5a53d] font-bold">Gh¢{product.price}</p>
-                )}
-                <p className="text-xs text-gray-600 truncate">
-                  {product.region}, {product.town}, {product.location}
-                </p>
-                {product.condition && (
-                  <p className="text-xs text-end text-[#f5a53d]">{product.condition}</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        // Others → Masonry
-        <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 mb-10">
-          {columns.map((col, colIndex) => (
-            <div key={colIndex} className="flex flex-col gap-4">
-              {col.map((product) => (
-                <div key={product._id} onClick={() => handleProductClick(product)}>
-                  <div className="mb-2 bg-gray-200 rounded-lg shadow-lg p-3 break-inside-avoid">
-                    {product.discount && (
-                      <div className="absolute bg-[#f5a53d] text-black text-xs font-bold px-2 py-1 rounded-tr-lg rounded-bl-lg ">
-                        {product.discount}% OFF
-                      </div>
-                    )}
-                    <img
-                      src={product.picture || fallbackImage}
-                      alt={product.name || "No Image"}
-                      className="w-full object-cover rounded-lg"
-                      style={{ height: "50%" }}
+            ))}
+          </div>
+        ) : (
+          // Others → Masonry
+          <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4 mb-10">
+            {columns.map((col, colIndex) => (
+              <div key={colIndex} className="flex flex-col gap-4">
+                {col.map((product) => (
+                  <div key={product._id} className="mb-1 break-inside-avoid">
+                    <ListingCard
+                      onClick={() => handleProductClick(product)}
+                      image={product.picture || fallbackImage}
+                      title={product.name}
+                      price={product.price ? `Gh¢${product.price}` : undefined}
+                      meta={[product.region, product.town, product.location].filter(Boolean).join(", ")}
+                      badge={product.discount ? `${product.discount}% OFF` : null}
+                      tag={product.condition}
                     />
-                    <div className="mt-3 w-full text-center sm:text-left">
-                      <h3 className="text-sm font-semibold truncate">{product.name}</h3>
-                      {!product.price ? (
-                        <h3 className="text-md text-[#f5a53d] font-bold">Call for price</h3>
-                      ) : (
-                        <p className="text-md text-[#f5a53d] font-bold">Gh¢{product.price}</p>
-                      )}
-                      <p className="text-xs text-gray-600 truncate">
-                        {product.region}, {product.town}, {product.location}
-                      </p>
-                      {product.condition && (
-                        <p className="text-xs text-end text-[#f5a53d]">{product.condition}</p>
-                      )}
-                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </Container>
 
       {/* Modal */}
       {isModalVisible && selectedItem && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white p-6 rounded-lg w-4/5 max-w-md shadow-lg">
-            <button
-              onClick={() => setIsModalVisible(false)}
-              className="text-black font-bold text-lg float-right"
-            >
-              <FaTimes />
-            </button>
-            <p className="text-lg font-bold text-gray-800 mb-4">
-              Welcome to {selectedItem?.name}, feel free to call or chat with us.
-            </p>
-            <div className="flex justify-between">
-              <button onClick={openDialAdvert} className="p-3">
-                <FaPhoneAlt size={30} color="green" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <p className="text-lg font-bold text-ink-800">
+                Welcome to {selectedItem?.name}, feel free to call or chat with us.
+              </p>
+              <button
+                onClick={() => setIsModalVisible(false)}
+                className="shrink-0 rounded-full p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-800"
+                aria-label="Close"
+              >
+                <FaTimes />
               </button>
-              <button onClick={WhatsApp} className="p-3">
-                <FaWhatsappSquare size={35} color="green" />
+            </div>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={openDialAdvert}
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100"
+                aria-label="Call"
+              >
+                <FaPhoneAlt size={22} />
+              </button>
+              <button
+                onClick={WhatsApp}
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-600 transition-colors hover:bg-green-100"
+                aria-label="WhatsApp"
+              >
+                <FaWhatsappSquare size={26} />
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Linkpii Support — reach the office to get a flyer posted as an
+          advertisement in the big carousel above. */}
+      {isSupportModalVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
+              <FiHeadphones className="text-2xl" />
+            </div>
+            <h2 className="font-display text-lg font-bold text-ink-900">Linkpii Support</h2>
+            <p className="mt-1 text-sm text-ink-500">
+              Want your flyer featured in the carousel? How can we help you?
+            </p>
+
+            <div className="mt-5 space-y-2.5">
+              <button
+                onClick={openOfficeWhatsapp}
+                className="flex w-full items-center gap-3 rounded-xl bg-ink-50 px-4 py-3 text-left text-sm font-semibold text-ink-800 transition-colors hover:bg-green-50"
+              >
+                <FaWhatsappSquare className="shrink-0 text-xl text-green-500" />
+                Chat on WhatsApp
+              </button>
+              <button
+                onClick={openOfficeCall}
+                className="flex w-full items-center gap-3 rounded-xl bg-ink-50 px-4 py-3 text-left text-sm font-semibold text-ink-800 transition-colors hover:bg-brand-50"
+              >
+                <FaPhoneAlt className="shrink-0 text-lg text-brand-600" />
+                Direct Call
+              </button>
+            </div>
+
+            <button
+              onClick={() => setIsSupportModalVisible(false)}
+              className="mt-5 text-sm font-semibold text-ink-400 hover:text-ink-600"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {isModalVisibleNum && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl shadow-lg p-6 w-96 max-w-full">
-      <h2 className="text-lg font-semibold mb-4 text-center">
-        Add Your Phone Number
-      </h2>
-      <p className="text-sm text-gray-500 mb-4 text-center">
-        We need your phone number to continue.
-      </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="mb-1 text-center text-lg font-semibold text-ink-900">
+              Add Your Phone Number
+            </h2>
+            <p className="mb-4 text-center text-sm text-ink-500">
+              We need your phone number to continue.
+            </p>
 
-      {/* Phone input with country selector */}
-      <PhoneInput
-  country={"gh"} // default Ghana 🇬🇭
-  value={userData.phone}
-  onChange={(phone) => {
-    // If phone starts with +countryCode followed by 0, strip the 0
-    const countryCode = "+" + phone.split(" ")[0]; // e.g. +233
-    let cleaned = phone;
+            {/* Phone input with country selector */}
+            <PhoneInput
+              country={"gh"} // default Ghana 🇬🇭
+              value={userData.phone}
+              onChange={(phone) => {
+                // If phone starts with +countryCode followed by 0, strip the 0
+                const countryCode = "+" + phone.split(" ")[0]; // e.g. +233
+                let cleaned = phone;
 
-    if (cleaned.startsWith(countryCode + "0")) {
-      cleaned = countryCode + cleaned.slice(countryCode.length + 1); 
-    }
+                if (cleaned.startsWith(countryCode + "0")) {
+                  cleaned = countryCode + cleaned.slice(countryCode.length + 1);
+                }
 
-    setUserData({ ...userData, phone: cleaned });
-  }}
-  inputClass="!w-full !h-11 !text-base !rounded-lg !border !border-gray-300 focus:!ring-2 focus:!ring-[#f5a53d]"
-  containerClass="mb-4"
-/>
+                setUserData({ ...userData, phone: cleaned });
+              }}
+              inputClass="!w-full !h-11 !text-base !rounded-xl !border !border-ink-200 focus:!ring-2 focus:!ring-brand-200"
+              containerClass="mb-4"
+            />
 
-
-      <button
-        onClick={handleSaveUserData}
-        className="w-full bg-[#f5a53d] text-white py-2 rounded-lg font-bold hover:opacity-90 transition"
-      >
-        Save
-      </button>
-    </div>
-  </div>
-)}
+            <button
+              onClick={handleSaveUserData}
+              className="w-full rounded-xl bg-brand-600 py-2.5 font-bold text-white transition-colors hover:bg-brand-700"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -4,12 +4,14 @@ import "tailwindcss/tailwind.css";
 import baseURL from "../../assets/baseURL";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import Loader from "../../components/Loader";
+import SearchBar from "../../components/ui/SearchBar";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadMoreButton from "../../components/ui/LoadMoreButton";
 
 
 const Delivery = () => {
   const [products, setProducts] = useState([]);
   const [productFiltered, setProductsFiltered] = useState([]);
-  const [focus, setFocus] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [displayedProducts, setDisplayedProducts] = useState(20);
@@ -62,96 +64,69 @@ const Delivery = () => {
   };
 
   return (
-    <div className="flex flex-col bg-white min-h-screen -mt-24 md:mb-10 ">
-     
+    <div className="min-h-screen pb-8">
       {loading ? (
-        <div className="flex justify-center items-center h-screen">
-           <Loader />
+        <div className="flex justify-center items-center py-20">
+          <Loader />
         </div>
       ) : (
-        <div className="w-full sm:w-11/12 md:w-10/12 mx-auto">
-          <div className="w-full mt-6 mb-4 relative">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => searchProducts(e.target.value)}
-              placeholder="Where are you?"
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-            {focus && (
-              <button
-                onClick={() => setFocus(false)}
-                className="absolute right-10 top-3 text-gray-600 hover:text-gray-800"
-              >
-                &#x2715;
-              </button>
-            )}
+        <div>
+          <div className="mb-4 rounded-2xl bg-white border border-ink-100 shadow-soft p-4">
+            <p className="text-sm text-ink-600">
+              Need a rider to deliver something across town? Find one nearby and call them.
+            </p>
           </div>
 
+          <SearchBar
+            keyword={input}
+            onKeywordChange={searchProducts}
+            keywordPlaceholder="Where are you?"
+            onClear={() => searchProducts("")}
+            className="mb-4"
+          />
+
           {productFiltered.length > 0 ? (
-           <div className="flex flex-wrap justify-center gap-6 p-2">
-           {productFiltered.slice(0, displayedProducts).map((item) => (
-             <div
-               key={item._id}
-               className="px-2 w-full md:w-auto bg-gray-200 rounded-lg shadow-md flex justify-between"
-             >
-               <div>
-                 <h3 className="md:text-lg md:w-40 w-48 md:font-semibold truncate overflow-hidden whitespace-nowrap">
-                  {item.name}
-                 </h3>
-                 <p className="text-sm md:font-semibold md:w-40 w-48 truncate overflow-hidden whitespace-nowrap">
-                  {item.region}
-                  </p>
-                 <p className="text-sm md:font-semibold md:w-40 w-48 truncate overflow-hidden whitespace-nowrapd">
-                  {item.town}
- 
-                  </p>
-                 <div className="flex gap-x-20 md:gap-x-10">
-                   <img
-                     src={item.carpic}
-                     alt={item._id}
-                     className="md:w-14 lg:w-14 w-14 object-cover rounded-full"
-                   />
-                   <Link
-                  // onClick={()=>alert("Hello")}
-                     to={`/calldelivery/${item._id}`}
-                     className="mt-2 text-center h-10 text-4xl text-green-400 rounded-lg hover:bg-black"
-                   >
-                     <BiSolidPhoneCall />
-                   </Link>
-                 </div>
-                 <p className="md:w-40 w-48 md:mt-4 truncate overflow-hidden whitespace-nowrap text-sm md:font-semibold">
-                      {item.location}
-                   
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {productFiltered.slice(0, displayedProducts).map((item) => (
+                <div
+                  key={item._id}
+                  className="bg-white rounded-2xl shadow-soft border border-ink-100 p-3 flex items-center gap-3"
+                >
+                  <img
+                    src={item.driverpic}
+                    alt={item.name}
+                    className="w-16 h-16 object-cover rounded-xl shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-ink-900 truncate">{item.name}</h3>
+                    <p className="text-xs text-ink-500 truncate">
+                      {[item.region, item.town, item.location].filter(Boolean).join(", ")}
                     </p>
-
-
-
-               </div>
-         
-               <div>
-                 <img
-                   src={item.driverpic}
-                   alt={item.name}
-                   className="md:w-[12vh] sm:w-[12vh] lg:w-[13vh] w-28 mt-2  object-cover rounded-lg"
-                 />
-                 <h1 className="text-sm md:font-semibold lg:pt-1 sm:pt-2 md:pt-2">{item.carnum}</h1>
-               </div>
-             </div>
-           ))}
-         </div>
-         
+                    <p className="text-xs text-ink-400 mt-0.5">{item.carnum}</p>
+                  </div>
+                  <div className="flex flex-col items-center gap-2 shrink-0">
+                    <img
+                      src={item.carpic}
+                      alt={`${item.name}'s vehicle`}
+                      className="w-12 h-12 object-cover rounded-full ring-2 ring-brand-100"
+                    />
+                    <Link
+                      to={`/calldelivery/${item._id}`}
+                      aria-label={`Call ${item.name}`}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-green-50 text-green-600 hover:bg-green-100 text-lg"
+                    >
+                      <BiSolidPhoneCall />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
-            <p className="text-center mt-4">No drivers found. Please check your internet.</p>
+            <EmptyState title="No riders found" subtitle="Please check your internet connection." />
           )}
 
           {displayedProducts < productFiltered.length && (
-            <button
-              onClick={loadMoreProducts}
-              className="mt-6 bg-black text-orange-500 px-6 py-2 rounded-lg hover:bg-gray-800"
-            >
-              Load More
-            </button>
+            <LoadMoreButton onClick={loadMoreProducts} />
           )}
         </div>
       )}

@@ -8,6 +8,8 @@ import ServicesMana from "../Services/ServicesMana";
 import ShopManagement from "../Shop/ShopManagement";
 import HousingMana from "../Housing/HousingMana";
 import ProductManagement from "../Product/ProductManagement";
+import Container from "../../components/ui/Container";
+import SectionHeading from "../../components/ui/SectionHeading";
 
 const Admin = () => {
   const location = useLocation(); // Get navigation state
@@ -20,87 +22,74 @@ const Admin = () => {
     }
   }, [location.state]);
 
-  const Stylediv = `flex flex-col items-center`;
+  const tabItemClass = (active) =>
+    `flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-center transition-colors select-none ${
+      active
+        ? "bg-brand-600 text-white shadow-soft"
+        : "text-ink-500 hover:bg-brand-50 hover:text-brand-700"
+    }`;
 
   return (
-    <div className="pt-28 bg-[#f5a53d] min-h-screen">
-      <div className="flex flex-col">
-        <h1 className="text-xl text-center mb-4">Below are your dashboards</h1>
+    <div className="min-h-screen bg-ink-50 pb-10 pt-24 sm:pt-28">
+      <Container>
+        <SectionHeading eyebrow="Your listings" title="My Post" subtitle="Below are your dashboards" />
 
-        <div className="flex justify-between">
+        <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-ink-100 bg-white p-1.5 shadow-soft">
           {/* Services */}
           <button
             onClick={() => setActiveComponent("services")}
-            className={`p-2 rounded-lg ${
-              activeComponent === "services" ? "bg-white" : "bg-transparent"
-            }`}
+            className={tabItemClass(activeComponent === "services")}
           >
-            <div className={Stylediv}>
-              <GiAutoRepair className="text-3xl" />
-              <h1 className="text-xl hidden md:block lg:block">Services</h1>
-            </div>
+            <GiAutoRepair className="text-2xl" />
+            <span className="text-xs font-semibold sm:text-sm">Services</span>
           </button>
 
           {/* General */}
           <button
             onClick={() => setActiveComponent("general")}
-            className={`p-2 rounded-lg ${
-              activeComponent === "general" ? "bg-white" : "bg-transparent"
-            }`}
+            className={tabItemClass(activeComponent === "general")}
           >
-            <div className={Stylediv}>
-              <FaBasketShopping className="text-3xl" />
-              <h1 className="text-xl hidden md:block lg:block">General</h1>
-            </div>
+            <FaBasketShopping className="text-2xl" />
+            <span className="text-xs font-semibold sm:text-sm">General</span>
           </button>
 
           {/* Agric */}
           <button
             onClick={() => setActiveComponent("agric")}
-            className={`p-2 rounded-lg ${
-              activeComponent === "agric" ? "bg-white" : "bg-transparent"
-            }`}
+            className={tabItemClass(activeComponent === "agric")}
           >
-            <div className={Stylediv}>
-              <GiFruitBowl className="text-3xl sm:text-3xl md:text-3xl" />
-              <h1 className="text-xl hidden md:block lg:block">Agric</h1>
-            </div>
+            <GiFruitBowl className="text-2xl" />
+            <span className="text-xs font-semibold sm:text-sm">Agric</span>
           </button>
 
           {/* Shop */}
           <button
             onClick={() => setActiveComponent("shop")}
-            className={`p-2 rounded-lg ${
-              activeComponent === "shop" ? "bg-white" : "bg-transparent"
-            }`}
+            className={tabItemClass(activeComponent === "shop")}
           >
-            <div className={Stylediv}>
-              <FaShoppingCart className="text-3xl sm:text-3xl md:text-3xl" />
-              <h1 className="text-xl hidden md:block lg:block">Shop</h1>
-            </div>
+            <FaShoppingCart className="text-2xl" />
+            <span className="text-xs font-semibold sm:text-sm">Shop</span>
           </button>
 
           {/* Building */}
           <button
             onClick={() => setActiveComponent("building")}
-            className={`p-2 rounded-lg ${
-              activeComponent === "building" ? "bg-white" : "bg-transparent"
-            }`}
+            className={tabItemClass(activeComponent === "building")}
           >
-            <div className={Stylediv}>
-              <GiAutoRepair className="text-3xl sm:text-3xl md:text-3xl" />
-              <h1 className="text-xl hidden md:block lg:block">Building</h1>
-            </div>
+            <GiAutoRepair className="text-2xl" />
+            <span className="text-xs font-semibold sm:text-sm">Building</span>
           </button>
         </div>
-      </div>
 
-      {/* Render Active Component */}
-      {activeComponent === "services" && <ServicesMana />}
-      {activeComponent === "agric" && <AgricMana />}
-      {activeComponent === "shop" && <ShopManagement />}
-      {activeComponent === "building" && <HousingMana />}
-      {activeComponent === "general" && <ProductManagement />}
+        <div className="mt-6">
+          {/* Render Active Component */}
+          {activeComponent === "services" && <ServicesMana />}
+          {activeComponent === "agric" && <AgricMana />}
+          {activeComponent === "shop" && <ShopManagement />}
+          {activeComponent === "building" && <HousingMana />}
+          {activeComponent === "general" && <ProductManagement />}
+        </div>
+      </Container>
     </div>
   );
 };

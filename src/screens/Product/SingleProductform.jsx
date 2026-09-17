@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { AiOutlinePlusCircle, AiOutlineVideoCamera , AiOutlineClose} from "react-icons/ai";
+import { AiOutlinePlusCircle, AiOutlineVideoCamera } from "react-icons/ai";
 import baseURL from "../../assets/baseURL";
-import { Link, useNavigate } from "react-router-dom";
-import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import Container from "../../components/ui/Container";
+import SectionHeading from "../../components/ui/SectionHeading";
 
+const inputClass =
+  "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
 
 const SingleProductForm = ({ item }) => {
   const [picture, setPicture] = useState(null);
@@ -70,7 +73,7 @@ const SingleProductForm = ({ item }) => {
     };
     fetchCategories();
   }, []);
-  
+
 
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
@@ -91,7 +94,7 @@ const SingleProductForm = ({ item }) => {
       return null;
     }
   };
-  
+
 
 
 
@@ -100,9 +103,9 @@ const SingleProductForm = ({ item }) => {
       alert("Please fill in all required fields, including Name, Phone, Price, Description, and Location.");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     try {
       const formData = new FormData();
       formData.append("name", name);
@@ -117,16 +120,16 @@ const SingleProductForm = ({ item }) => {
       formData.append("condition", condition);
       formData.append("category", category);
       formData.append("userId", login.user);
-  
+
       if (picture) formData.append("picture", await fetchFile(picture));
       if (pictureSec) formData.append("picturesec", await fetchFile(pictureSec));
       if (video) formData.append("video", await fetchFile(video));
-  
+
       const response = await fetch(`${baseURL}fashionpost`, {
         method: "POST",
         body: formData,
       });
-  
+
       if (response.ok) {
         const result = await response.json();
         alert("Product submitted successfully!");
@@ -142,190 +145,195 @@ const SingleProductForm = ({ item }) => {
       setIsLoading(false);
     }
   };
-  
-  
-
-
-
-
-
-
 
   return (
-    <>
-     <div className="pt-16 md:pt-28 m-6 ">
-      {/* <Link to={"/user"} className="flex justify-between md:justify-normal">
-      <IoArrowBack size={30} />
-     
-      <h1 className="text-xl font-bold md:ml-96">Post Your Product</h1>
-     
-      </Link> */}
-      </div>
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-12">
+      <Container>
+        <div className="mx-auto max-w-2xl rounded-2xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
+          <SectionHeading
+            eyebrow="Post"
+            title="List a product"
+            subtitle="Add a couple of photos and the details buyers need to reach you."
+          />
 
-    <div className="flex flex-col items-center sm:mx-8 md:mx-8">
-    
-      
-      <div className="grid gap-6 grid-cols-2 mx-4">
-        <div className="relative">
-          <img
-            src={picture || ""}
-            alt="No Image"
-            className="w-60 md:w-80 md:h-40 h-24 rounded-lg object-cover border-4 border-black"
-          />
-          <label htmlFor="primaryImage" className="absolute bottom-0 right-0 cursor-pointer">
-            <AiOutlinePlusCircle size={24} />
-          </label>
-          <input
-            type="file"
-            id="primaryImage"
-            className="hidden"
-            onChange={handleFileChange(setPicture)}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50">
+                {picture && (
+                  <img src={picture} alt="Primary" className="h-full w-full object-cover" />
+                )}
+              </div>
+              <label
+                htmlFor="primaryImage"
+                className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition-colors hover:bg-brand-700"
+              >
+                <AiOutlinePlusCircle size={20} />
+              </label>
+              <input
+                type="file"
+                id="primaryImage"
+                className="hidden"
+                onChange={handleFileChange(setPicture)}
+              />
+            </div>
+            <div className="relative">
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50">
+                {pictureSec && (
+                  <img src={pictureSec} alt="Secondary" className="h-full w-full object-cover" />
+                )}
+              </div>
+              <label
+                htmlFor="secondaryImage"
+                className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition-colors hover:bg-brand-700"
+              >
+                <AiOutlinePlusCircle size={20} />
+              </label>
+              <input
+                type="file"
+                id="secondaryImage"
+                className="hidden"
+                onChange={handleFileChange(setPictureSec)}
+              />
+            </div>
+          </div>
+
+          <div className="relative mt-4">
+            <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50">
+              {video ? (
+                <video src={video} controls className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-sm text-ink-400">No video selected</span>
+              )}
+            </div>
+            <label
+              htmlFor="videoPicker"
+              className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-accent-500 text-white shadow-soft transition-colors hover:bg-accent-600"
+            >
+              <AiOutlineVideoCamera size={18} />
+            </label>
+            <input
+              type="file"
+              id="videoPicker"
+              className="hidden"
+              accept="video/*"
+              onChange={handleFileChange(setVideo)}
+            />
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Product Name"
+              className={inputClass}
+            />
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+
+                // Allow only numbers and ensure it doesn't start with '0' or '+'
+                if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
+                  setPrice(inputValue);
+                }
+              }}
+              placeholder="Price"
+              className={inputClass}
+            />
+            <input
+              type="number"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              placeholder="Give a discount. It is optional. 5, 10 ,15..."
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone Number +233, +44, +234"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={whatsapp}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+
+                // Allow only numbers and ensure it doesn't start with '0' or '+'
+                if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
+                  setWhatsapp(inputValue);
+                }
+              }}
+              placeholder="WhatsApp Number 233, 44, 234"
+              className={inputClass}
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Product Description"
+              rows={4}
+              className={inputClass}
+            ></textarea>
+            <input
+              type="text"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              placeholder="Region"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={town}
+              onChange={(e) => setTown(e.target.value)}
+              placeholder="Town"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location"
+              className={inputClass}
+            />
+
+            <select
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+              className={inputClass}
+            >
+              <option value="">Select Condition</option>
+              <option value="new">New</option>
+              <option value="used">Used</option>
+            </select>
+            <select
+              className={inputClass}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)} // Save the ID instead of name
+            >
+              <option value="">Select a category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className={`w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-soft transition-colors hover:bg-brand-700 ${
+                isLoading ? "opacity-50" : ""
+              }`}
+            >
+              {isLoading ? "Submitting..." : "Submit"}
+            </button>
+          </div>
         </div>
-        <div className="relative">
-          <img
-            src={pictureSec || ""}
-            alt="No Image"
-            className="w-60 md:w-80 md:h-40 h-24 rounded-lg object-cover border-4 border-black"
-          />
-          <label htmlFor="secondaryImage" className="absolute bottom-0 right-0 cursor-pointer">
-            <AiOutlinePlusCircle size={24} />
-          </label>
-          <input
-            type="file"
-            id="secondaryImage"
-            className="hidden"
-            onChange={handleFileChange(setPictureSec)}
-          />
-        </div>
-        <div className="relative justify-center">
-          <video
-            src={video || ""}
-            controls
-            className="w-44 h-32 md:w-96 border border-black"
-          ></video>
-          <label htmlFor="videoPicker" className="absolute bottom-0 ml-20 cursor-pointer">
-            <AiOutlineVideoCamera size={24} className="bg-slate-300 md:ml-80 ml-14" />
-          </label>
-          <input
-            type="file"
-            id="videoPicker"
-            className="hidden"
-            accept="video/*"
-            onChange={handleFileChange(setVideo)}
-          />
-        </div>
-      </div>
-
-      <div className="w-80 md:w-1/2 mt-6">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Product Name"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="number"
-          value={price}
-         onChange={(e) => {
-            const inputValue = e.target.value;
-
-            // Allow only numbers and ensure it doesn't start with '0' or '+'
-            if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
-              setPrice(inputValue);
-            }}}
-          placeholder="Price"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="number"
-          value={discount}
-          onChange={(e) => setDiscount(e.target.value)}
-          placeholder="Give a discount. It is optional. 5, 10 ,15..."
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="Phone Number +233, +44, +234"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={whatsapp}
-          onChange={(e) => {
-            const inputValue = e.target.value;
-
-            // Allow only numbers and ensure it doesn't start with '0' or '+'
-            if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
-              setWhatsapp(inputValue);
-            }
-          }}
-          placeholder="WhatsApp Number 233, 44, 234"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Product Description"
-          className="w-full mb-4 p-2 border rounded"
-        ></textarea>
-        <input
-          type="text"
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-          placeholder="Region"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={town}
-          onChange={(e) => setTown(e.target.value)}
-          placeholder="Town"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-          className="w-full mb-4 p-2 border rounded"
-        />
-      
-        <select
-          value={condition}
-          onChange={(e) => setCondition(e.target.value)}
-          className="w-full mb-4 p-2 border rounded"
-        >
-          <option value="">Select Condition</option>
-          <option value="new">New</option>
-          <option value="used">Used</option>
-        </select>
-        <select
-         className="w-full mb-4 p-2 border rounded"
-  value={category}
-  onChange={(e) => setCategory(e.target.value)} // Save the ID instead of name
->
-  <option value="">Select a category</option>
-  {categories.map((cat) => (
-    <option key={cat._id} value={cat._id}>
-      {cat.name}
-    </option>
-  ))}
-</select>
-
-        <button
-          onClick={handleSubmit}
-          className="w-full py-2 px-4 bg-black text-white rounded mb-14"
-          disabled={isLoading}
-        >
-          {isLoading ? "Submitting..." : "Submit"}
-        </button>
-      </div>
+      </Container>
     </div>
-    </>
   );
 };
 

@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import baseURL from "../../assets/baseURL";
-import { IoArrowBack } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
-import { IoMdCheckmark } from "react-icons/io";
-import { FcCancel } from "react-icons/fc";
+import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loader";
+import Container from "../../components/ui/Container";
+import SearchBar from "../../components/ui/SearchBar";
+import ListingCard from "../../components/ui/ListingCard";
+import EmptyState from "../../components/ui/EmptyState";
+import SectionHeading from "../../components/ui/SectionHeading";
 
 const HousingMana = (props) => {
   const [productList, setProductList] = useState([]);
@@ -58,92 +61,59 @@ const HousingMana = (props) => {
     }
   };
 
-  const ListHeader = () => (
-    <div className="flex flex-row bg-[#f5a53d] py-2 px-1 text-lg">
-      <div className="w-1/6 font-semibold">Image</div>
-      <div className="w-1/6 font-semibold">Image</div>
-      <div className="w-1/6 font-semibold">Name</div>
-      <div className="w-1/6 font-semibold">Price</div>
-      <div className="w-1/6 font-semibold">Approve</div>
-      <div className="w-1/6 font-semibold text-center">Views</div>
-    </div>
-  );
-
   const handleProductClick = (product) => {
     navigate(`/building/${product.id}`); // Navigate to the product detail page
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5a53d] pt-18">
-    {/* Header */}
-    <div className="flex items-center justify-center px-4 mt-2 bg-[#f5a53d]">
-      {/* <Link to="/dash">
-        <IoArrowBack size={30} />
-      </Link> */}
-      <div className="relative w-3/4 rounded-full flex items-center px-4">
-        <i className="fas fa-search text-black"></i>
-        <input
-          type="text"
-          placeholder="Search by name"
-          className="w-full rounded-3xl focus:border-none h-12 border-none outline-none"
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            searchProducts(e.target.value);
-          }}
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-16">
+      <Container>
+        <SectionHeading
+          eyebrow="Housing"
+          title="Manage my buildings"
+          subtitle="Track approval status and views for every building you've listed."
         />
-      </div>
-    </div>
 
-    {/* Content */}
-    <div className="flex-1 p-4">
-      {loading ? (
-        <div className="flex items-center justify-center h-full">
-          <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full"></div>
-        </div>
-      ) : productFilter.length > 0 ? (
-        <>
-          <ListHeader />
-          {productFilter.map((item, index) => (
-            <div
-              key={item.id}
-              className={`flex items-center justify-between p-2 ${
-                index % 2 === 0 ? "bg-white" : "bg-[#f5a53d]"
-              }`}
-              onClick={() => handleProductClick(item)} // Add navigation on click
-            >
-              <img
-                src={item.picture}
-                alt="Product"
-                className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
+        <SearchBar
+          keyword={input}
+          onKeywordChange={(text) => {
+            setInput(text);
+            searchProducts(text);
+          }}
+          keywordPlaceholder="Search by name"
+          onClear={() => {
+            setInput("");
+            searchProducts("");
+          }}
+          className="mb-6"
+        />
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader />
+          </div>
+        ) : productFilter.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {productFilter.map((item) => (
+              <ListingCard
+                key={item.id}
+                onClick={() => handleProductClick(item)}
+                image={item.picture}
+                title={item.name}
+                price={item.price ? `Gh¢${item.price}` : undefined}
+                meta={`${item.views ?? 0} views`}
+                tag={item.approved ? "Approved" : "Pending"}
               />
-              <img
-                src={item.picturesec}
-                alt="Product secondary"
-                className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
-              />
-              <p  className="truncate text-sm sm:text-base md:text-lg lg:text-xl font-bold text-center w-1/4 sm:w-1/5 md:w-1/6">
-                {item.name}
-              </p>
-              <p className="w-1/6 truncate md:flex md:text-lg md:font-bold md:justify-center">{item.price}</p>
-              <p className="w-1/6 flex justify-center md:mr-20">
-                {item.approved ? (
-                  <IoMdCheckmark color="green" size={30} />
-                ) : (
-                  <FcCancel size={30} />
-                )}
-              </p>
-              <p className="w-1/6 md:text-lg md:font-bold text-center">{item.views}</p>
-            </div>
-          ))}
-        </>
-      ) : (
-        <div className="text-center text-lg font-medium">
-          No products found. Please add products to manage.
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No buildings found"
+            subtitle="Please add a listing to manage it here."
+          />
+        )}
+      </Container>
     </div>
-  </div>
   );
 };
 

@@ -45,39 +45,49 @@ const Report = () => {
 
 
   return (
-    <div className="bg-black min-h-screen flex flex-col items-center justify-center text-white p-5">
-      <div className="flex flex-col items-center">
-        <FaExclamationTriangle className="text-red-600 text-5xl mb-4" />
-        <h2 className="text-xl font-bold mb-6">There is something wrong with your account</h2>
-      </div>
-
-      {userData ? (
-        <div className="text-center">
-          <p className="text-lg mb-3">
-            Name: <span className="text-red-500">{userData.name} {userData?.lastname}</span>
-          </p>
-          <p className="text-lg mb-3">
-            Email: <span className="text-red-500">{userData.email}</span>
-          </p>
-          <p className="text-lg mb-3">
-            Phone Number: <span className="text-red-500">{userData.phone}</span>
-          </p>
-          <p className="text-lg mt-6">
-            <span className="text-red-500">{userData.name}</span>, call for your account to be rectified.
-          </p>
-
-          <div className="flex justify-between mt-6 mx-6">
-            <button onClick={openWhatsApp} className="text-4xl text-green-500 hover:text-green-400 transition">
-              <FaWhatsapp />
-            </button>
-            <button onClick={openDial} className="text-4xl text-green-500 hover:text-green-400 transition">
-              <FaPhoneAlt />
-            </button>
-          </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-ink-50 p-5">
+      <div className="w-full max-w-md rounded-2xl border border-ink-100 bg-white p-6 text-center shadow-card sm:p-8">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+          <FaExclamationTriangle className="text-3xl" />
         </div>
-      ) : (
-        <p>Loading...</p>
-      )}
+        <h2 className="font-display text-xl font-bold text-ink-900">There is something wrong with your account</h2>
+
+        {userData ? (
+          <div className="mt-4">
+            <p className="mb-2 text-ink-600">
+              Name: <span className="font-semibold text-red-500">{userData.name} {userData?.lastname}</span>
+            </p>
+            <p className="mb-2 text-ink-600">
+              Email: <span className="font-semibold text-red-500">{userData.email}</span>
+            </p>
+            <p className="mb-2 text-ink-600">
+              Phone Number: <span className="font-semibold text-red-500">{userData.phone}</span>
+            </p>
+            <p className="mt-4 text-ink-600">
+              <span className="font-semibold text-red-500">{userData.name}</span>, call for your account to be rectified.
+            </p>
+
+            <div className="mt-6 flex justify-center gap-6">
+              <button
+                onClick={openWhatsApp}
+                aria-label="WhatsApp"
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-3xl text-green-600 transition-colors hover:bg-green-100"
+              >
+                <FaWhatsapp />
+              </button>
+              <button
+                onClick={openDial}
+                aria-label="Call"
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-3xl text-green-600 transition-colors hover:bg-green-100"
+              >
+                <FaPhoneAlt />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-4 text-ink-500">Loading...</p>
+        )}
+      </div>
     </div>
   );
 };

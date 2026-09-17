@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import baseURL from "../../assets/baseURL";
-import { IoArrowBack } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FcCancel } from "react-icons/fc";
 import { IoMdCheckmark } from "react-icons/io";
 import { MdDelete, MdModeEditOutline } from "react-icons/md";
 import { AiOutlineClose } from "react-icons/ai";
+import { FiSearch } from "react-icons/fi";
+import Loader from "../../components/Loader";
+import Container from "../../components/ui/Container";
+import EmptyState from "../../components/ui/EmptyState";
+import SectionHeading from "../../components/ui/SectionHeading";
 
 const AgricMana = () => {
   const [productList, setProductList] = useState([]);
@@ -70,30 +74,21 @@ const AgricMana = () => {
     navigate(`/agricpage/${product.id}`); // Navigate to the product detail page
   };
 
-  const ListHeader = () => (
-    <div className="flex flex-row bg-[#f5a53d] py-2 px-1 text-lg">
-      <div className="w-1/6 font-semibold">Image</div>
-      <div className="w-1/6 font-semibold">Image</div>
-      <div className="w-1/6 font-semibold">Name</div>
-      <div className="w-1/6 font-semibold">Price</div>
-      <div className="w-1/6 font-semibold">Approve</div>
-      <div className="w-1/6 font-semibold text-center">Views</div>
-    </div>
-  );
-
   return (
-    <div className="flex flex-col h-full bg-[#f5a53d] pt-0">
-      {/* Header */}
-      <div className="flex items-center justify-center px-4 mt-2 md:mt-8 bg-[#f5a53d]">
-        {/* <Link to="/dash">
-          <IoArrowBack size={30} />
-        </Link> */}
-        <div className="relative w-3/4 rounded-full flex items-center px-4">
-          <i className="fas fa-search text-black"></i>
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-12">
+      <Container>
+        <SectionHeading
+          eyebrow="Manage"
+          title="My agric produce"
+          subtitle="Every listing you've posted, in one place — tap a card to review it."
+        />
+
+        <div className="relative mb-6 max-w-md">
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
           <input
             type="text"
             placeholder="Search by name"
-            className="w-full rounded-3xl focus:border-none h-12 border-none outline-none"
+            className="h-11 w-full rounded-xl border border-transparent bg-white pl-10 pr-3 text-sm text-ink-800 shadow-soft placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             value={input}
             onFocus={() => setFocus(true)}
             onChange={(e) => {
@@ -102,89 +97,88 @@ const AgricMana = () => {
             }}
           />
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 p-4">
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full"></div>
+          <div className="flex items-center justify-center py-20">
+            <Loader />
           </div>
         ) : productFilter.length > 0 ? (
-          <>
-            <ListHeader />
-            {productFilter.map((item, index) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {productFilter.map((item) => (
               <div
                 key={item.id}
-                className={`flex items-center justify-between p-2 ${
-                  index % 2 === 0 ? "bg-white" : "bg-[#f5a53d]"
-                }`}
                 onClick={() => handleProductClick(item)}
+                className="group cursor-pointer overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover"
               >
-                <img
-                  src={item.picture}
-                  alt="Product"
-                  className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
-                />
-                <img
-                  src={item.picturesec}
-                  alt="Product secondary"
-                  className="h-12 md:h-40 md:w-40 w-12 mr-2 object-cover"
-                />
-                <p className="truncate text-sm sm:text-base md:text-lg lg:text-xl font-bold text-center w-1/4 sm:w-1/5 md:w-1/6">
-                  {item.name}
-                </p>
-                <p className="w-1/6 truncate md:flex md:text-lg md:font-bold md:justify-center">
-                  {item.price}
-                </p>
-                <p className="w-1/6 flex justify-center md:mr-20">
-                  {item.approved ? (
-                    <IoMdCheckmark color="green" size={30} />
-                  ) : (
-                    <FcCancel size={30} />
-                  )}
-                </p>
-                <p className="w-1/6 md:text-lg md:font-bold text-center">
-                  {item.views}
-                </p>
+                <div className="flex h-32 gap-0.5">
+                  <img
+                    src={item.picture}
+                    alt="Product"
+                    className="h-full w-1/2 object-cover"
+                  />
+                  <img
+                    src={item.picturesec}
+                    alt="Product secondary"
+                    className="h-full w-1/2 object-cover"
+                  />
+                </div>
+                <div className="p-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="truncate text-sm font-semibold text-ink-900">{item.name}</h3>
+                    {item.approved ? (
+                      <IoMdCheckmark className="shrink-0 text-green-600" size={18} />
+                    ) : (
+                      <FcCancel className="shrink-0" size={18} />
+                    )}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="truncate text-xs font-semibold text-brand-700">
+                      {item.price ? `Gh¢${item.price}` : ""}
+                    </span>
+                    <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-semibold text-ink-600">
+                      {item.views} views
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
-          </>
-        ) : (
-          <div className="text-center text-lg font-medium">
-            You have not posted any fashion or electronic product yet. Please
-            feel free to sell your products.
           </div>
+        ) : (
+          <EmptyState
+            title="Nothing posted yet"
+            subtitle="You have not posted any fashion or electronic product yet. Please feel free to sell your products."
+          />
         )}
-      </div>
 
-      {/* Modal */}
-      {modalVisible && selectedProduct && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 relative">
-            <button
-              className="absolute top-2 right-2 text-black"
-              onClick={() => setModalVisible(false)}
-            >
-              <AiOutlineClose size={20} />
-            </button>
-            <div className="flex flex-col items-center">
-              <button className="p-2 rounded-md mb-4">
-                <MdModeEditOutline size={30} />
-              </button>
+        {/* Modal */}
+        {modalVisible && selectedProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+            <div className="relative rounded-2xl bg-white p-6 shadow-2xl">
               <button
-                className="p-2 rounded-md"
-                onClick={() => {
-                  deleteProducts(selectedProduct.id);
-                  setModalVisible(false);
-                }}
+                className="absolute right-3 top-3 rounded-full p-1 text-ink-400 hover:bg-ink-50 hover:text-ink-800"
+                onClick={() => setModalVisible(false)}
+                aria-label="Close"
               >
-                <MdDelete color="red" size={30} />
+                <AiOutlineClose size={20} />
               </button>
+              <div className="flex flex-col items-center gap-3">
+                <button className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100">
+                  <MdModeEditOutline size={24} />
+                </button>
+                <button
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-100"
+                  onClick={() => {
+                    deleteProducts(selectedProduct.id);
+                    setModalVisible(false);
+                  }}
+                >
+                  <MdDelete size={22} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Container>
     </div>
   );
 };

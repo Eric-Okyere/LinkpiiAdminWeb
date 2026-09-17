@@ -1,16 +1,15 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaPhoneAlt, FaWhatsappSquare } from 'react-icons/fa'; 
+import { FaPhoneAlt, FaWhatsappSquare } from 'react-icons/fa';
+import ListingCard from "../../components/ui/ListingCard";
+import EmptyState from "../../components/ui/EmptyState";
 
 const SearchShops = ({ productFiltered }) => {
-  const navigate = useNavigate();
-
   const openDial = () => {
     window.location.href = "tel:+233209317581";
   };
 
- 
-  
+
+
   const openOfficeWhatsapp = () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
@@ -23,50 +22,31 @@ const SearchShops = ({ productFiltered }) => {
   return (
     <div className="relative">
       {productFiltered.length > 0 ? (
-        <div className="max-h-[500px] overflow-y-auto mb-20">
+        <div className="grid grid-cols-2 gap-4 pb-16 sm:grid-cols-3 lg:grid-cols-4">
           {productFiltered.map((item) => (
-          
-                <Link
-                  to={`/shopdetail/${item._id}`}
-                   className="block w-full p-2"
-                   key={item._id}
-                >
-              <div className="mx-5 bg-gray-200 shadow-lg rounded-lg flex p-1 md:space-x-4 lg:space-x-4">
-                <img
-                  src={item.picture}
-                  alt="Car"
-                  className="w-20 h-20 object-contain rounded-lg"
-                />
-                <img
-                  src={item.picturesec}
-                  alt="Driver"
-                  className="w-20 h-20 object-contain rounded-lg"
-                />
-                <div className="flex-1">
-                  <p className="truncate md:w-36 lg:w-36 w-32 font-semibold">{item.name}</p>
-                  <p className="truncate md:w-36 lg:w-36 w-32 text-sm text-gray-600">{item.region}</p>
-                  <p className="truncate md:w-36 lg:w-36 w-32 text-sm text-gray-600">{item.town}</p>
-                  <p className="truncate md:w-36 lg:w-36 w-32 text-sm text-gray-600">{item.location}</p>
-                </div>
-              </div>
-           
-            </Link>
+            <ListingCard
+              key={item._id}
+              href={`/shopdetail/${item._id}`}
+              image={item.picture}
+              title={item.name}
+              meta={[item.region, item.town, item.location].filter(Boolean).join(", ")}
+            />
           ))}
         </div>
       ) : (
-        <div className="flex justify-center items-center mt-6 flex-col">
-          <p className="text-gray-600 text-center">
-            Wrong input. Contact us to link you to your prefered product.
-          </p>
+        <div className="pb-16">
+          <EmptyState
+            title="No matches found"
+            subtitle="Contact us to help link you to the shop you're looking for."
+          />
+          <div className="mt-5 flex justify-center gap-8">
+            <button onClick={openDial} className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-600 transition-colors hover:bg-green-100" aria-label="Call">
+                <FaPhoneAlt size={26} />
+            </button>
 
-           <div className="flex space-x-32 mt-5">
-              <button onClick={openDial} className="text-green-500">
-                  <FaPhoneAlt size={36} />
-              </button>
-
-              <button onClick={openOfficeWhatsapp} className="text-green-500">
-                  <FaWhatsappSquare size={40} />
-              </button>
+            <button onClick={openOfficeWhatsapp} className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-600 transition-colors hover:bg-green-100" aria-label="WhatsApp">
+                <FaWhatsappSquare size={30} />
+            </button>
           </div>
         </div>
       )}

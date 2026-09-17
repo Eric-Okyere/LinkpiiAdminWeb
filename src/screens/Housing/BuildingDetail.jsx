@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import Slider from "react-slick";
 import baseURL from "../../assets/baseURL";
+import Loader from "../../components/Loader";
+import Container from "../../components/ui/Container";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -29,16 +31,16 @@ const BuildingDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#f5a53d] border-solid">Linkpii</div>
+      <div className="flex items-center justify-center h-screen bg-ink-50">
+        <Loader />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <p className="text-lg font-medium text-gray-700">Product not found.</p>
+      <div className="flex items-center justify-center h-screen bg-ink-50">
+        <p className="text-lg font-medium text-ink-600">Product not found.</p>
       </div>
     );
   }
@@ -55,22 +57,21 @@ const BuildingDetail = () => {
     arrows: true, // Enables navigation arrows
   };
 
-  
+
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5a53d] pt-28 px-4 md:px-12 ">
-      {/* Product Details */}
-      <div className="bg-white shadow-md rounded-lg p-6 md:p-8 mb-10">
-        <div className="flex flex-col gap-8">
-          {/* Carousel */}
-          <div className="flex-1">
-            <Slider {...sliderSettings} className="rounded-md overflow-hidden">
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-16">
+      <Container>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-10">
+          {/* Media */}
+          <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-card">
+            <Slider {...sliderSettings}>
               {/* Primary Image */}
               <div>
                 <img
                   src={product.picture}
                   alt="Product"
-                  className="w-full md:mx-64 md:w-[70%] h-[60vh] rounded"
+                  className="h-[45vh] w-full object-cover sm:h-[55vh]"
                 />
               </div>
 
@@ -79,7 +80,7 @@ const BuildingDetail = () => {
                 <img
                   src={product.picturesec}
                   alt="Secondary"
-                  className="w-full md:mx-64 md:w-[70%] h-[60vh] rounded"
+                  className="h-[45vh] w-full object-cover sm:h-[55vh]"
                 />
               </div>
 
@@ -90,7 +91,7 @@ const BuildingDetail = () => {
                     <img
                       src={url}
                       alt={`Additional ${index + 1}`}
-                      className="w-full md:mx-64 md:w-[70%] h-[60vh] rounded"
+                      className="h-[45vh] w-full object-cover sm:h-[55vh]"
                     />
                   </div>
                 ))}
@@ -102,7 +103,7 @@ const BuildingDetail = () => {
                     src={product.video}
                     controls
                     autoPlay={true}
-                    className="w-full md:mx-64 md:w-[70%] h-[60vh] rounded"
+                    className="h-[45vh] w-full object-cover sm:h-[55vh]"
                   ></video>
                 </div>
               )}
@@ -110,43 +111,74 @@ const BuildingDetail = () => {
           </div>
 
           {/* Product Information */}
-          <div className="flex-1 md:text-center md:text-lg font-bold">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{product.name}</h2>
-            <p className="text-gray-700 mb-2">
-              <strong>Price:</strong> {product.price}
+          <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
+            <h1 className="font-display text-2xl font-bold text-ink-900 sm:text-3xl">
+              {product.name}
+            </h1>
+
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <span className="rounded-lg bg-brand-50 px-3 py-1.5 text-lg font-bold text-brand-700">
+                Gh¢{product.price}
+              </span>
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  product.approved
+                    ? "bg-green-50 text-green-600"
+                    : "bg-red-50 text-red-600"
+                }`}
+              >
+                {product.approved ? "Approved" : "Not Approved"}
+              </span>
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+              <div className="rounded-xl bg-ink-50 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                  Region
+                </p>
+                <p className="mt-1 truncate text-sm font-semibold text-ink-800">
+                  {product.region || "N/A"}
+                </p>
+              </div>
+              <div className="rounded-xl bg-ink-50 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                  Town
+                </p>
+                <p className="mt-1 truncate text-sm font-semibold text-ink-800">
+                  {product.town || "N/A"}
+                </p>
+              </div>
+              <div className="rounded-xl bg-ink-50 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                  Views
+                </p>
+                <p className="mt-1 truncate text-sm font-semibold text-ink-800">
+                  {product.views}
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-6 text-sm leading-relaxed text-ink-600">
+              {product.description || "No description available."}
             </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Region:</strong> {product.region}
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Town:</strong> {product.town}
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Location:</strong> {product.location}
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Views:</strong> {product.views}
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Phone:</strong> {product.phone}
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Whatsapp:</strong> {product.whatsapp}
-            </p>
-            <p className="text-gray-700 mb-2">
-              <strong>Status:</strong>{" "}
-              {product.approved ? (
-                <span className="text-green-600 font-semibold">Approved</span>
-              ) : (
-                <span className="text-red-600 font-semibold">Not Approved</span>
-              )}
-            </p>
-            <p className="text-gray-700 mb-4">
-              <strong>Description:</strong> {product.description || "N/A"}
-            </p>
+
+            <div className="mt-6 space-y-2 border-t border-ink-100 pt-4 text-sm">
+              <p className="flex justify-between">
+                <span className="text-ink-400">Location</span>
+                <span className="font-semibold text-ink-800">{product.location}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-ink-400">Phone</span>
+                <span className="font-semibold text-ink-800">{product.phone}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-ink-400">WhatsApp</span>
+                <span className="font-semibold text-ink-800">{product.whatsapp}</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

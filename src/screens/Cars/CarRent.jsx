@@ -1,9 +1,7 @@
-import React from 'react'
-
 const CarRent = () => {
   return (
-    <div>CarRent</div>
-  )
-}
+    <div className="font-display text-ink-900">CarRent</div>
+  );
+};
 
-export default CarRent
+export default CarRent;

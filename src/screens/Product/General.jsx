@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import baseURL from '../../assets/baseURL';
 import Loader from "../../components/Loader";
 import Categories from '../Cars/Categories';
-import { FaArrowRightFromBracket } from "react-icons/fa6";
-import { MdCancel } from "react-icons/md";
 import SearchProducts from './SearchProducts';
+import SearchBar from '../../components/ui/SearchBar';
+import ListingCard from '../../components/ui/ListingCard';
+import EmptyState from '../../components/ui/EmptyState';
+import LoadMoreButton from '../../components/ui/LoadMoreButton';
 
 const General = () => {
   const [products, setProducts] = useState([]);
@@ -17,13 +19,12 @@ const General = () => {
   const [currentIndex, setCurrentIndex] = useState(80);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [input, setInput] = useState("");
-  const [regionInput, setRegionInput] = useState(""); 
+  const [regionInput, setRegionInput] = useState("");
   const [nameFilteredProducts, setNameFilteredProducts] = useState([]);
   const [networkError, setNetworkError] = useState(false);
-  const navigate = useNavigate()
-  
+  const navigate = useNavigate();
 
-
+  const location = useLocation();
   const query = new URLSearchParams(location.search).get('query');
 
   useEffect(() => {
@@ -79,11 +80,14 @@ const General = () => {
   }, [query, selectedCategoryId, products]);
 
 
+  const handleCategoryClick = (categoryId) => {
+    setSelectedCategoryId(categoryId);
+  };
 
 
   const searchProducts = (text) => {
     setInput(text);
-    const filtered = products.filter((item) => 
+    const filtered = products.filter((item) =>
       item.name?.toLowerCase().includes(text.toLowerCase())
     );
     setNameFilteredProducts(filtered); // Store name-filtered products
@@ -91,164 +95,129 @@ const General = () => {
     setVisibleProducts(filtered.slice(0, 80));
   };
 
-  
- 
- 
+
+
   const searchByRegion = (text) => {
     setRegionInput(text);
     const sourceData = nameFilteredProducts.length > 0 ? nameFilteredProducts : products;
-  
+
     const filtered = sourceData.filter((item) => {
       const region = item.region?.toLowerCase() || "";
       const town = item.town?.toLowerCase() || "";
       const location = item.location?.toLowerCase() || "";
-  
+
       return (
         region.includes(text.toLowerCase()) ||
         town.includes(text.toLowerCase()) ||
         location.includes(text.toLowerCase())
       );
     });
-  
+
     setFilteredProducts(filtered);
     setVisibleProducts(filtered.slice(0, 80));
   };
-  
-  
-  
- 
+
+
+
   const clearSearch = () => {
     setInput("");
-    setRegionInput(""); 
+    setRegionInput("");
     setFilteredProducts(products);
     setVisibleProducts(products.slice(0, 80)); // Ensure visible products are reset
     setCurrentIndex(80);
   };
 
 
+  const handleLoadMore = () => {
+    const newIndex = currentIndex + 80;
+    setCurrentIndex(newIndex);
+    setVisibleProducts(filteredProducts.slice(0, newIndex));
+  };
 
-const handleProductClick = async (productId) => {
-  try {
-    const response = await fetch(`${baseURL}fashionpost/products/${productId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch product details');
+
+  const handleProductClick = async (productId) => {
+    try {
+      const response = await fetch(`${baseURL}fashionpost/products/${productId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch product details');
+      }
+      const productDetails = await response.json();
+
+      // Navigate to the detail page with the product data
+      navigate(`/detail/${productId}`, { state: { product: productDetails } });
+    } catch (error) {
+      console.error('Error fetching product details:', error);
     }
-    const productDetails = await response.json();
+  };
 
-    // Navigate to the detail page with the product data
-    navigate(`/detail/${productId}`, { state: { product: productDetails } });
-  } catch (error) {
-    console.error('Error fetching product details:', error);
+
+  const fallbackImage =
+    'https://via.placeholder.com/150?text=Image+Not+Available';
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
   }
-};
-  
-
 
   return (
-    <div className="pb-8 -mt-10 font-serif">
-       <div className="w-full right-3 mt-6 mb-4 relative flex">
-                 <input
-                   type="text"
-                   value={input}
-                   onChange={(e) => searchProducts(e.target.value)}
-                   placeholder="Search for product"
-                   className="w-full h-10 p-3 border  rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
-                 />
-                 <input
-                   type="text"
-                   value={regionInput}
-                   onChange={(e) => searchByRegion(e.target.value)}
-                   placeholder="Search by region, town or location"
-                   className="w-full h-10 p-3 border rounded-lg ml-2 focus:outline-none focus:ring-1 focus:ring-black"
-                 />
-                 {input || regionInput ? (
-                   <button
-                     onClick={clearSearch}
-                     className="-mt-1 ml-2 p-2 rounded-full hover:text-gray-800"
-                   >
-                     <MdCancel color="black"  className="text-3xl"/>
-                   </button>
-                 ) : null}
-               </div>
+    <div className="pb-8">
+      <SearchBar
+        keyword={input}
+        onKeywordChange={searchProducts}
+        keywordPlaceholder="Search for a product"
+        region={regionInput}
+        onRegionChange={searchByRegion}
+        onClear={clearSearch}
+        className="mb-4"
+      />
 
       {(input || regionInput) ? (
         <SearchProducts productFiltered={filteredProducts} />
       ) : (
         <>
           {loading ? (
-            <div className="flex justify-center items-center h-40">
+            <div className="flex justify-center items-center py-20">
               <Loader />
             </div>
           ) : categories.length === 0 ? (
-            <div className="text-center text-red-500 mt-10 text-lg">
-              No categories available at the moment. Please try again later.
-            </div>
+            <EmptyState title="No categories available" subtitle="Please try again later." />
           ) : (
             <>
-              <div className='flex justify-end mb-0 -mt-4 md:hidden'>
-                <FaArrowRightFromBracket className='text-xs' />
-              </div>
-              <Categories categories={categories} />
+              <Categories categories={categories} onCategoryClick={handleCategoryClick} />
 
-              <div className="flex flex-wrap justify-center gap-6 p-2">
-                {filteredProducts.length === 0 ? (
-                  <div className="text-center text-gray-500 text-lg col-span-full">
-                    No products found. Please try a different category or search term.
-                  </div>
-                ) : (
-                  visibleProducts.map((product) => (
-                    <Link  onClick={() => handleProductClick(product._id)} key={product._id}>
-                      <div className="p-2 bg-gray-200 rounded-lg w-80 shadow-md flex lg md:w-80">
-                        <img
-                          src={product.picture || 'https://via.placeholder.com/150?text=Image+Not+Available'}
-                          alt={product.name || "No Image"}
-                          className="md:w-20 sm:w-30 lg:w-30 w-20 object-cover rounded-lg"
-                        />
-                        <div className="ml-2">
-                          <h3 className="md:text-sm md:font-semibold md:w-52 lg:w-52 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.name}
-                          </h3>
-                          <p className="truncate overflow-hidden whitespace-nowrap md:w-52 lg:w-56 w-40 sm:w-52 text-sm text-[#f5a53d] font-semibold">
-                            Gh¢{product.price}
-                          </p>
-                          <p className="text-sm md:w-60 lg:w-60 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.region}
-                          </p>
-                          <p className="text-sm md:w-60 lg:w-60 w-40 sm:w-52 truncate overflow-hidden whitespace-nowrap">
-                            {product.location}
-                          </p>
-                          <div className='text-end px-4'>
-                            <p className="text-sm text-[#f5a53d] px-2 md:px-2 truncate overflow-hidden whitespace-nowrap">
-                              {product?.condition}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                )}
-              </div>
+              {filteredProducts.length === 0 ? (
+                <EmptyState title="No products found" subtitle="Try a different category or search term." />
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+                  {visibleProducts.map((product) => (
+                    <ListingCard
+                      key={product._id}
+                      onClick={() => handleProductClick(product._id)}
+                      image={product.picture || fallbackImage}
+                      title={product.name}
+                      subtitle={product.description}
+                      price={product.price ? `Gh¢${product.price}` : undefined}
+                      meta={[product.region, product.town].filter(Boolean).join(', ')}
+                      tag={product.condition}
+                    />
+                  ))}
+                </div>
+              )}
 
               {filteredProducts.length > visibleProducts.length && (
-                <div className="flex justify-center mt-8">
-                  <button onClick={() => setVisibleProducts(filteredProducts.slice(0, visibleProducts.length + 80))} className="px-6 py-2 text-white bg-black hover:bg-[#f5a53d] rounded-lg">
-                    Load More
-                  </button>
-                </div>
+                <LoadMoreButton onClick={handleLoadMore} />
               )}
             </>
           )}
         </>
       )}
 
-
       {networkError && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <h2 className="text-xl font-bold text-red-500">No internet connection</h2>
-            <p className="text-gray-700 mt-2">Check your internet connection and try again</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 px-4">
+          <div className="bg-white p-6 rounded-2xl shadow-2xl text-center max-w-xs">
+            <h2 className="text-lg font-bold text-red-500">No internet connection</h2>
+            <p className="text-ink-500 mt-2 text-sm">Check your internet connection and try again</p>
             <button
-              className="mt-4 bg-[#f5a53d] text-white px-4 py-2 rounded-md"
+              className="mt-4 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl font-semibold"
               onClick={() => window.location.reload()}
             >
               Refresh Page
@@ -256,7 +225,6 @@ const handleProductClick = async (productId) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

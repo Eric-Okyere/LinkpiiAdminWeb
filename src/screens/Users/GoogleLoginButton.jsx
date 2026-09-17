@@ -38,10 +38,17 @@ const GoogleLoginButton = ({ onLoginSuccess }) => {
   };
 
   return (
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={handleFailure}
-    />
+    <div className="overflow-hidden rounded-xl border border-ink-200 shadow-soft transition-shadow hover:shadow-card">
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={handleFailure}
+        theme="outline"
+        shape="pill"
+        size="large"
+        text="continue_with"
+        logo_alignment="left"
+      />
+    </div>
   );
 };
 

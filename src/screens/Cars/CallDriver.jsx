@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import "tailwindcss/tailwind.css";
 import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
 import { useSelector } from "react-redux";
@@ -8,6 +7,10 @@ import { LuPhoneCall } from "react-icons/lu";
 import axios from "axios";
 import { MdMyLocation } from "react-icons/md";
 import { GrLocationPin } from "react-icons/gr";
+import { FiX } from "react-icons/fi";
+import SectionHeading from "@/components/ui/SectionHeading";
+import LoadMoreButton from "@/components/ui/LoadMoreButton";
+
 const CallDriver = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,17 +30,11 @@ const CallDriver = () => {
      const [form, setForm] = useState({ time:"",datepick:"",location:"", region: "Greater Accra",desregion:"Greater Accra", deslocation:"" });
      const [userLocation, setUserLocation] = useState({ latitude: null, longitude: null });
 
-
-
-
-
      const handleChange = (e) => {
       setForm({ ...form, [e.target.name]: e.target.value });
     };
-  
 
   const user = useSelector((state) => state.user.id);
-
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
@@ -78,7 +75,7 @@ const CallDriver = () => {
       }
     } catch (error) {
       console.error("Error fetching user data or comments:", error);
-    } 
+    }
     // finally {
     //   setIsCommentsLoading(false);
     //   setNewCommentPosted(false);
@@ -92,14 +89,14 @@ const CallDriver = () => {
       navigate("/verification");
       return;
     }
-  
+
     // If the phone number is already visible, revert to "View Contact" without sending data
     if (isPhoneVisible) {
       setIsPhoneVisible(false); // Revert to "View Contact"
       console.log("Reverting to 'View Contact', no data sent to backend.");
       return;
     }
-  
+
     try {
       // Send user data to the backend
       const response = await fetch(`${baseURL}call`, {
@@ -116,13 +113,13 @@ const CallDriver = () => {
           pagename: "Driver Web",
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to send user data.");
       }
-  
+
       console.log("User info sent successfully");
-  
+
       // Additional behavior based on the environment
       if (isMobile) {
         // Redirect to the phone dialer for mobile devices
@@ -135,8 +132,8 @@ const CallDriver = () => {
       console.error("Error sending user info to backend:", error);
     }
   };
-  
-  
+
+
 const fetchUserLocation = () => {
   if (!navigator.geolocation) {
     console.error("Geolocation is not supported by this browser.");
@@ -148,13 +145,13 @@ const fetchUserLocation = () => {
       const { latitude, longitude, accuracy } = position.coords;
       setUserLocation({ latitude, longitude });
 
-      console.log("✅ Accurate location obtained:");
+      console.log("Accurate location obtained:");
       console.log("Latitude:", latitude);
       console.log("Longitude:", longitude);
       console.log("Accuracy (in meters):", accuracy);
     },
     (error) => {
-      console.error("❌ Geolocation error:", error.message);
+      console.error("Geolocation error:", error.message);
 
       // Optional retry logic
       if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
@@ -170,14 +167,8 @@ const fetchUserLocation = () => {
   );
 };
 
-
-  
-  
-  
-  
-
   useEffect(() => {
-    fetchUserLocation(); 
+    fetchUserLocation();
   }, []);
 
 
@@ -195,7 +186,7 @@ const fetchUserLocation = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex min-h-screen items-center justify-center bg-ink-50">
         <Loader />
       </div>
     );
@@ -203,9 +194,9 @@ const fetchUserLocation = () => {
 
   if (!driver) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-red-500">Driver not found.</p>
-        <Link to="/drivers" className="text-blue-500 underline">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-ink-50 px-6 text-center">
+        <p className="text-ink-500">Driver not found.</p>
+        <Link to="/drivers" className="font-semibold text-brand-600 underline">
           Back to Drivers
         </Link>
       </div>
@@ -220,15 +211,12 @@ const fetchUserLocation = () => {
     setEditingContent(content);
   };
 
- 
-  
-
   const handlePostComment = async () => {
     if (!comment.trim()) {
       alert('Please write a comment before posting.');
       return;
     }
-  
+
     try {
       const response = await fetch(`${baseURL}drivercomment/${id}/comments`, {
         method: 'POST',
@@ -240,7 +228,7 @@ const fetchUserLocation = () => {
           content: comment,
         }),
       });
-  
+
       if (response.ok) {
         const newComment = await response.json(); // Assuming the new comment is returned
         setComments((prevComments) => [
@@ -259,10 +247,6 @@ const fetchUserLocation = () => {
       console.error('Error posting comment:', error);
     }
   };
-  
-
-
-
 
 
   const saveEditComment = async (commentId) => {
@@ -270,11 +254,11 @@ const fetchUserLocation = () => {
       alert('Please write a comment before updating.');
       return;
     }
-  
+
     try {
       console.log("Editing comment ID:", commentId);
       console.log("New Content:", editingContent);
-  
+
       const response = await fetch(`${baseURL}drivercomment/comments/${commentId}`, {
         method: 'PUT',
         headers: {
@@ -284,33 +268,28 @@ const fetchUserLocation = () => {
           content: editingContent,
         }),
       });
-  
+
       const responseData = await response.json();
       console.log("Response Data:", responseData);
-  
+
       if (response.ok) {
         setComments((prevComments) =>
           prevComments.map((comment) =>
             comment._id === commentId ? { ...comment, content: editingContent } : comment
           )
         );
-        
+
         // Reset edit mode
         setEditingCommentId(null);
         setEditingContent('');
         alert('Comment updated successfully.');
       } else {
-        setError(responseData.message || 'Failed to update comment.');
+        console.error(responseData.message || 'Failed to update comment.');
       }
     } catch (error) {
       console.error('Error editing comment:', error);
-      setError('Failed to edit comment.');
     }
   };
-  
-  
-  
-
 
 
   const handleDeleteComment = async (commentId) => {
@@ -318,18 +297,17 @@ const fetchUserLocation = () => {
       const response = await fetch(`${baseURL}drivercomment/comments/${commentId}`, {
         method: 'DELETE',
       });
-  
+
       if (response.ok) {
         console.log('Comment deleted successfully.');
         setComments((prevComments) => prevComments.filter((comment) => comment._id !== commentId)); // Remove comment from state
          // Trigger re-fetch or update state
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to delete comment.');
+        console.error(errorData.message || 'Failed to delete comment.');
       }
     } catch (error) {
       console.error('Error deleting comment:', error);
-      setError('Failed to delete comment.');
     }
   };
 
@@ -337,11 +315,11 @@ const fetchUserLocation = () => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
-  
+
     if (isNaN(date)) {
       return "Invalid Date"; // Handle invalid date
     }
-  
+
     if (
       date.getDate() === today.getDate() &&
       date.getMonth() === today.getMonth() &&
@@ -349,7 +327,7 @@ const fetchUserLocation = () => {
     ) {
       return "Now";
     }
-  
+
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
     if (
@@ -359,7 +337,7 @@ const fetchUserLocation = () => {
     ) {
       return "Yesterday";
     }
-  
+
     // Use toLocaleDateString to format the date
     return "Yesterday"
   };
@@ -373,7 +351,7 @@ const fetchUserLocation = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const appointmentData = {
       username: userData.name,
       userphone: userData.phone,
@@ -390,7 +368,7 @@ const fetchUserLocation = () => {
         longitude: userLocation.longitude,
       },
     };
-  
+
     try {
       const res = await axios.post(`${baseURL}appointment`, appointmentData);
       console.log("Appointment saved:", res.data);
@@ -399,362 +377,315 @@ const fetchUserLocation = () => {
       console.error("Error saving appointment:", err);
     }
   };
-  
-  
-
-
 
   return (
-    <div className="font-serif mb-6 lg:mb-0 md:mt-16 lg:mt-16 ">
-     
-
-
-<div className="md:flex md:justify-center pt-20">
-
-
-      <div className="p-6 min-h-screen bg-white ">
-      <h1 className=" md:text-xl items-center text-sm mx-4 flex justify-center font-bold ">
-        Do you want to call {driver.name} to pick your products?
-      </h1>
-        <div className="flex flex-col md:flex-row items-center md:items-start w-fit h-fit bg-gray-200 rounded-lg p-6 shadow-md">
-          <div className="flex flex-col">
-            <div className="flex justify-center">
-              <img
-                src={driver.carpic}
-                alt={driver.name}
-                className="w-48 h-48 rounded-lg object-cover"
-              />
-            </div>
-
-            <div className="items-center flex flex-col">
-            <button
-                onClick={handleButtonClick}
-                className="mt-6 flex bg-black text-white px-4 py-2 rounded-lg text-center w-40 animate-heartbeat"
-              >
-                <LuPhoneCall size={26} className="text-green-500" />
-                <div className="ml-4">
-                  {isMobile
-                    ? "Call Now"
-                    : isPhoneVisible
-                    ? driver.phone
-                    : <p className="text-xs font-bold pt-1">View contact</p>}
-                </div>
-              </button>
-
-              <h1 className="text-lg font-semibold mt-4">Size: {driver?.size}</h1>
-              <h1 className="text-[#f5a53d] md:text-lg text-sm  font-semibold pt-4">NOTE!</h1>
-              <h1 className="w-60  font-semibold text-sm md:text-lg">
-                Our drivers close at 6:00pm. Book an appointment with the driver
-                to pick your product at your convenient time.
-              </h1>
-              <button
-        onClick={() => setShowModal(true)}
-        className="mt-6 block bg-black text-white px-4 py-2 rounded-lg text-center w-40 animate-heartbeat font-bold"
-      >
-        Appointment
-      </button>
-            </div>
-          </div>
-
-          <div className="md:ml-6 mt-4 md:mt-0">
-            <h1 className="text-2xl font-bold">{driver.name}</h1>
-            <div className="flex items-center ">
-            <p className="mt-2 md:text-lg text-sm font-bold">Region:</p> 
-            <p className="mt-2 md:text-lg text-sm font-medium">{driver.region}</p>
-            </div>
-            <div className="flex items-center ">
-            <p className="mt-2 md:text-lg text-sm font-bold">Town:</p> 
-            <p className="mt-2 md:text-lg text-sm font-medium">{driver.town}</p>
-            </div>
-            <div className="flex items-center ">
-            <p className="mt-2 md:text-lg text-sm font-bold">Location:</p> 
-            <p className="mt-2 md:text-lg text-sm font-medium">{driver.location}</p>
-            </div>
-            <div className="flex items-center ">
-            <p className="mt-2 md:text-lg text-sm font-bold">Car No.:</p> 
-            <p className="mt-2 md:text-lg text-sm font-medium">{driver.carnum}</p>
-            </div>
-           
-          
+    <div className="min-h-screen bg-ink-50 px-4 pb-16 pt-20 sm:pt-24">
+      <div className="mx-auto max-w-xl">
+        {/* Contact card — same shape as CallCenter.jsx: centered card,
+            photo badge, heading, one big call action. */}
+        <div className="rounded-2xl border border-ink-100 bg-white p-6 text-center shadow-card sm:p-8">
+          <div className="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-2xl ring-4 ring-brand-50">
             <img
-              src={driver.driverpic}
-              alt="Car"
-              className="mt-4 w-96 rounded-lg object-cover"
+              src={driver.carpic}
+              alt={driver.name}
+              className="h-full w-full object-cover"
             />
           </div>
+
+          <h1 className="font-display text-xl font-bold text-ink-900 sm:text-2xl">
+            Call {driver.name} to pick up your products
+          </h1>
+          {driver?.size && (
+            <p className="mt-1 text-sm text-ink-500">Size: {driver.size}</p>
+          )}
+
+          <button
+            onClick={handleButtonClick}
+            className="mx-auto mt-6 flex items-center justify-center gap-3 rounded-full bg-brand-600 px-6 py-3 font-semibold text-white shadow-glow transition-colors hover:bg-brand-700"
+          >
+            <LuPhoneCall size={20} />
+            {isMobile
+              ? "Call Now"
+              : isPhoneVisible
+              ? driver.phone
+              : "View contact"}
+          </button>
+
+          <div className="mt-6 rounded-xl border border-accent-100 bg-accent-50 p-4 text-left">
+            <p className="text-xs font-bold uppercase tracking-wide text-accent-700">Note</p>
+            <p className="mt-1 text-sm text-ink-700">
+              Our drivers close at 6:00pm. Book an appointment with the driver
+              to pick your product at your convenient time.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowModal(true)}
+            className="mt-4 w-full rounded-xl bg-ink-900 py-3 font-semibold text-white transition-colors hover:bg-ink-800"
+          >
+            Book an appointment
+          </button>
+        </div>
+
+        {/* Driver details card */}
+        <div className="mt-6 rounded-2xl border border-ink-100 bg-white p-5 shadow-card">
+          <h2 className="font-display text-lg font-bold text-ink-900">{driver.name}</h2>
+          <dl className="mt-3 grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <dt className="text-ink-400">Region</dt>
+              <dd className="font-semibold text-ink-800">{driver.region}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-400">Town</dt>
+              <dd className="font-semibold text-ink-800">{driver.town}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-400">Location</dt>
+              <dd className="font-semibold text-ink-800">{driver.location}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-400">Car No.</dt>
+              <dd className="font-semibold text-ink-800">{driver.carnum}</dd>
+            </div>
+          </dl>
+
+          <img
+            src={driver.driverpic}
+            alt="Car"
+            className="mt-4 w-full rounded-xl object-cover"
+          />
+        </div>
+
+        {/* Comments */}
+        <div className="mt-8">
+          <SectionHeading title="Comments" subtitle="Add your comment here." />
+
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Write your comment here..."
+            className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+          />
+          <button
+            onClick={handlePostComment}
+            className="mt-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            Add Comment
+          </button>
+
+          <div className="mt-6 space-y-3">
+            {comments.slice(0, commentsToShow).map((comment) => (
+              <div key={comment._id} className="rounded-xl border border-ink-100 bg-white p-4 shadow-soft">
+                <div className="mb-1 flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-ink-900">{comment.user?.name || 'Anonymous'}</h3>
+                  <span className="text-xs text-ink-400">{formatDate(comment.dateCreated)}</span>
+                </div>
+                <p className="text-sm text-ink-600">{comment.content}</p>
+
+                {comment.user && comment.user._id === user && (
+                  <div className="mt-2 flex justify-between">
+                    <button
+                      onClick={() => handleEditComment(comment._id, comment.content)}
+                      className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDeleteCommentId(comment._id);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="text-sm font-semibold text-red-500 hover:text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+
+                {editingCommentId === comment._id && (
+                  <div className="mt-3">
+                    <textarea
+                      value={editingContent}
+                      onChange={(e) => setEditingContent(e.target.value)}
+                      className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                    />
+                    <button
+                      onClick={() => saveEditComment(comment._id)}
+                      className="mt-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {comments.length > commentsToShow && (
+            <LoadMoreButton onClick={handleLoadMore} label="Load more comments" />
+          )}
         </div>
       </div>
-      {/* <button
-  onClick={() =>
-    window.open(
-      `https://www.google.com/maps?q=${userLocation.latitude},${userLocation.longitude}`,
-      "_blank"
-    )
-  }
-  className="px-4 py-2 bg-blue-600 text-white rounded"
->
-  View on Map
-</button> */}
 
-{/* Comment */}
-      <div className="mx-6 md:mx-0 pt-6 font-bold">
-        <h1 className=" flex justify-center">Add your Comment here.</h1>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Write your comment here..."
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-        />
-        <button
-          onClick={handlePostComment}
-          className="mt-2 text-sm px-4 py-2 bg-black text-white rounded-md hover:bg-black transition"
-        >
-          Add Comment
-        </button>
-
-        <div className="mt-6 mb-10">
-          <h2 className="text-xl font-bold mb-4">Comments</h2>
-          {comments.slice(0, commentsToShow).map((comment) => (
-            <div key={comment._id} className="p-4 mb-4 bg-gray-100 rounded shadow-md">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold md:text-lg text-sm">{comment.user?.name || 'Anonymous'}</h3>
-                <span className="text-sm text-gray-500 md:text-lg">{formatDate(comment.dateCreated)}</span>
-              </div>
-              <p className="text-gray-700 text-sm md:text-lg">{comment.content}</p>
-
-              {/* Edit/Delete buttons */}
-              {comment.user && comment.user._id === user && (
-              <div className="flex mt-2 justify-between">
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
+              <h3 className="font-display text-base font-bold text-ink-900">Confirm Deletion</h3>
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-ink-400 hover:text-ink-600 focus:outline-none"
+                aria-label="Close"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-ink-600">Are you sure you want to delete this comment?</p>
+              <div className="mt-4 flex justify-end space-x-3">
                 <button
-                  onClick={() => handleEditComment(comment._id, comment.content)}
-                  className="text-blue-500"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="rounded-xl bg-ink-100 px-4 py-2 text-sm font-semibold text-ink-700 hover:bg-ink-200"
                 >
-                  Edit
+                  Cancel
                 </button>
                 <button
                   onClick={() => {
-                    setDeleteCommentId(comment._id); // Set the current comment ID
-                    setIsDeleteModalOpen(true); // Open the modal
+                    handleDeleteComment(deleteCommentId);
+                    setIsDeleteModalOpen(false);
                   }}
-                  className="text-red-500"
+                  className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
                 >
                   Delete
                 </button>
               </div>
-              )}
-
-              {editingCommentId === comment._id && (
-          <div className="mt-4">
-            <textarea
-              value={editingContent}
-              onChange={(e) => setEditingContent(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md"
-            />
-            <button
-              onClick={() => saveEditComment(comment._id)}
-              className="mt-2 px-4 py-2 bg-black text-white rounded-md"
-            >
-              Save Changes
-            </button>
+            </div>
           </div>
-              )}
-            </div>
-          ))}
-
-          {comments.length > commentsToShow && (
-            <div className='flex justify-center'>
-            <button
-              onClick={handleLoadMore}
-              className="mt-4 bg-black text-white p-2 rounded-lg"
-            >
-              Load more comments
-            </button>
-            </div>
-          )}
         </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="font-display text-lg font-bold text-ink-900">Book Appointment</h2>
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+              <p className="text-xs font-semibold text-ink-500">When do you want the product to be picked?</p>
+              <input
+                type="date"
+                name="datepick"
+                value={form.datepick}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                required
+              />
+
+              <p className="text-xs font-semibold text-ink-500">What time do you want the product to be picked?</p>
+              <input
+                type="time"
+                name="time"
+                value={form.time}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                required
+              />
+
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-ink-500">Select the pickup region and location</p>
+                <MdMyLocation className="text-red-500" />
+              </div>
+              <select
+                name="region"
+                value={form.region}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                required
+              >
+                <option value="Ahafo">Ahafo</option>
+                <option value="Ashanti">Ashanti</option>
+                <option value="Bono">Bono</option>
+                <option value="Bono East">Bono East</option>
+                <option value="Central">Central</option>
+                <option value="Eastern">Eastern</option>
+                <option value="Greater Accra">Greater Accra</option>
+                <option value="North East">North East</option>
+                <option value="Northern">Northern</option>
+                <option value="Oti">Oti</option>
+                <option value="Savannah">Savannah</option>
+                <option value="Upper East">Upper East</option>
+                <option value="Upper West">Upper West</option>
+                <option value="Volta">Volta</option>
+                <option value="Western">Western</option>
+                <option value="Western North">Western North</option>
+              </select>
+
+              <input
+                type="text"
+                name="location"
+                value={form.location}
+                placeholder="Enter the pickup location"
+                onChange={handleChange}
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                required
+              />
+
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-ink-500">Select the destination region and location</p>
+                <GrLocationPin className="text-red-500" />
+              </div>
+              <select
+                name="desregion"
+                value={form.desregion}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                required
+              >
+                <option value="Ahafo">Ahafo</option>
+                <option value="Ashanti">Ashanti</option>
+                <option value="Bono">Bono</option>
+                <option value="Bono East">Bono East</option>
+                <option value="Central">Central</option>
+                <option value="Eastern">Eastern</option>
+                <option value="Greater Accra">Greater Accra</option>
+                <option value="North East">North East</option>
+                <option value="Northern">Northern</option>
+                <option value="Oti">Oti</option>
+                <option value="Savannah">Savannah</option>
+                <option value="Upper East">Upper East</option>
+                <option value="Upper West">Upper West</option>
+                <option value="Volta">Volta</option>
+                <option value="Western">Western</option>
+                <option value="Western North">Western North</option>
+              </select>
+
+              <input
+                type="text"
+                name="deslocation"
+                value={form.deslocation}
+                placeholder="Enter the destination"
+                onChange={handleChange}
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                required
+              />
+
+              <div className="flex justify-between pt-2">
+                <button
+                  type="submit"
+                  className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+                >
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="rounded-xl bg-ink-100 px-4 py-2 text-sm font-semibold text-ink-700 hover:bg-ink-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-
-
-
-</div>
-
-{isDeleteModalOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-96 bg-white rounded-lg shadow-lg">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">Confirm Deletion</h3>
-        <button
-          onClick={() => setIsDeleteModalOpen(false)}
-          className="text-gray-400 hover:text-gray-600 focus:outline-none"
-        >
-          <svg
-            className="w-5 h-5"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414 1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
-      <div className="p-4">
-        <p>Are you sure you want to delete this comment?</p>
-        <div className="flex justify-end space-x-4 mt-4">
-          <button
-            onClick={() => setIsDeleteModalOpen(false)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              handleDeleteComment(deleteCommentId);
-              setIsDeleteModalOpen(false);
-            }}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-    
-  </div>
-)}
-
-
-
-{showModal && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-      <h2 className="text-xl font-bold mb-4">Book Appointment</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-
-        <p className="text-xs">When do you want the product to be picked?</p>
-        <input
-          type="date"
-          name="datepick"
-          value={form.datepick}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-
-        <p className="text-xs">What time do you want the product to be picked?</p>
-        <input
-          type="time"
-          name="time"
-          value={form.time}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <div className="flex">
-     <p className="text-xs">Select the pickup region and location </p>
-     <MdMyLocation color="red" />
-     </div>
-        <select
-          name="region"
-          value={form.region}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        >
-          <option value="Ahafo">Ahafo</option>
-          <option value="Ashanti">Ashanti</option>
-          <option value="Bono">Bono</option>
-          <option value="Bono East">Bono East</option>
-          <option value="Central">Central</option>
-          <option value="Eastern">Eastern</option>
-          <option value="Greater Accra">Greater Accra</option>
-          <option value="North East">North East</option>
-          <option value="Northern">Northern</option>
-          <option value="Oti">Oti</option>
-          <option value="Savannah">Savannah</option>
-          <option value="Upper East">Upper East</option>
-          <option value="Upper West">Upper West</option>
-          <option value="Volta">Volta</option>
-          <option value="Western">Western</option>
-          <option value="Western North">Western North</option>
-        </select>
-
-        <input
-          type="text"
-          name="location"
-          value={form.location}
-          placeholder="Enter the pickup location"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <div className="flex">
-        <p className="text-xs">Select the destination region and location</p>
-        <GrLocationPin color="red" />
-
-        </div>
-    
-        <select
-          name="desregion"
-          value={form.desregion}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        >
-          <option value="Ahafo">Ahafo</option>
-          <option value="Ashanti">Ashanti</option>
-          <option value="Bono">Bono</option>
-          <option value="Bono East">Bono East</option>
-          <option value="Central">Central</option>
-          <option value="Eastern">Eastern</option>
-          <option value="Greater Accra">Greater Accra</option>
-          <option value="North East">North East</option>
-          <option value="Northern">Northern</option>
-          <option value="Oti">Oti</option>
-          <option value="Savannah">Savannah</option>
-          <option value="Upper East">Upper East</option>
-          <option value="Upper West">Upper West</option>
-          <option value="Volta">Volta</option>
-          <option value="Western">Western</option>
-          <option value="Western North">Western North</option>
-        </select>
-
-        <input
-          type="text"
-          name="deslocation"
-          value={form.deslocation}
-          placeholder="Enter the destination"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-
-        <div className="flex justify-between mt-4">
-          <button
-            type="submit"
-            className="bg-black text-white px-4 py-2 rounded"
-          >
-            Submit
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowModal(false)}
-            className="bg-gray-300 px-4 py-2 rounded"
-          >
-            Cancel
-          </button>
-        </div>
-
-      </form>
-    </div>
-  </div>
-)}
-
-
+      )}
     </div>
   );
 };

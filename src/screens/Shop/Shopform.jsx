@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { AiOutlinePlusCircle, AiOutlineVideoCamera } from "react-icons/ai";
 import baseURL from "../../assets/baseURL";
-import { Link, useNavigate } from "react-router-dom";
-import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import Container from "../../components/ui/Container";
+import SectionHeading from "../../components/ui/SectionHeading";
+
+const inputClass =
+  "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
 
 const Shopform = ({ item }) => {
   const [picture, setPicture] = useState(null);
@@ -70,9 +74,9 @@ const Shopform = ({ item }) => {
       alert("Please fill in all required fields, including Name, Phone, Description, category and Location.");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     try {
       const formData = new FormData();
       formData.append("name", name);
@@ -85,16 +89,16 @@ const Shopform = ({ item }) => {
       formData.append("condition", condition);
       formData.append("category", category);
       formData.append("userId", login.user);
-  
+
       if (picture) formData.append("picture", await fetchFile(picture));
       if (picturesec) formData.append("picturesec", await fetchFile(picturesec));
       if (video) formData.append("video", await fetchFile(video));
-  
+
       const response = await fetch(`${baseURL}shops`, {
         method: "POST",
         body: formData,
       });
-  
+
       if (response.ok) {
         const result = await response.json();
         alert("Product submitted successfully!");
@@ -112,141 +116,155 @@ const Shopform = ({ item }) => {
   };
 
   return (
-    <>
-    <div className="pt-16 md:pt-28 m-6 ">
-      {/* <Link to={"/dash"} className="flex justify-between md:justify-normal">
-      <IoArrowBack size={30} />
-     
-      <h1 className="text-xl font-bold md:ml-96">Post Your Shop</h1>
-     
-      </Link> */}
-      </div>
-    
-    <div className="flex flex-col items-center sm:mx-8 md:mx-8">
-     
-      <div className="grid gap-6 grid-cols-2 mx-4">
-        <div className="relative">
-          <img
-            src={picture}
-            alt="No Image"
-            className="w-60 md:w-80 md:h-40 h-24 rounded-lg object-cover border-4 border-black"
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-12">
+      <Container>
+        <div className="mx-auto max-w-2xl rounded-2xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
+          <SectionHeading
+            eyebrow="Post"
+            title="List a shop"
+            subtitle="Add a couple of photos and the details customers need to reach you."
           />
-          <label htmlFor="primaryImage" className="absolute bottom-0 right-0 cursor-pointer">
-            <AiOutlinePlusCircle size={24} />
-          </label>
-          <input
-            type="file"
-            id="primaryImage"
-            className="hidden"
-            onChange={handleImageChange(setPicture)}
-          />
-        </div>
-        <div className="relative">
-          <img
-            src={picturesec}
-            alt="No Image"
-            className="w-60 md:w-80 md:h-40 h-24 rounded-lg object-cover border-4 border-black"
-          />
-          <label htmlFor="secondaryImage" className="absolute bottom-0 right-0 cursor-pointer">
-            <AiOutlinePlusCircle size={24} />
-          </label>
-          <input
-            type="file"
-            id="secondaryImage"
-            className="hidden"
-            onChange={handleImageChange(setPicturesec)}
-          />
-        </div>
-        <div className="relative justify-center">
-          <video src={video} controls className="w-44 h-32 md:w-96 border border-black"></video>
-          <label htmlFor="videoPicker" className="absolute bottom-0 ml-20 cursor-pointer">
-            <AiOutlineVideoCamera size={24} className="bg-slate-300 md:ml-80 ml-14" />
-          </label>
-          <input
-            type="file"
-            id="videoPicker"
-            className="hidden"
-            accept="video/*"
-            onChange={handleImageChange(setVideo)}
-          />
-        </div>
-      </div>
 
-      <div className="w-80 md:w-1/2 mt-6">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Product Name"
-          className="w-full mb-4 p-2 border rounded"
-        />
-  
-        <input
-          type="text"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="Phone Number"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Product Description"
-          className="w-full mb-4 p-2 border rounded"
-        ></textarea>
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-          placeholder="Region"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={town}
-          onChange={(e) => setTown(e.target.value)}
-          placeholder="Town"
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
-          placeholder="WhatsApp Number"
-          className="w-full mb-4 p-2 border rounded"
-        />
-     
-     <select
-         className="w-full mb-4 p-2 border rounded"
-  value={category}
-  onChange={(e) => setCategory(e.target.value)} // Save the ID instead of name
->
-  <option value="">Select a category</option>
-  {categories.map((cat) => (
-    <option key={cat._id} value={cat._id}>
-      {cat.name}
-    </option>
-  ))}
-</select>
-        <button
-          onClick={handleSubmit}
-          disabled={isLoading}
-          className={`w-full p-2 text-white bg-black rounded mb-10 ${
-            isLoading ? "opacity-50" : ""
-          }`}
-        >
-          {isLoading ? "Submitting..." : "Submit"}
-        </button>
-      </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50">
+                {picture && (
+                  <img src={picture} alt="Primary" className="h-full w-full object-cover" />
+                )}
+              </div>
+              <label
+                htmlFor="primaryImage"
+                className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition-colors hover:bg-brand-700"
+              >
+                <AiOutlinePlusCircle size={20} />
+              </label>
+              <input
+                type="file"
+                id="primaryImage"
+                className="hidden"
+                onChange={handleImageChange(setPicture)}
+              />
+            </div>
+            <div className="relative">
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50">
+                {picturesec && (
+                  <img src={picturesec} alt="Secondary" className="h-full w-full object-cover" />
+                )}
+              </div>
+              <label
+                htmlFor="secondaryImage"
+                className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition-colors hover:bg-brand-700"
+              >
+                <AiOutlinePlusCircle size={20} />
+              </label>
+              <input
+                type="file"
+                id="secondaryImage"
+                className="hidden"
+                onChange={handleImageChange(setPicturesec)}
+              />
+            </div>
+          </div>
+
+          <div className="relative mt-4">
+            <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50">
+              {video ? (
+                <video src={video} controls className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-sm text-ink-400">No video selected</span>
+              )}
+            </div>
+            <label
+              htmlFor="videoPicker"
+              className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-accent-500 text-white shadow-soft transition-colors hover:bg-accent-600"
+            >
+              <AiOutlineVideoCamera size={18} />
+            </label>
+            <input
+              type="file"
+              id="videoPicker"
+              className="hidden"
+              accept="video/*"
+              onChange={handleImageChange(setVideo)}
+            />
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Shop Name"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone Number"
+              className={inputClass}
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Shop Description"
+              rows={4}
+              className={inputClass}
+            ></textarea>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              placeholder="Region"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={town}
+              onChange={(e) => setTown(e.target.value)}
+              placeholder="Town"
+              className={inputClass}
+            />
+            <input
+              type="text"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              placeholder="WhatsApp Number"
+              className={inputClass}
+            />
+
+            <select
+              className={inputClass}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)} // Save the ID instead of name
+            >
+              <option value="">Select a category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className={`w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-soft transition-colors hover:bg-brand-700 ${
+                isLoading ? "opacity-50" : ""
+              }`}
+            >
+              {isLoading ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        </div>
+      </Container>
     </div>
-    </>
   );
 };
 

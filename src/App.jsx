@@ -51,6 +51,7 @@ import PrivacyPolicy from "./components/Policy";
 import TermsOfUse from "./components/Terms";
 import Home from "./screens/Home/Home";
 import HotDetail from "./screens/Home/HotDetail";
+import Footer from "./components/Footer";
 
 
 const App = () => {
@@ -59,8 +60,9 @@ const App = () => {
 
     return (
       <>
-     {(isLoggedIn || location.pathname === "/") && <NavbarCompo />} 
-        <div className="pb-16"> {/* Reserve space for the fixed navigation */}
+     {(isLoggedIn || location.pathname === "/") && <NavbarCompo />}
+        <div className="flex min-h-screen flex-col">
+        <div className="flex-1">
           <Routes>
             {!isLoggedIn ? (
               <>
@@ -128,6 +130,12 @@ const App = () => {
               </>
             )}
           </Routes>
+        </div>
+        <Footer />
+        {/* Clearance so the fixed mobile bottom nav never overlaps the
+            footer's last row — not needed on desktop (lg+), where that bar
+            is hidden in favor of the header nav (NavbarCompo's primaryNav). */}
+        <div className="h-20 lg:hidden" aria-hidden="true" />
         </div>
         <ButtonNavigation />
       </>

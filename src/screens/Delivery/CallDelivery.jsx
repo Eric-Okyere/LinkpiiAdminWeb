@@ -5,6 +5,7 @@ import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
 import { useSelector } from "react-redux";
 import { LuPhoneCall } from "react-icons/lu";
+import Container from "../../components/ui/Container";
 
 const CallDelivery = () => {
   const { id } = useParams();
@@ -104,7 +105,7 @@ const CallDelivery = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex h-screen items-center justify-center bg-ink-50">
         <Loader />
       </div>
     );
@@ -112,9 +113,9 @@ const CallDelivery = () => {
 
   if (!driver) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-red-500">Driver not found.</p>
-        <Link to="/drivers" className="text-blue-500 underline">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-ink-50 px-6 text-center">
+        <p className="font-semibold text-red-500">Driver not found.</p>
+        <Link to="/drivers" className="font-semibold text-brand-600 hover:text-brand-700">
           Back to Drivers
         </Link>
       </div>
@@ -122,61 +123,73 @@ const CallDelivery = () => {
   }
 
   return (
-    <>
-      <h1 className="pt-24 md:text-xl text-sm mx-4 md:mx-0 font-bold flex justify-center">
-        Do you want to call {driver.name} to pick your products?
-      </h1>
+    <div className="flex min-h-screen flex-col items-center bg-ink-50 px-4 pb-16 pt-20 sm:pt-24">
+      <Container className="flex flex-col items-center">
+        <h1 className="mb-6 max-w-lg text-center font-display text-lg font-bold text-ink-900 sm:text-2xl">
+          Do you want to call {driver.name} to pick your products?
+        </h1>
 
-      <div className="p-6 min-h-screen bg-white pt-2 flex justify-center">
-        <div className="flex flex-col md:flex-row items-center md:items-start w-fit h-fit bg-gray-200 rounded-lg p-6 shadow-md">
-          <div className="flex flex-col">
-            <div className="flex justify-center">
-              <img
-                src={driver.carpic}
-                alt={driver.name}
-                className="w-48 h-48 rounded-lg object-cover"
-              />
-            </div>
+        <div className="grid w-full max-w-3xl grid-cols-1 gap-6 rounded-2xl border border-ink-100 bg-white p-6 shadow-card sm:grid-cols-2 sm:p-8">
+          <div className="flex flex-col items-center text-center">
+            <img
+              src={driver.carpic}
+              alt={driver.name}
+              className="h-44 w-44 rounded-2xl object-cover shadow-soft"
+            />
 
-            <div className="items-center flex flex-col">
-              <button
-                onClick={openDial}
-                className="mt-6 flex bg-black text-white px-4 py-2 rounded-lg text-center w-40 animate-heartbeat"
-              >
-                 <LuPhoneCall size={26} className="text-green-500"/>
-                               <p className="ml-4">Call Now</p> 
-              </button>
+            <button
+              onClick={openDial}
+              className="mt-6 flex w-full max-w-[10rem] items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 font-semibold text-white shadow-soft transition-colors hover:bg-brand-700"
+            >
+              <LuPhoneCall size={20} />
+              Call Now
+            </button>
 
-              {/* <h1 className="text-lg font-semibold mt-4">Size: {driver?.size}</h1> */}
-              <h1 className="text-[#f5a53d] text-xl font-semibold pt-4">NOTE!</h1>
-              <h1 className="w-60  font-semibold">
+            <div className="mt-5 w-full max-w-xs rounded-xl bg-accent-50 p-3 text-left">
+              <p className="text-sm font-bold text-accent-700">NOTE!</p>
+              <p className="mt-1 text-xs text-accent-800">
                 Our drivers close at 6:00pm. Book an appointment with the driver
                 to pick your product at your convenient time.
-              </h1>
-              <Link
-                to={`/appointment/${driver._id}`}
-                className="mt-6 block bg-black text-white px-4 py-2 rounded-lg text-center w-40 animate-heartbeat"
-              >
-                Appointment
-              </Link>
+              </p>
             </div>
+
+            <Link
+              to={`/appointment/${driver._id}`}
+              className="mt-4 block w-full max-w-[10rem] rounded-xl border-2 border-brand-600 px-4 py-2.5 text-center font-semibold text-brand-700 transition-colors hover:bg-brand-600 hover:text-white"
+            >
+              Appointment
+            </Link>
           </div>
 
-          <div className="md:ml-6 mt-4 md:mt-0">
-            <h1 className="text-2xl font-bold">{driver.name}</h1>
-            <p className="mt-2 text-lg font-semibold">Region: {driver.region}</p>
-            <p className="text-lg font-semibold">Town: {driver.town}</p>
-            <p className="text-lg font-semibold">Location: {driver.location}</p>
-            <p className="text-lg font-semibold">Car Number: {driver.carnum}</p>
+          <div className="flex flex-col">
+            <h2 className="font-display text-xl font-bold text-ink-900">{driver.name}</h2>
+            <div className="mt-3 space-y-1.5 text-sm">
+              <p className="flex justify-between border-b border-ink-100 pb-1.5">
+                <span className="text-ink-400">Region</span>
+                <span className="font-semibold text-ink-800">{driver.region}</span>
+              </p>
+              <p className="flex justify-between border-b border-ink-100 pb-1.5">
+                <span className="text-ink-400">Town</span>
+                <span className="font-semibold text-ink-800">{driver.town}</span>
+              </p>
+              <p className="flex justify-between border-b border-ink-100 pb-1.5">
+                <span className="text-ink-400">Location</span>
+                <span className="font-semibold text-ink-800">{driver.location}</span>
+              </p>
+              <p className="flex justify-between pb-1.5">
+                <span className="text-ink-400">Car Number</span>
+                <span className="font-semibold text-ink-800">{driver.carnum}</span>
+              </p>
+            </div>
             <img
               src={driver.driverpic}
-              alt="Car"
-              className="mt-4 w-96 rounded-lg object-cover"
+              alt="Driver"
+              className="mt-4 w-full rounded-xl object-cover shadow-soft"
             />
           </div>
         </div>
-      </div>
-    </>
+      </Container>
+    </div>
   );
 };
 
