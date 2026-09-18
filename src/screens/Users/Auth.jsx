@@ -50,6 +50,16 @@ export const forgetPassword = async email =>{
      }
 }
 
+export const resetPassword = async (token, newPassword) =>{
+    try {
+        const {data} = await axios.post(`${baseURL}reset-password/${token}`, {newPassword})
+        return data
+    
+     } catch (error) {
+       return catchError(error)
+     }
+}
+
 export const updateNotification = (updater, text, type="error") =>{
     updater({text, type});
     setTimeout(() => {
