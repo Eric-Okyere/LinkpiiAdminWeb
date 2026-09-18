@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import Logo from "../../assets/screen.png";
 
 // Shared split-screen shell for the auth screens (Login, Signup, Forgot
 // Password): a brand panel on the left (hidden on small screens) and the
@@ -12,7 +13,7 @@ const AuthLayout = ({ eyebrow, title, subtitle, children }) => (
 
       <div className="relative flex items-center gap-3">
         <img
-          src="/logo.png"
+          src={Logo}
           width={44}
           height={44}
           className="h-11 w-11 rounded-xl object-cover ring-2 ring-white/20"
@@ -43,7 +44,7 @@ const AuthLayout = ({ eyebrow, title, subtitle, children }) => (
     <div className="flex w-full flex-1 flex-col items-center justify-center px-4 py-12 sm:px-8">
       <div className="mb-8 flex items-center gap-2.5 lg:hidden">
         <img
-          src="/logo.png"
+          src={Logo}
           width={40}
           height={40}
           className="h-10 w-10 rounded-xl object-cover ring-2 ring-brand-100"
