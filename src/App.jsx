@@ -44,7 +44,6 @@ import CallDelivery from "./screens/Delivery/CallDelivery";
 import Admin from "./screens/Users/Admin";
 import ForgotPassword from "./screens/Users/ForgotPassword";
 import ResetPassword from "./screens/Users/ResetPassword";
-import VerifyEmail from "./screens/Users/VerifyEmail";
 import { useSelector } from "react-redux";
 import MyProfile from "./screens/Users/MyProfile";
 import Report from "./screens/Users/Report";
@@ -76,7 +75,6 @@ const App = () => {
                 <Route path="/detail/:type/:id" element={<HotDetail />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
-                <Route path="/verify-email/:token" element={<VerifyEmail />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy /> } />
                 <Route path="/terms" element={<TermsOfUse /> } />
               </>
@@ -125,7 +123,6 @@ const App = () => {
                 <Route path="/calldelivery/:id" element={<CallDelivery />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
-                <Route path="/verify-email/:token" element={<VerifyEmail />} />
                 <Route path="/profile" element={<MyProfile />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/report" element={<Report />} />

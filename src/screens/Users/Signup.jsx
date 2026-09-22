@@ -13,6 +13,7 @@ import { loggedIn } from "../../Redux/actions";
 import PhoneInput from "react-phone-input-2";
 import GoogleLoginButton from "./GoogleLoginButton";
 import AuthLayout from "../../components/ui/AuthLayout";
+import { verifyEmailCode, resendVerificationCode } from "./Auth";
 
 const initialValues = {
   name: "",
@@ -48,6 +49,12 @@ const Signup = () => {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState("form"); // "form" | "verify"
+  const [signupEmail, setSignupEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState({ text: "", type: "" });
   const dispatch = useDispatch();
   const navigate = useNavigate();
     const login = useSelector((state) => state.login);
@@ -79,8 +86,9 @@ const Signup = () => {
       if (success) {
         formikActions.resetForm();
         dispatch(signUp(user.id));
-        setMessage({ text: "Signed up successfully! Check your email to verify your account.", type: "success" });
-        setTimeout(() => navigate("/loginform"), 2000);
+        setSignupEmail(user.email);
+        setMessage({ text: "", type: "" });
+        setStep("verify");
       } else {
         setMessage({ text: "Signup failed. Please try again.", type: "error" });
       }
@@ -92,6 +100,46 @@ const Signup = () => {
     } finally {
       setLoading(false);
       formikActions.setSubmitting(false);
+    }
+  };
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault();
+    if (!code.trim()) {
+      setVerifyMessage({ text: "Please enter the 6-digit code.", type: "error" });
+      return;
+    }
+    setVerifying(true);
+    setVerifyMessage({ text: "", type: "" });
+    try {
+      const res = await verifyEmailCode(signupEmail, code.trim());
+      if (res.success) {
+        setVerifyMessage({ text: "Your email has been verified! Redirecting to login...", type: "success" });
+        setTimeout(() => navigate("/loginform"), 1500);
+      } else {
+        setVerifyMessage({ text: res.message || "Invalid or expired code.", type: "error" });
+      }
+    } catch (error) {
+      setVerifyMessage({ text: "Something went wrong. Please try again.", type: "error" });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setResending(true);
+    setVerifyMessage({ text: "", type: "" });
+    try {
+      const res = await resendVerificationCode(signupEmail);
+      if (res.success) {
+        setVerifyMessage({ text: "A new code has been sent to your email.", type: "success" });
+      } else {
+        setVerifyMessage({ text: res.message || "Could not resend code.", type: "error" });
+      }
+    } catch (error) {
+      setVerifyMessage({ text: "Something went wrong. Please try again.", type: "error" });
+    } finally {
+      setResending(false);
     }
   };
 
@@ -122,6 +170,61 @@ const Signup = () => {
         title="Create an account to start buying, selling and renting."
         subtitle="It only takes a minute — list your first product, shop or rental as soon as you're in."
       >
+        {step === "verify" ? (
+          <>
+            <h1 className="font-display text-2xl font-bold text-ink-900">Verify your email</h1>
+            <p className="mt-1 mb-6 text-sm text-ink-500">
+              We sent a 6-digit code to <span className="font-semibold text-ink-700">{signupEmail}</span>. Enter it below to activate your account.
+            </p>
+
+            <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card">
+              {verifyMessage.text && (
+                <div
+                  className={`mb-4 rounded-xl p-3 text-center text-sm ${
+                    verifyMessage.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+                  }`}
+                >
+                  {verifyMessage.text}
+                </div>
+              )}
+              <form className="space-y-3.5" onSubmit={handleVerifyCode}>
+                <div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="6-digit code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-center text-lg tracking-[0.5em] text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className={`w-full rounded-xl bg-brand-600 py-3 font-semibold text-white transition-colors hover:bg-brand-700 ${
+                    verifying && "cursor-not-allowed opacity-50"
+                  }`}
+                  disabled={verifying}
+                >
+                  {verifying ? "Verifying..." : "Verify email"}
+                </button>
+              </form>
+
+              <p className="mt-4 text-center text-sm text-ink-500">
+                Didn&apos;t get a code?{" "}
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={resending}
+                  className="font-semibold text-brand-700 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {resending ? "Sending..." : "Resend code"}
+                </button>
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
         <h1 className="font-display text-2xl font-bold text-ink-900">Create your account</h1>
         <p className="mt-1 mb-6 text-sm text-ink-500">
           Already have an account?{" "}
@@ -256,6 +359,8 @@ const Signup = () => {
         <div className="mt-6 flex justify-center">
           <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
         </div>
+          </>
+        )}
       </AuthLayout>
     </>
   );
