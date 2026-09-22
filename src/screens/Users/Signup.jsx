@@ -79,7 +79,7 @@ const Signup = () => {
       if (success) {
         formikActions.resetForm();
         dispatch(signUp(user.id));
-        setMessage({ text: "Signed up successfully!", type: "success" });
+        setMessage({ text: "Signed up successfully! Check your email to verify your account.", type: "success" });
         setTimeout(() => navigate("/loginform"), 2000);
       } else {
         setMessage({ text: "Signup failed. Please try again.", type: "error" });
