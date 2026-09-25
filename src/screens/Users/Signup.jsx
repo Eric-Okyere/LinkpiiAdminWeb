@@ -20,6 +20,7 @@ const initialValues = {
   lastname: "",
   email: "",
   phone: "",
+  gender: "",
   password: "",
   confirmPassword: "",
 };
@@ -34,6 +35,7 @@ const validationSchema = yup.object({
     .required("Please input your phone number!")
     .min(10, "Phone number must be at least 10 digits")
     .max(15, "Phone number must be at most 15 digits"),
+  gender: yup.string().trim().oneOf(["", "Male", "Female", "Other"], "Please select a valid gender"),
   password: yup
     .string()
     .trim()
@@ -296,6 +298,21 @@ const Signup = () => {
                     value={values.phone}
                   />
                   {touched.phone && errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+                </div>
+
+                <div>
+                  <select
+                    onChange={handleChange("gender")}
+                    onBlur={handleBlur("gender")}
+                    value={values.gender}
+                    className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  >
+                    <option value="">Select gender (optional)</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  {touched.gender && errors.gender && <p className="mt-1 text-xs text-red-500">{errors.gender}</p>}
                 </div>
 
                 <div className="relative">
