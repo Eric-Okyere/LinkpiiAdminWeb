@@ -80,6 +80,26 @@ export const resendVerificationCode = async (email) =>{
      }
 }
 
+export const verifyLoginCode = async (email, code) =>{
+    try {
+        const {data} = await axios.post(`${baseURL}verify-login-code`, {email, code})
+        return data
+    
+     } catch (error) {
+       return catchError(error)
+     }
+}
+
+export const resendLoginCode = async (email) =>{
+    try {
+        const {data} = await axios.post(`${baseURL}resend-login-code`, {email})
+        return data
+    
+     } catch (error) {
+       return catchError(error)
+     }
+}
+
 export const updateNotification = (updater, text, type="error") =>{
     updater({text, type});
     setTimeout(() => {

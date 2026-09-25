@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { signin } from "./Auth";
+import { verifyLoginCode, resendLoginCode } from "./Auth";
 import { useDispatch, useSelector } from "react-redux";
 import { loggedIn } from "../../Redux/actions";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -30,6 +31,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState("form"); // "form" | "verify"
+  const [loginEmail, setLoginEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState({ text: "", type: "" });
   loggedIn
 
   useEffect(() => {
@@ -44,6 +51,10 @@ const Login = () => {
         const res = await signin(values);
         if (!res.success) {
             setErrorMessage(res.error);
+        } else if (res.requiresLoginVerification) {
+            setErrorMessage("");
+            setLoginEmail(res.email || values.email);
+            setStep("verify");
         } else {
             dispatch(loggedIn(res.user));
            console.log("Logged-in user:", res.user);
@@ -55,6 +66,45 @@ const Login = () => {
         setLoading(false);
     }
 };
+
+  const handleVerifyLoginCode = async (e) => {
+    e.preventDefault();
+    if (!code.trim()) {
+      setVerifyMessage({ text: "Please enter the 6-digit code.", type: "error" });
+      return;
+    }
+    setVerifying(true);
+    setVerifyMessage({ text: "", type: "" });
+    try {
+      const res = await verifyLoginCode(loginEmail, code.trim());
+      if (res.success) {
+        dispatch(loggedIn(res.user));
+      } else {
+        setVerifyMessage({ text: res.error || "Invalid or expired code.", type: "error" });
+      }
+    } catch (error) {
+      setVerifyMessage({ text: "Something went wrong. Please try again.", type: "error" });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendLoginCode = async () => {
+    setResending(true);
+    setVerifyMessage({ text: "", type: "" });
+    try {
+      const res = await resendLoginCode(loginEmail);
+      if (res.success) {
+        setVerifyMessage({ text: "A new code has been sent to your email.", type: "success" });
+      } else {
+        setVerifyMessage({ text: res.error || "Could not resend code.", type: "error" });
+      }
+    } catch (error) {
+      setVerifyMessage({ text: "Something went wrong. Please try again.", type: "error" });
+    } finally {
+      setResending(false);
+    }
+  };
 
 
 
@@ -80,6 +130,61 @@ const handleGoogleLoginSuccess = (user, token) => {
         title="Log in to buy, sell and manage your listings."
         subtitle="Pick up right where you left off — your posts, chats and orders are all waiting."
       >
+        {step === "verify" ? (
+          <>
+            <h1 className="font-display text-2xl font-bold text-ink-900">Confirm it&apos;s you</h1>
+            <p className="mt-1 mb-6 text-sm text-ink-500">
+              This is your first login, so for security we sent a 6-digit code to <span className="font-semibold text-ink-700">{loginEmail}</span>. Enter it below to finish logging in.
+            </p>
+
+            <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card">
+              {verifyMessage.text && (
+                <div
+                  className={`mb-4 rounded-xl p-3 text-center text-sm ${
+                    verifyMessage.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+                  }`}
+                >
+                  {verifyMessage.text}
+                </div>
+              )}
+              <form className="space-y-3.5" onSubmit={handleVerifyLoginCode}>
+                <div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="6-digit code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-center text-lg tracking-[0.5em] text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className={`w-full rounded-xl bg-brand-600 py-3 font-semibold text-white transition-colors hover:bg-brand-700 ${
+                    verifying && "cursor-not-allowed opacity-50"
+                  }`}
+                  disabled={verifying}
+                >
+                  {verifying ? "Verifying..." : "Verify and log in"}
+                </button>
+              </form>
+
+              <p className="mt-4 text-center text-sm text-ink-500">
+                Didn&apos;t get a code?{" "}
+                <button
+                  type="button"
+                  onClick={handleResendLoginCode}
+                  disabled={resending}
+                  className="font-semibold text-brand-700 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {resending ? "Sending..." : "Resend code"}
+                </button>
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
         <h1 className="font-display text-2xl font-bold text-ink-900">Log in</h1>
         <p className="mt-1 mb-6 text-sm text-ink-500">
           Don&rsquo;t have an account?{" "}
@@ -184,6 +289,8 @@ const handleGoogleLoginSuccess = (user, token) => {
         <div className="mt-6 flex justify-center">
           <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
         </div>
+          </>
+        )}
       </AuthLayout>
     </>
   );
