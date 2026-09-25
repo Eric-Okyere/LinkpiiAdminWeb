@@ -283,12 +283,20 @@ const handleProductClick = async (product) => {
       // ✅ Success: close modal
       setIsModalVisibleNum(false);
 
-      // update user state
-      setUserData(payload);
+      // Trust what the server actually persisted rather than the client's
+      // own payload, so the UI can't drift from the database.
+      const savedUser = response.data?.user;
+      setUserData((prev) => ({
+        name: savedUser?.name ?? prev.name,
+        email: savedUser?.email ?? prev.email,
+        phone: savedUser?.phone ?? prev.phone,
+        gender: savedUser?.gender ?? '',
+      }));
     }
 
   } catch (err) {
     console.error("Error saving user data", err);
+    alert("We couldn't save your details. Please check your connection and try again.");
   }
 };
 
@@ -538,7 +546,13 @@ const handleProductClick = async (product) => {
                   cleaned = countryCode + cleaned.slice(countryCode.length + 1);
                 }
 
-                setUserData({ ...userData, phone: cleaned });
+                // Functional update: react-phone-input-2 can re-fire onChange
+                // with its own stale value (e.g. on blur or country-flag
+                // clicks) well after the user has already picked a gender.
+                // Spreading the `userData` closure captured at that earlier
+                // render would silently wipe the gender back out, so we
+                // always merge onto the latest state instead.
+                setUserData((prev) => ({ ...prev, phone: cleaned }));
               }}
               inputClass="!w-full !h-11 !text-base !rounded-xl !border !border-ink-200 focus:!ring-2 focus:!ring-brand-200"
               containerClass="mb-4"
@@ -547,7 +561,10 @@ const handleProductClick = async (product) => {
             {/* Gender select */}
             <select
               value={userData.gender}
-              onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+              onChange={(e) => {
+                const gender = e.target.value;
+                setUserData((prev) => ({ ...prev, gender }));
+              }}
               className="mb-4 w-full rounded-xl border border-ink-200 p-2.5 text-base text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-200"
             >
               <option value="">Select gender (optional)</option>
