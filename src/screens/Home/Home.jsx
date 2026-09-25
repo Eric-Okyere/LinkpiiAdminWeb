@@ -35,7 +35,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeRegion, setActiveRegion] = useState("all");
-  const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
+  const [userData, setUserData] = useState({ name: '', email: '', phone: '', gender: '' });
   const fallbackImage = "https://via.placeholder.com/300x200?text=No+Image";
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
@@ -52,7 +52,7 @@ function Home() {
 
       const response = await axios.get(`${baseURL}userbyid/${UserState.user.id}`);
       const data = response.data;
-      setUserData({ name: data.name, email: data.email, phone: data.phone });
+      setUserData({ name: data.name, email: data.email, phone: data.phone, gender: data.gender || '' });
       if (data.report) {
         navigate('/report');
         return;
@@ -519,10 +519,10 @@ const handleProductClick = async (product) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
             <h2 className="mb-1 text-center text-lg font-semibold text-ink-900">
-              Add Your Phone Number
+              Complete Your Profile
             </h2>
             <p className="mb-4 text-center text-sm text-ink-500">
-              We need your phone number to continue.
+              We need your phone number to continue. You can also let us know your gender.
             </p>
 
             {/* Phone input with country selector */}
@@ -543,6 +543,18 @@ const handleProductClick = async (product) => {
               inputClass="!w-full !h-11 !text-base !rounded-xl !border !border-ink-200 focus:!ring-2 focus:!ring-brand-200"
               containerClass="mb-4"
             />
+
+            {/* Gender select */}
+            <select
+              value={userData.gender}
+              onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+              className="mb-4 w-full rounded-xl border border-ink-200 p-2.5 text-base text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-200"
+            >
+              <option value="">Select gender (optional)</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
 
             <button
               onClick={handleSaveUserData}
