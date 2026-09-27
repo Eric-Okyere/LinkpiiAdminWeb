@@ -11,6 +11,7 @@ import { FaStar, FaHireAHelper } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
+import NotificationBell from "./NotificationBell";
 
 const postLinks = [
   { to: "/sigform", label: "Sell a single product" },
@@ -162,7 +163,8 @@ const NavbarCompo = () => {
             </div>
           )}
 
-          <div>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
             {login ? (
               <div className="flex items-center gap-2">
                 {[
