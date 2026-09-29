@@ -26,6 +26,8 @@ const ServicesSearch = ({ productFiltered }) => {
           {productFiltered.map((item) => (
             <ListingCard
               key={item._id}
+              categoryPath="services"
+              itemId={item._id}
               href={`/servicesdetail/${item._id}`}
               image={item.picture}
               title={item.name}

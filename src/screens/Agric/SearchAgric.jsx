@@ -26,6 +26,8 @@ const SearchAgric = ({ productFiltered }) => {
           {productFiltered.map((item) => (
             <ListingCard
               key={item._id}
+              categoryPath="send"
+              itemId={item._id}
               href={`/agricdetail/${item._id}`}
               image={item.picture}
               title={item.name}

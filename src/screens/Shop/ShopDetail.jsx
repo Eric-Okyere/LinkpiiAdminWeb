@@ -757,6 +757,8 @@ const openWhatsApp = (phoneNumber, message = "") => {
                   key={relatedProduct._id}
                 >
                   <ListingCard
+                    categoryPath="shops"
+                    itemId={relatedProduct._id}
                     image={relatedProduct.picture || fallbackImage}
                     title={relatedProduct.name}
                     subtitle={relatedProduct.description}

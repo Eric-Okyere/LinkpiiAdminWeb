@@ -792,6 +792,8 @@ const openWhatsApp = (phoneNumber, message = "") => {
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (
                 <ListingCard
+                  categoryPath="buildings"
+                  itemId={relatedProduct._id}
                   key={relatedProduct._id}
                   onClick={() => {
                     handleRelatedProductClick();

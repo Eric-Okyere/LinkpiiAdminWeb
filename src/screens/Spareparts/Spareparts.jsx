@@ -169,6 +169,8 @@ const Spareparts = () => {
                   {visibleProducts.map((product) => (
                     <ListingCard
                       key={product._id}
+                      categoryPath="sparepartsmainpost"
+                      itemId={product._id}
                       href={`/sparepart/${product._id}`}
                       image={product.picture || fallbackImage}
                       title={product.name}

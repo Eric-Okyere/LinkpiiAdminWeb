@@ -194,6 +194,8 @@ const ShopScreen = () => {
                   {visibleProducts.map((product) => (
                     <ListingCard
                       key={product._id}
+                      categoryPath="shops"
+                      itemId={product._id}
                       onClick={() => handleProductClick(product._id)}
                       image={product.picture || fallbackImage}
                       title={product.name}

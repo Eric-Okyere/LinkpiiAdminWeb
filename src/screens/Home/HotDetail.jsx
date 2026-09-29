@@ -753,6 +753,8 @@ const handleDeleteComment = async (commentId) => {
               {related.map((rel) => (
                 <ListingCard
                   key={rel.id}
+                  categoryPath={(type === "fashion" ? "fashionpost" : type === "building" ? "buildings" : "shops")}
+                  itemId={rel.id}
                   onClick={() => {
                     navigate(`/detail/${type}/${rel.id}`);
                     window.scrollTo({ top: 0, behavior: "smooth" });

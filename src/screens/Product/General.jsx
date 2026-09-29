@@ -191,6 +191,8 @@ const General = () => {
                   {visibleProducts.map((product) => (
                     <ListingCard
                       key={product._id}
+                      categoryPath="fashionpost"
+                      itemId={product._id}
                       onClick={() => handleProductClick(product._id)}
                       image={product.picture || fallbackImage}
                       title={product.name}

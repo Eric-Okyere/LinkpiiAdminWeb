@@ -412,6 +412,8 @@ const handleProductClick = async (product) => {
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-10">
             {filteredProducts.map((product) => (
               <ListingCard
+                categoryPath={(product.type === "fashion" ? "fashionpost" : product.type === "building" ? "buildings" : "shops")}
+                itemId={product._id}
                 key={product._id}
                 onClick={() => handleProductClick(product)}
                 image={product.picture || fallbackImage}
@@ -431,6 +433,8 @@ const handleProductClick = async (product) => {
                 {col.map((product) => (
                   <div key={product._id} className="mb-1 break-inside-avoid">
                     <ListingCard
+                      categoryPath={(product.type === "fashion" ? "fashionpost" : product.type === "building" ? "buildings" : "shops")}
+                      itemId={product._id}
                       onClick={() => handleProductClick(product)}
                       image={product.picture || fallbackImage}
                       title={product.name}

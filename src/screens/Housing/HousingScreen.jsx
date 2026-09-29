@@ -179,6 +179,8 @@ const HousingScreen = () => {
               {visibleProducts.map((product) => (
                 <ListingCard
                   key={product._id}
+                  categoryPath="buildings"
+                  itemId={product._id}
                   href={`/buildingdetail/${product._id}`}
                   image={product.picture || fallbackImage}
                   title={product.name}

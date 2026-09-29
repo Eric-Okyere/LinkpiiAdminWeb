@@ -27,6 +27,8 @@ const SearchHouse = ({ productFiltered }) => {
           {productFiltered.map((item) => (
             <ListingCard
               key={item._id}
+              categoryPath="buildings"
+              itemId={item._id}
               href={`/buildingdetail/${item._id}`}
               image={item.picture}
               title={item.name}

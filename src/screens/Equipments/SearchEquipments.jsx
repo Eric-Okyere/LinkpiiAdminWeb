@@ -27,6 +27,8 @@ const SearchEquipments = ({ productFiltered }) => {
           {productFiltered.map((item) => (
             <ListingCard
               key={item._id}
+              categoryPath="equipmentmain"
+              itemId={item._id}
               href={`/equipmentdetail/${item._id}`}
               image={item.picture}
               title={item.name}

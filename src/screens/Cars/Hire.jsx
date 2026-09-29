@@ -160,6 +160,8 @@ const Hire = () => {
                   {visibleProducts.map((product) => (
                     <ListingCard
                       key={product._id}
+                      categoryPath="rentcar"
+                      itemId={product._id}
                       href={`/hiredetail/${product._id}`}
                       image={product.picture || fallbackImage}
                       title={product.name}

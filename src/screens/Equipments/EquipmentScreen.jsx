@@ -182,6 +182,8 @@ const EquipmentScreen = () => {
               {visibleProducts.map((product) => (
                 <ListingCard
                   key={product._id}
+                  categoryPath="equipmentmain"
+                  itemId={product._id}
                   href={`/equipmentdetail/${product._id}`}
                   image={product.picture || fallbackImage}
                   title={product.name}
