@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import "tailwindcss/tailwind.css";
 import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
+import SaveButton from "../../components/ui/SaveButton";
 import { useSelector } from "react-redux";
 import { LuPhoneCall } from "react-icons/lu";
 import Container from "../../components/ui/Container";
@@ -144,6 +145,13 @@ const CallDelivery = () => {
               <LuPhoneCall size={20} />
               Call Now
             </button>
+
+            <SaveButton
+              categoryPath="okada"
+              itemId={driver?._id}
+              userId={user}
+              className="mt-4"
+            />
 
             <div className="mt-5 w-full max-w-xs rounded-xl bg-accent-50 p-3 text-left">
               <p className="text-sm font-bold text-accent-700">NOTE!</p>

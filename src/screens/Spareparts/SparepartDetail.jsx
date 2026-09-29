@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Loader from '../../components/Loader';
+import SaveButton from '../../components/ui/SaveButton';
 import { BsFlagFill } from "react-icons/bs";
 import baseURL from '../../assets/baseURL';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -606,6 +607,13 @@ const SparepartDetail = () => {
                 WhatsApp
               </button>
             </div>
+
+            <SaveButton
+              categoryPath="sparepartsmainpost"
+              itemId={product?._id}
+              userId={userid}
+              className="mt-3"
+            />
 
             {/* Report Button */}
             <button

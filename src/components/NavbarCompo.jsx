@@ -6,7 +6,7 @@ import Logo from "../assets/screen.png";
 import { loggedOut } from "../Redux/actions";
 import baseURL from "../assets/baseURL";
 import { LuPhoneCall } from "react-icons/lu";
-import { FiPlusCircle, FiGrid, FiTruck } from "react-icons/fi";
+import { FiPlusCircle, FiGrid, FiTruck, FiHeart } from "react-icons/fi";
 import { FaStar, FaHireAHelper } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md";
 import "react-phone-input-2/lib/style.css";
@@ -186,6 +186,13 @@ const NavbarCompo = () => {
                   </button>
                 )}
                 <Link
+                  to="/saved"
+                  className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-600 transition-colors hover:bg-ink-50 hover:text-brand-700 sm:flex"
+                >
+                  <FiHeart />
+                  Saved
+                </Link>
+                <Link
                   to="/user"
                   className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-600 transition-colors hover:bg-ink-50 hover:text-brand-700 sm:flex"
                 >
@@ -257,6 +264,16 @@ const NavbarCompo = () => {
             >
               <FiGrid className="text-brand-600" />
               Dashboard
+            </Link>
+          </div>
+          <div>
+            <Link
+              to="/saved"
+              className="flex items-center gap-2 font-semibold text-ink-800 hover:text-brand-700"
+              onClick={() => setIsOpen(false)}
+            >
+              <FiHeart className="text-brand-600" />
+              Saved
             </Link>
           </div>
 

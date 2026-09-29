@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
+import SaveButton from "../../components/ui/SaveButton";
 import { useSelector } from "react-redux";
 import { LuPhoneCall } from "react-icons/lu";
 import { FiX, FiMapPin } from "react-icons/fi";
@@ -327,6 +328,13 @@ const HireDetail = () => {
                   ? driver.phone
                   : "View contact"}
               </button>
+
+              <SaveButton
+                categoryPath="rentcar"
+                itemId={driver?._id}
+                userId={user}
+                className="mt-4"
+              />
 
               <div className="mt-4 rounded-xl border border-accent-100 bg-accent-50 p-3.5 text-left">
                 <p className="text-xs font-bold uppercase tracking-wide text-accent-700">Note</p>

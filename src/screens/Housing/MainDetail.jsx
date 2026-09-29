@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Loader from '../../components/Loader';
+import SaveButton from '../../components/ui/SaveButton';
 import { BsFlagFill } from "react-icons/bs";
 import { FiX } from "react-icons/fi";
 import baseURL from '../../assets/baseURL';
@@ -620,6 +621,13 @@ const openWhatsApp = (phoneNumber, message = "") => {
                 WhatsApp
               </button>
             </div>
+
+            <SaveButton
+              categoryPath="buildings"
+              itemId={product?._id}
+              userId={userid}
+              className="mt-3"
+            />
 
             {/* Report Button */}
             <button

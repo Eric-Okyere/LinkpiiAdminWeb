@@ -52,6 +52,7 @@ import PrivacyPolicy from "./components/Policy";
 import TermsOfUse from "./components/Terms";
 import Home from "./screens/Home/Home";
 import HotDetail from "./screens/Home/HotDetail";
+import SavedItems from "./screens/Saved/SavedItems";
 import Footer from "./components/Footer";
 
 
@@ -124,6 +125,7 @@ const App = () => {
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/profile" element={<MyProfile />} />
+                <Route path="/saved" element={<SavedItems />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/report" element={<Report />} />
                 <Route path="/callcenter" element={<CallCenter />} />
