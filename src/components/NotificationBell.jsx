@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaMobileAlt } from "react-icons/fa";
 import baseURL from "../assets/baseURL";
+import { getPermissionState, subscribeToPush } from "../utils/pushNotifications";
 
 // Site-wide notification bell. Polls the backend for the latest
 // announcements (currently: "a product was just approved") and shows an
 // unread badge until the dropdown is opened. Read state is tracked
 // per-browser in localStorage - there's no per-user tracking on the
 // backend, since these are broadcast announcements, not personal alerts.
+//
+// Also offers to turn these into real phone push notifications (with the
+// device's default notification sound) via the Web Push API - see
+// src/utils/pushNotifications.js and farmbackend's /push routes.
 const LAST_SEEN_KEY = "linkpii_notifications_last_seen";
 const POLL_INTERVAL_MS = 30000;
 
@@ -40,6 +45,8 @@ const timeAgo = (dateString) => {
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [pushState, setPushState] = useState("unsupported"); // unsupported | default | granted | denied
+  const [pushBusy, setPushBusy] = useState(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -67,6 +74,10 @@ const NotificationBell = () => {
   }, []);
 
   useEffect(() => {
+    setPushState(getPermissionState());
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -86,6 +97,16 @@ const NotificationBell = () => {
     setIsOpen(opening);
     if (opening && notifications.length > 0) {
       setLastSeen(notifications[0].createdAt);
+    }
+  };
+
+  const handleEnablePush = async () => {
+    setPushBusy(true);
+    try {
+      const granted = await subscribeToPush();
+      setPushState(granted ? "granted" : getPermissionState());
+    } finally {
+      setPushBusy(false);
     }
   };
 
@@ -110,6 +131,23 @@ const NotificationBell = () => {
           <div className="border-b border-ink-100 px-4 py-3">
             <p className="font-display text-sm font-bold text-ink-900">Notifications</p>
           </div>
+          {pushState === "default" && (
+            <div className="flex items-center gap-3 border-b border-ink-100 bg-brand-50 px-4 py-3">
+              <FaMobileAlt className="shrink-0 text-lg text-brand-600" />
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-ink-800">Get these on your phone too</p>
+                <p className="text-[11px] text-ink-500">With sound, even when the site isn't open.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleEnablePush}
+                disabled={pushBusy}
+                className="shrink-0 rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
+              >
+                {pushBusy ? "..." : "Enable"}
+              </button>
+            </div>
+          )}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-ink-400">
