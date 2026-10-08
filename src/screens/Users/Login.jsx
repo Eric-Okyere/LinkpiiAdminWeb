@@ -16,6 +16,9 @@ import GoogleLoginButton from "./GoogleLoginButton";
 import AuthLayout from "../../components/ui/AuthLayout";
 
 
+// Eric: set this to true to bring email/password login back - Google-only for now.
+const SHOW_EMAIL_LOGIN = false;
+
 const initialValues = {
   email: "",
   password: "",
@@ -317,100 +320,104 @@ const handleGoogleLoginSuccess = (user, token) => {
           </Link>
         </p>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleLogin}
-        >
-          {({ errors, values, touched, handleSubmit, handleChange, handleBlur }) => (
-            <form
-              onSubmit={handleSubmit}
-              className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card"
+        {SHOW_EMAIL_LOGIN && (
+          <>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleLogin}
             >
-              {/* Email Input */}
-              <div className="mb-4">
-                <label className="mb-1 block text-sm font-medium text-ink-700" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter email"
-                  onChange={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
-                  className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                />
-                {touched.email && errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                )}
-              </div>
-
-              {/* Password Input */}
-              <div className="mb-4">
-                <label className="mb-1 block text-sm font-medium text-ink-700" htmlFor="password">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    onChange={handleChange("password")}
-                    onBlur={handleBlur("password")}
-                    value={values.password}
-                    className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-ink-400 hover:text-ink-600"
-                  >
-                    {showPassword?(<FaEye />):(<FaEyeSlash />)}
-
-                  </button>
-                </div>
-                {touched.password && errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-                )}
-              </div>
-
-              {/* Error Message */}
-              {errorMessage && (
-                <p className="mb-4 text-sm text-red-500">{errorMessage}</p>
-              )}
-
-              {/* Login Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full rounded-xl bg-brand-600 py-3 text-center font-semibold text-white transition-colors hover:bg-brand-700 focus:outline-none ${
-                  loading && "cursor-not-allowed opacity-50"
-                }`}
-              >
-                {loading ? "Logging in..." : "Login"}
-              </button>
-
-              {/* Forgotten Password */}
-              <div className="mt-4 text-right">
-                <Link
-                  to="/forgotpassword"
-                  className="text-sm text-ink-500 hover:text-brand-700"
+              {({ errors, values, touched, handleSubmit, handleChange, handleBlur }) => (
+                <form
+                  onSubmit={handleSubmit}
+                  className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card"
                 >
-                  Forgotten Password?
-                </Link>
-              </div>
-            </form>
-          )}
-        </Formik>
+                  {/* Email Input */}
+                  <div className="mb-4">
+                    <label className="mb-1 block text-sm font-medium text-ink-700" htmlFor="email">
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder="Enter email"
+                      onChange={handleChange("email")}
+                      onBlur={handleBlur("email")}
+                      value={values.email}
+                      className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                    />
+                    {touched.email && errors.email && (
+                      <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                    )}
+                  </div>
 
-        <div className="mt-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-ink-400">
-          <span className="h-px flex-1 bg-ink-200" />
-          or
-          <span className="h-px flex-1 bg-ink-200" />
-        </div>
+                  {/* Password Input */}
+                  <div className="mb-4">
+                    <label className="mb-1 block text-sm font-medium text-ink-700" htmlFor="password">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        onChange={handleChange("password")}
+                        onBlur={handleBlur("password")}
+                        value={values.password}
+                        className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-ink-800 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-ink-400 hover:text-ink-600"
+                      >
+                        {showPassword?(<FaEye />):(<FaEyeSlash />)}
 
-        <div className="mt-6 flex justify-center">
+                      </button>
+                    </div>
+                    {touched.password && errors.password && (
+                      <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                    )}
+                  </div>
+
+                  {/* Error Message */}
+                  {errorMessage && (
+                    <p className="mb-4 text-sm text-red-500">{errorMessage}</p>
+                  )}
+
+                  {/* Login Button */}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full rounded-xl bg-brand-600 py-3 text-center font-semibold text-white transition-colors hover:bg-brand-700 focus:outline-none ${
+                      loading && "cursor-not-allowed opacity-50"
+                    }`}
+                  >
+                    {loading ? "Logging in..." : "Login"}
+                  </button>
+
+                  {/* Forgotten Password */}
+                  <div className="mt-4 text-right">
+                    <Link
+                      to="/forgotpassword"
+                      className="text-sm text-ink-500 hover:text-brand-700"
+                    >
+                      Forgotten Password?
+                    </Link>
+                  </div>
+                </form>
+              )}
+            </Formik>
+
+            <div className="mt-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-ink-400">
+              <span className="h-px flex-1 bg-ink-200" />
+              or
+              <span className="h-px flex-1 bg-ink-200" />
+            </div>
+          </>
+        )}
+
+        <div className={`flex justify-center ${SHOW_EMAIL_LOGIN ? "mt-6" : "mt-2"}`}>
           <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
         </div>
           </>
