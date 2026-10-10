@@ -15,6 +15,9 @@ import GoogleLoginButton from "./GoogleLoginButton";
 import AuthLayout from "../../components/ui/AuthLayout";
 import { verifyEmailCode, resendVerificationCode } from "./Auth";
 
+// Eric: set this to true to bring email/password signup back - Google-only for now.
+const SHOW_EMAIL_SIGNUP = false;
+
 const initialValues = {
   name: "",
   lastname: "",
@@ -235,6 +238,8 @@ const Signup = () => {
           </Link>
         </p>
 
+        {SHOW_EMAIL_SIGNUP && (
+          <>
         <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card">
           {message.text && (
             <div
@@ -372,8 +377,10 @@ const Signup = () => {
           or
           <span className="h-px flex-1 bg-ink-200" />
         </div>
+          </>
+        )}
 
-        <div className="mt-6 flex justify-center">
+        <div className={`flex justify-center ${SHOW_EMAIL_SIGNUP ? "mt-6" : "mt-2"}`}>
           <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
         </div>
           </>
