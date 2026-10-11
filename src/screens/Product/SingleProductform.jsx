@@ -12,6 +12,7 @@ import baseURL from "../../assets/baseURL";
 import { useNavigate } from "react-router-dom";
 import Container from "../../components/ui/Container";
 import SectionHeading from "../../components/ui/SectionHeading";
+import { GHANA_REGIONS, TOWNS_BY_REGION, withCustomOption } from "../../data/ghanaLocations";
 
 const inputClass =
   "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
@@ -264,6 +265,15 @@ const SingleProductForm = ({ item }) => {
   };
 
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
+
+  const handleRegionChange = (e) => {
+    const nextRegion = e.target.value;
+    setRegion(nextRegion);
+    const validTowns = TOWNS_BY_REGION[nextRegion] || [];
+    if (!validTowns.includes(town)) {
+      setTown("");
+    }
+  };
 
   const handleSubmit = async () => {
     setSubmitAttempted(true);
@@ -612,8 +622,27 @@ const SingleProductForm = ({ item }) => {
                 ></textarea>
                 {showErrorsForCurrentStep && <FieldError message={currentStepErrors.description} />}
               </div>
-              <input type="text" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="Region" className={inputClass} />
-              <input type="text" value={town} onChange={(e) => setTown(e.target.value)} placeholder="Town" className={inputClass} />
+              <select value={region} onChange={handleRegionChange} className={inputClass}>
+                <option value="">Select Region</option>
+                {withCustomOption(region, GHANA_REGIONS).map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={town}
+                onChange={(e) => setTown(e.target.value)}
+                disabled={!region}
+                className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                <option value="">{region ? "Select Town" : "Select a region first"}</option>
+                {withCustomOption(town, TOWNS_BY_REGION[region] || []).map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
               <div>
                 <input
                   type="text"
