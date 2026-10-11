@@ -21,6 +21,7 @@ const ListingCard = ({
   title,
   subtitle,
   price,
+  originalPrice,
   meta,
   badge,
   tag,
@@ -67,10 +68,13 @@ const ListingCard = ({
         {subtitle && (
           <p className="mt-0.5 truncate text-xs text-ink-500">{subtitle}</p>
         )}
-        <div className="mt-2 flex items-center justify-between gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <span className="text-sm font-extrabold text-brand-600">
             {price ?? "Call for price"}
           </span>
+          {originalPrice && (
+            <span className="text-xs text-ink-400 line-through">{originalPrice}</span>
+          )}
         </div>
         {meta && (
           <p className="mt-1.5 truncate text-[11px] text-ink-400">{meta}</p>
@@ -116,6 +120,7 @@ ListingCard.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
   price: PropTypes.node,
+  originalPrice: PropTypes.node,
   meta: PropTypes.string,
   badge: PropTypes.node,
   tag: PropTypes.node,

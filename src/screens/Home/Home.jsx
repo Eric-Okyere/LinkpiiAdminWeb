@@ -20,6 +20,24 @@ const categoryFilters = [
   { key: "building", label: "Housing" },
 ];
 
+// Mirrors the price math on the detail pages (see HotDetail.jsx): when a
+// listing has a discount, show the new, discounted price as the headline
+// price and the original price struck through next to it.
+function getPriceDisplay(product) {
+  const hasDiscount = Boolean(product.price && product.discount);
+  if (!hasDiscount) {
+    return {
+      price: product.price ? `Gh¢${product.price}` : undefined,
+      originalPrice: undefined,
+    };
+  }
+  const discounted = product.price - (product.price * product.discount) / 100;
+  return {
+    price: `Gh¢${discounted.toFixed(2)}`,
+    originalPrice: `Gh¢${product.price}`,
+  };
+}
+
 function Home() {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -410,27 +428,33 @@ const handleProductClick = async (product) => {
         ) : isSafari ? (
           // Safari → GRID
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-10">
-            {filteredProducts.map((product) => (
-              <ListingCard
-                categoryPath={(product.type === "fashion" ? "fashionpost" : product.type === "building" ? "buildings" : "shops")}
-                itemId={product._id}
-                key={product._id}
-                onClick={() => handleProductClick(product)}
-                image={product.picture || fallbackImage}
-                title={product.name}
-                price={product.price ? `Gh¢${product.price}` : undefined}
-                meta={[product.region, product.town, product.location].filter(Boolean).join(", ")}
-                badge={product.discount ? `${product.discount}% OFF` : null}
-                tag={product.condition}
-              />
-            ))}
+            {filteredProducts.map((product) => {
+              const { price, originalPrice } = getPriceDisplay(product);
+              return (
+                <ListingCard
+                  categoryPath={(product.type === "fashion" ? "fashionpost" : product.type === "building" ? "buildings" : "shops")}
+                  itemId={product._id}
+                  key={product._id}
+                  onClick={() => handleProductClick(product)}
+                  image={product.picture || fallbackImage}
+                  title={product.name}
+                  price={price}
+                  originalPrice={originalPrice}
+                  meta={[product.region, product.town, product.location].filter(Boolean).join(", ")}
+                  badge={product.discount ? `${product.discount}% OFF` : null}
+                  tag={product.condition}
+                />
+              );
+            })}
           </div>
         ) : (
           // Others → Masonry
           <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4 mb-10">
             {columns.map((col, colIndex) => (
               <div key={colIndex} className="flex flex-col gap-4">
-                {col.map((product) => (
+                {col.map((product) => {
+                  const { price, originalPrice } = getPriceDisplay(product);
+                  return (
                   <div key={product._id} className="mb-1 break-inside-avoid">
                     <ListingCard
                       categoryPath={(product.type === "fashion" ? "fashionpost" : product.type === "building" ? "buildings" : "shops")}
@@ -438,13 +462,15 @@ const handleProductClick = async (product) => {
                       onClick={() => handleProductClick(product)}
                       image={product.picture || fallbackImage}
                       title={product.name}
-                      price={product.price ? `Gh¢${product.price}` : undefined}
+                      price={price}
+                      originalPrice={originalPrice}
                       meta={[product.region, product.town, product.location].filter(Boolean).join(", ")}
                       badge={product.discount ? `${product.discount}% OFF` : null}
                       tag={product.condition}
                     />
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ))}
           </div>
