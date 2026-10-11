@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import Container from "../../components/ui/Container";
 import SectionHeading from "../../components/ui/SectionHeading";
 import { GHANA_REGIONS, TOWNS_BY_REGION, withCustomOption } from "../../data/ghanaLocations";
+import { compressImage } from "../../utils/imageCompression";
 
 const inputClass =
   "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
@@ -29,6 +30,37 @@ const STEPS = [
   { key: "details", label: "Product Details" },
   { key: "contact", label: "Contact & Location" },
 ];
+
+// Draft autosave - text fields only. Photos/video can't be meaningfully
+// restored from localStorage (a blob: preview URL dies on reload and a
+// File object isn't serializable), so only the typed fields + current
+// step survive a reload; photos have to be re-added.
+const DRAFT_KEY = "linkpii:draft:sigform";
+
+const loadDraft = () => {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const saveDraft = (data) => {
+  try {
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  } catch (error) {
+    // ignore - e.g. private browsing / storage disabled
+  }
+};
+
+const clearDraft = () => {
+  try {
+    window.localStorage.removeItem(DRAFT_KEY);
+  } catch (error) {
+    // ignore
+  }
+};
 
 const SingleProductForm = ({ item }) => {
   const [primaryFile, setPrimaryFile] = useState(null);
@@ -97,6 +129,55 @@ const SingleProductForm = ({ item }) => {
     }
   }, [item]);
 
+  // Restore an unsaved draft once on mount - never in edit mode, since
+  // `item` already supplies the real values there.
+  useEffect(() => {
+    if (item) return;
+    const draft = loadDraft();
+    if (!draft) return;
+
+    setName(draft.name || "");
+    setPrice(draft.price || "");
+    setDiscount(draft.discount || "");
+    setPhone(draft.phone || "");
+    setDescription(draft.description || "");
+    setLocation(draft.location || "");
+    setRegion(draft.region || "");
+    setTown(draft.town || "");
+    setWhatsapp(draft.whatsapp || "");
+    setCategory(draft.category || "");
+    setCondition(draft.condition || "");
+    if (typeof draft.currentStep === "number") setCurrentStep(draft.currentStep);
+
+    toast.info("Restored your unsaved draft. Photos need to be re-added.");
+  }, [item]);
+
+  // Autosave the draft as the seller types (text fields only - see
+  // DRAFT_KEY comment above for why photos aren't included).
+  useEffect(() => {
+    if (item) return;
+    const hasAnyValue =
+      name || price || discount || phone || description || location || region || town || whatsapp || category || condition;
+    if (!hasAnyValue) {
+      clearDraft();
+      return;
+    }
+    saveDraft({
+      name,
+      price,
+      discount,
+      phone,
+      description,
+      location,
+      region,
+      town,
+      whatsapp,
+      category,
+      condition,
+      currentStep,
+    });
+  }, [item, name, price, discount, phone, description, location, region, town, whatsapp, category, condition, currentStep]);
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -120,7 +201,7 @@ const SingleProductForm = ({ item }) => {
     }
   };
 
-  const assignIncomingPhotos = (fileList) => {
+  const assignIncomingPhotos = async (fileList) => {
     const files = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
     if (!files.length) return;
 
@@ -134,20 +215,21 @@ const SingleProductForm = ({ item }) => {
 
     const queue = [...files];
     if (!hasPrimary && queue.length) {
-      const f = queue.shift();
+      const f = await compressImage(queue.shift());
       setPrimaryFile(f);
       setPrimaryPreview(URL.createObjectURL(f));
     }
     if (!hasSecondary && queue.length) {
-      const f = queue.shift();
+      const f = await compressImage(queue.shift());
       setSecondaryFile(f);
       setSecondaryPreview(URL.createObjectURL(f));
     }
   };
 
-  const handleSlotFile = (which) => (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
+  const handleSlotFile = (which) => async (e) => {
+    const rawFile = e.target.files && e.target.files[0];
+    if (!rawFile) return;
+    const file = await compressImage(rawFile);
     if (which === "primary") {
       revokeIfBlob(primaryPreview);
       setPrimaryFile(file);
@@ -275,6 +357,34 @@ const SingleProductForm = ({ item }) => {
     }
   };
 
+  const handleClearDraft = () => {
+    revokeIfBlob(primaryPreview);
+    revokeIfBlob(secondaryPreview);
+    revokeIfBlob(videoPreview);
+    setPrimaryFile(null);
+    setPrimaryPreview(null);
+    setSecondaryFile(null);
+    setSecondaryPreview(null);
+    setVideoFile(null);
+    setVideoPreview(null);
+    setName("");
+    setPrice("");
+    setDiscount("");
+    setPhone("");
+    setDescription("");
+    setLocation("");
+    setRegion("");
+    setTown("");
+    setWhatsapp("");
+    setCategory("");
+    setCondition("");
+    setCurrentStep(0);
+    setAttemptedSteps(new Set());
+    setSubmitAttempted(false);
+    clearDraft();
+    toast.info("Draft cleared.");
+  };
+
   const handleSubmit = async () => {
     setSubmitAttempted(true);
     const badStep = stepHasRequiredErrors(1) ? 1 : stepHasRequiredErrors(2) ? 2 : null;
@@ -330,6 +440,7 @@ const SingleProductForm = ({ item }) => {
 
       if (response.ok) {
         await response.json();
+        clearDraft();
         toast.success("Product submitted successfully!");
         navigate("/user", { state: { activeTab: "general" } });
       } else {
@@ -351,6 +462,18 @@ const SingleProductForm = ({ item }) => {
             eyebrow="Post"
             title="List a product"
             subtitle="Add a couple of photos and the details buyers need to reach you."
+            action={
+              !item &&
+              (name || price || description || phone || primaryPreview || secondaryPreview) ? (
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  className="text-xs font-bold text-ink-400 underline underline-offset-2 hover:text-ink-600"
+                >
+                  Clear draft
+                </button>
+              ) : null
+            }
           />
 
           <div className="mb-6">
@@ -551,18 +674,22 @@ const SingleProductForm = ({ item }) => {
                 {showErrorsForCurrentStep && <FieldError message={currentStepErrors.name} />}
               </div>
               <div>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
-                      setPrice(inputValue);
-                    }
-                  }}
-                  placeholder="Price"
-                  className={fieldClass(showErrorsForCurrentStep && currentStepErrors.price)}
-                />
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">
+                    GH&#8373;
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={price ? Number(price).toLocaleString("en-US") : ""}
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/[^\d]/g, "").replace(/^0+/, "");
+                      setPrice(digitsOnly);
+                    }}
+                    placeholder="Price"
+                    className={`${fieldClass(showErrorsForCurrentStep && currentStepErrors.price)} pl-12`}
+                  />
+                </div>
                 {showErrorsForCurrentStep && <FieldError message={currentStepErrors.price} />}
               </div>
               <input
@@ -652,6 +779,34 @@ const SingleProductForm = ({ item }) => {
                   className={fieldClass(showErrorsForCurrentStep && currentStepErrors.location)}
                 />
                 {showErrorsForCurrentStep && <FieldError message={currentStepErrors.location} />}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 2 && (name || price || primaryPreview) && (
+            <div className="mt-6 overflow-hidden rounded-xl border border-ink-100 bg-ink-50">
+              <p className="border-b border-ink-100 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-ink-400">
+                Preview - how buyers will see this
+              </p>
+              <div className="flex items-center gap-3 p-3">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-100">
+                  {primaryPreview ? (
+                    <img src={primaryPreview} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-ink-300">
+                      <AiOutlineCloudUpload size={20} />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-ink-900">{name || "Untitled product"}</p>
+                  <p className="text-sm font-bold text-brand-600">
+                    {price ? `GH\u20b5${Number(price).toLocaleString("en-US")}` : "Price not set"}
+                  </p>
+                  <p className="truncate text-xs text-ink-400">
+                    {[town, region].filter(Boolean).join(", ") || "Location not set"}
+                  </p>
+                </div>
               </div>
             </div>
           )}
