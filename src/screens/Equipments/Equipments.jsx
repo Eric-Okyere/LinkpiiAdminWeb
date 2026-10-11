@@ -1,238 +1,771 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { AiOutlinePlusCircle, AiOutlineVideoCamera } from "react-icons/ai";
+import { toast } from "react-toastify";
+import {
+  AiOutlineCloudUpload,
+  AiOutlineClose,
+  AiOutlineCheck,
+  AiOutlineSwap,
+} from "react-icons/ai";
 import baseURL from "../../assets/baseURL";
+import { useNavigate } from "react-router-dom";
+import Container from "../../components/ui/Container";
+import SectionHeading from "../../components/ui/SectionHeading";
+import { GHANA_REGIONS, TOWNS_BY_REGION, withCustomOption } from "../../data/ghanaLocations";
+import { compressImage } from "../../utils/imageCompression";
+import { COUNTRY_CODES, DEFAULT_COUNTRY_DIAL, splitDialAndLocal } from "../../data/countryCodes";
+
+const inputClass =
+  "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
+const errorInputClass =
+  "w-full rounded-xl border border-red-300 bg-red-50/40 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-red-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100";
+
+const fieldClass = (hasError) => (hasError ? errorInputClass : inputClass);
+
+const FieldError = ({ message }) =>
+  message ? <p className="mt-1 text-xs font-medium text-red-600">{message}</p> : null;
+
+const STEPS = [
+  { key: "photos", label: "Photos" },
+  { key: "details", label: "Equipment Details" },
+  { key: "contact", label: "Contact & Location" },
+];
+
+// Draft autosave - text fields only. Photos can't be meaningfully
+// restored from localStorage (a blob: preview URL dies on reload and a
+// File object isn't serializable), so only the typed fields + current
+// step survive a reload; photos have to be re-added.
+const DRAFT_KEY = "linkpii:draft:equipments";
+
+const loadDraft = () => {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const saveDraft = (data) => {
+  try {
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  } catch (error) {
+    // ignore - e.g. private browsing / storage disabled
+  }
+};
+
+const clearDraft = () => {
+  try {
+    window.localStorage.removeItem(DRAFT_KEY);
+  } catch (error) {
+    // ignore
+  }
+};
 
 const Equipments = ({ item }) => {
-  const [picture, setPicture] = useState(null);
-  const [picturesec, setPicturesec] = useState(null);
-  const [video, setVideo] = useState(null);
+  const [primaryFile, setPrimaryFile] = useState(null);
+  const [primaryPreview, setPrimaryPreview] = useState(null);
+  const [secondaryFile, setSecondaryFile] = useState(null);
+  const [secondaryPreview, setSecondaryPreview] = useState(null);
+  const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
+
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState(DEFAULT_COUNTRY_DIAL);
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [region, setRegion] = useState("");
   const [town, setTown] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [whatsappCountry, setWhatsappCountry] = useState(DEFAULT_COUNTRY_DIAL);
   const [category, setCategory] = useState("");
-  const [condition, setCondition] = useState("");
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [attemptedSteps, setAttemptedSteps] = useState(() => new Set());
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
   const login = useSelector((state) => state);
+  const navigate = useNavigate();
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     if (item) {
-      setName(item.name);
-      setVideo(item.video);
-      setPhone(item.phone);
-      setPrice(item.price);
-      setDescription(item.description);
-      setRegion(item.region);
-      setTown(item.town);
-      setPicture(item.picture);
-      setPicturesec(item.picturesec);
-      setLocation(item.location);
-      setWhatsapp(item.whatsapp);
-      setCondition(item.condition);
-    }
+      const { name, price, phone, whatsapp, description, region, town, location, picture, picturesec } = item;
 
-    fetch(`${baseURL}equipmentcat`)
-      .then((res) => res.json())
-      .then((data) => setCategories(data));
+      setName(name || "");
+      setPrice(price || "");
+      const phoneSplit = splitDialAndLocal(phone);
+      setPhoneCountry(phoneSplit.dial);
+      setPhone(phoneSplit.local);
+      setDescription(description || "");
+      setRegion(region || "");
+      setTown(town || "");
+      setLocation(location || "");
+      const whatsappSplit = splitDialAndLocal(whatsapp);
+      setWhatsappCountry(whatsappSplit.dial);
+      setWhatsapp(whatsappSplit.local);
+      setPrimaryPreview(picture || null);
+      setSecondaryPreview(picturesec || null);
+    }
   }, [item]);
 
-  const handleImageChange = (setImage) => (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
+  // Restore an unsaved draft once on mount - never in edit mode, since
+  // `item` already supplies the real values there.
+  useEffect(() => {
+    if (item) return;
+    const draft = loadDraft();
+    if (!draft) return;
+
+    setName(draft.name || "");
+    setPrice(draft.price || "");
+    setPhone(draft.phone || "");
+    setPhoneCountry(draft.phoneCountry || DEFAULT_COUNTRY_DIAL);
+    setDescription(draft.description || "");
+    setLocation(draft.location || "");
+    setRegion(draft.region || "");
+    setTown(draft.town || "");
+    setWhatsapp(draft.whatsapp || "");
+    setWhatsappCountry(draft.whatsappCountry || DEFAULT_COUNTRY_DIAL);
+    setCategory(draft.category || "");
+    if (typeof draft.currentStep === "number") setCurrentStep(draft.currentStep);
+
+    toast.info("Restored your unsaved draft. Photos need to be re-added.");
+  }, [item]);
+
+  // Autosave the draft as the seller types (text fields only).
+  useEffect(() => {
+    if (item) return;
+    const hasAnyValue = name || price || phone || description || location || region || town || whatsapp || category;
+    if (!hasAnyValue) {
+      clearDraft();
+      return;
     }
+    saveDraft({
+      name,
+      price,
+      phone,
+      phoneCountry,
+      description,
+      location,
+      region,
+      town,
+      whatsapp,
+      whatsappCountry,
+      category,
+      currentStep,
+    });
+  }, [item, name, price, phone, phoneCountry, description, location, region, town, whatsapp, whatsappCountry, category, currentStep]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${baseURL}equipmentcat`);
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const revokeIfBlob = (url) => {
+    if (url && url.startsWith("blob:")) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        // ignore - nothing to clean up
+      }
+    }
+  };
+
+  const assignIncomingPhotos = async (fileList) => {
+    const files = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+    if (!files.length) return;
+
+    const hasPrimary = Boolean(primaryFile || primaryPreview);
+    const hasSecondary = Boolean(secondaryFile || secondaryPreview);
+
+    if (hasPrimary && hasSecondary) {
+      toast.info("Both photo slots are full. Remove one before adding another.");
+      return;
+    }
+
+    const queue = [...files];
+    if (!hasPrimary && queue.length) {
+      const f = await compressImage(queue.shift());
+      setPrimaryFile(f);
+      setPrimaryPreview(URL.createObjectURL(f));
+    }
+    if (!hasSecondary && queue.length) {
+      const f = await compressImage(queue.shift());
+      setSecondaryFile(f);
+      setSecondaryPreview(URL.createObjectURL(f));
+    }
+  };
+
+  const handleSlotFile = (which) => async (e) => {
+    const rawFile = e.target.files && e.target.files[0];
+    if (!rawFile) return;
+    const file = await compressImage(rawFile);
+    if (which === "primary") {
+      revokeIfBlob(primaryPreview);
+      setPrimaryFile(file);
+      setPrimaryPreview(URL.createObjectURL(file));
+    } else {
+      revokeIfBlob(secondaryPreview);
+      setSecondaryFile(file);
+      setSecondaryPreview(URL.createObjectURL(file));
+    }
+    e.target.value = "";
+  };
+
+  const removeSlot = (which) => {
+    if (which === "primary") {
+      revokeIfBlob(primaryPreview);
+      setPrimaryFile(null);
+      setPrimaryPreview(null);
+    } else {
+      revokeIfBlob(secondaryPreview);
+      setSecondaryFile(null);
+      setSecondaryPreview(null);
+    }
+  };
+
+  const swapPhotos = () => {
+    setPrimaryFile(secondaryFile);
+    setPrimaryPreview(secondaryPreview);
+    setSecondaryFile(primaryFile);
+    setSecondaryPreview(primaryPreview);
+  };
+
+  const handlePhotoDrop = (e) => {
+    e.preventDefault();
+    setIsDraggingPhotos(false);
+    assignIncomingPhotos(e.dataTransfer.files);
+  };
+
+  const fetchFile = async (url) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const fileName = url.split("/").pop();
+      return new File([blob], fileName, { type: blob.type });
+    } catch (error) {
+      console.error("Error fetching file:", error);
+      return null;
+    }
+  };
+
+  const getStepErrors = (stepIndex) => {
+    const stepErrors = {};
+    if (stepIndex === 1) {
+      if (!name.trim()) stepErrors.name = "Give this equipment a name.";
+      if (!price) stepErrors.price = "Enter a price.";
+    }
+    if (stepIndex === 2) {
+      if (!phone.trim()) stepErrors.phone = "Add a phone number customers can reach you on.";
+      if (!description.trim()) stepErrors.description = "Add a short description.";
+      if (!location.trim()) stepErrors.location = "Add a location.";
+    }
+    return stepErrors;
+  };
+
+  const stepHasRequiredErrors = (stepIndex) => Object.keys(getStepErrors(stepIndex)).length > 0;
+
+  const currentStepErrors = getStepErrors(currentStep);
+  const showErrorsForCurrentStep = attemptedSteps.has(currentStep) || submitAttempted;
+
+  const markAttempted = (stepIndex) =>
+    setAttemptedSteps((prev) => {
+      const next = new Set(prev);
+      next.add(stepIndex);
+      return next;
+    });
+
+  const goToStep = (index) => {
+    if (index <= currentStep) {
+      setCurrentStep(index);
+      return;
+    }
+    for (let i = currentStep; i < index; i += 1) {
+      if (stepHasRequiredErrors(i)) {
+        markAttempted(i);
+        setCurrentStep(i);
+        return;
+      }
+    }
+    setCurrentStep(index);
+  };
+
+  const handleNext = () => {
+    markAttempted(currentStep);
+    if (stepHasRequiredErrors(currentStep)) return;
+    setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
+  };
+
+  const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
+
+  const handleRegionChange = (e) => {
+    const nextRegion = e.target.value;
+    setRegion(nextRegion);
+    const validTowns = TOWNS_BY_REGION[nextRegion] || [];
+    if (!validTowns.includes(town)) {
+      setTown("");
+    }
+  };
+
+  const handleClearDraft = () => {
+    revokeIfBlob(primaryPreview);
+    revokeIfBlob(secondaryPreview);
+    setPrimaryFile(null);
+    setPrimaryPreview(null);
+    setSecondaryFile(null);
+    setSecondaryPreview(null);
+    setName("");
+    setPrice("");
+    setPhone("");
+    setPhoneCountry(DEFAULT_COUNTRY_DIAL);
+    setDescription("");
+    setLocation("");
+    setRegion("");
+    setTown("");
+    setWhatsapp("");
+    setWhatsappCountry(DEFAULT_COUNTRY_DIAL);
+    setCategory("");
+    setCurrentStep(0);
+    setAttemptedSteps(new Set());
+    setSubmitAttempted(false);
+    clearDraft();
+    toast.info("Draft cleared.");
   };
 
   const handleSubmit = async () => {
-    if (!name || !phone || !price || !description || !location) {
-      alert("Please fill in all required fields.");
+    setSubmitAttempted(true);
+    const badStep = stepHasRequiredErrors(1) ? 1 : stepHasRequiredErrors(2) ? 2 : null;
+    if (badStep !== null) {
+      markAttempted(badStep);
+      setCurrentStep(badStep);
+      toast.error("Please fill in the highlighted fields before submitting.");
       return;
     }
+
     setIsLoading(true);
 
-    // Implement form submission logic here
-    setIsLoading(false);
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("phone", `${phoneCountry}${phone}`);
+      formData.append("description", description);
+      formData.append("location", location);
+      formData.append("region", region);
+      formData.append("town", town);
+      formData.append("whatsapp", whatsapp ? `${whatsappCountry.replace("+", "")}${whatsapp}` : "");
+      formData.append("category", category);
+      formData.append("userId", login.user);
+
+      if (primaryFile) {
+        formData.append("picture", primaryFile);
+      } else if (primaryPreview) {
+        const f = await fetchFile(primaryPreview);
+        if (f) formData.append("picture", f);
+      }
+
+      if (secondaryFile) {
+        formData.append("picturesec", secondaryFile);
+      } else if (secondaryPreview) {
+        const f = await fetchFile(secondaryPreview);
+        if (f) formData.append("picturesec", f);
+      }
+
+      const response = await fetch(`${baseURL}equipmentmain`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const savedProduct = await response.json();
+        clearDraft();
+        toast.success("Equipment submitted successfully!");
+        navigate(`/equipmentdetail/${savedProduct._id}`);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Unknown server error" }));
+        toast.error(errorData.error || "Something went wrong! Please try again.");
+      }
+    } catch (error) {
+      toast.error(error.message || "Something went wrong! Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const inputClass =
-    "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
-
   return (
-    <div className="min-h-screen bg-ink-50 pt-20 pb-16 sm:pt-24">
-      <div className="mx-auto w-full max-w-2xl px-4">
-        <div className="mb-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-brand-600">Equipment</p>
-          <h1 className="mt-1 font-display text-2xl font-bold text-ink-900 sm:text-3xl">
-            Post your equipment
-          </h1>
-          <p className="mt-1 text-sm text-ink-500">
-            Give buyers the details they need to reach out.
-          </p>
-        </div>
+    <div className="min-h-screen bg-ink-50 pt-20 sm:pt-24 pb-12">
+      <Container>
+        <div className="mx-auto max-w-2xl rounded-2xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
+          <SectionHeading
+            eyebrow="Post"
+            title="Post equipment for rent"
+            subtitle="Add a couple of photos and the details renters need to reach you."
+            action={
+              !item && (name || description || primaryPreview || secondaryPreview) ? (
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  className="text-xs font-bold text-ink-400 underline underline-offset-2 hover:text-ink-600"
+                >
+                  Clear draft
+                </button>
+              ) : null
+            }
+          />
 
-        <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
-          {/* Media */}
-          <div className="mb-6 grid grid-cols-3 gap-4">
-            <div className="relative">
-              <img
-                src={picture || "https://via.placeholder.com/200x150?text=Primary"}
-                alt="Primary"
-                className="h-24 w-full rounded-xl border border-ink-100 object-cover"
-              />
-              <label
-                htmlFor="primaryImage"
-                className="absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft"
-              >
-                <AiOutlinePlusCircle size={18} />
-              </label>
-              <input
-                type="file"
-                id="primaryImage"
-                className="hidden"
-                onChange={handleImageChange(setPicture)}
-              />
+          <div className="mb-6">
+            <div className="hidden items-center sm:flex">
+              {STEPS.map((step, index) => {
+                const isActive = index === currentStep;
+                const isDone = index < currentStep;
+                return (
+                  <React.Fragment key={step.key}>
+                    <button type="button" onClick={() => goToStep(index)} className="flex items-center gap-2 text-left">
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                          isDone
+                            ? "bg-brand-600 text-white"
+                            : isActive
+                            ? "border-2 border-brand-600 text-brand-600"
+                            : "border border-ink-200 text-ink-400"
+                        }`}
+                      >
+                        {isDone ? <AiOutlineCheck size={14} /> : index + 1}
+                      </span>
+                      <span className={`text-xs font-bold ${isActive || isDone ? "text-ink-900" : "text-ink-400"}`}>
+                        {step.label}
+                      </span>
+                    </button>
+                    {index < STEPS.length - 1 && <span className="mx-3 h-px flex-1 bg-ink-200" aria-hidden="true" />}
+                  </React.Fragment>
+                );
+              })}
             </div>
-            <div className="relative">
-              <img
-                src={picturesec || "https://via.placeholder.com/200x150?text=Secondary"}
-                alt="Secondary"
-                className="h-24 w-full rounded-xl border border-ink-100 object-cover"
-              />
-              <label
-                htmlFor="secondaryImage"
-                className="absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft"
-              >
-                <AiOutlinePlusCircle size={18} />
-              </label>
-              <input
-                type="file"
-                id="secondaryImage"
-                className="hidden"
-                onChange={handleImageChange(setPicturesec)}
-              />
-            </div>
-            <div className="relative">
-              <video
-                src={video}
-                controls
-                className="h-24 w-full rounded-xl border border-ink-100 bg-ink-100 object-cover"
-              ></video>
-              <label
-                htmlFor="videoPicker"
-                className="absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-accent-500 text-white shadow-soft"
-              >
-                <AiOutlineVideoCamera size={18} />
-              </label>
-              <input
-                type="file"
-                id="videoPicker"
-                className="hidden"
-                accept="video/*"
-                onChange={handleImageChange(setVideo)}
-              />
+
+            <div className="sm:hidden">
+              <p className="mb-2 text-xs font-bold text-ink-500">
+                Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].label}
+              </p>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-100">
+                <div
+                  className="h-full rounded-full bg-brand-600 transition-all"
+                  style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Fields */}
-          <div className="space-y-3">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Product Name"
-              className={inputClass}
-            />
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Price"
-              className={inputClass}
-            />
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Phone Number"
-              className={inputClass}
-            />
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Product Description"
-              rows={4}
-              className={inputClass}
-            ></textarea>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Location"
-              className={inputClass}
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="Region"
-                className={inputClass}
-              />
-              <input
-                type="text"
+          {currentStep === 0 && (
+            <div className="space-y-4">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDraggingPhotos(true);
+                }}
+                onDragLeave={() => setIsDraggingPhotos(false)}
+                onDrop={handlePhotoDrop}
+                className={`rounded-xl border-2 border-dashed p-4 text-center transition-colors ${
+                  isDraggingPhotos ? "border-brand-400 bg-brand-50" : "border-ink-200 bg-ink-50"
+                }`}
+              >
+                <AiOutlineCloudUpload className="mx-auto mb-1 text-ink-400" size={24} />
+                <p className="text-xs text-ink-500">
+                  Drag photos here, or{" "}
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current && photoInputRef.current.click()}
+                    className="font-bold text-brand-600 underline underline-offset-2"
+                  >
+                    browse your device
+                  </button>
+                </p>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    assignIncomingPhotos(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink-200 bg-ink-50">
+                    {primaryPreview && <img src={primaryPreview} alt="Primary" className="h-full w-full object-cover" />}
+                  </div>
+                  <span className="absolute left-2 top-2 rounded-full bg-ink-900/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                    Main photo
+                  </span>
+                  {primaryPreview ? (
+                    <button
+                      type="button"
+                      onClick={() => removeSlot("primary")}
+                      className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink-900 text-white shadow-soft hover:bg-ink-800"
+                      aria-label="Remove main photo"
+                    >
+                      <AiOutlineClose size={14} />
+                    </button>
+                  ) : (
+                    <label
+                      htmlFor="primaryImage"
+                      className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition-colors hover:bg-brand-700"
+                    >
+                      <AiOutlineCloudUpload size={18} />
+                    </label>
+                  )}
+                  <input type="file" id="primaryImage" accept="image/*" className="hidden" onChange={handleSlotFile("primary")} />
+                </div>
+
+                <div className="relative">
+                  <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink-200 bg-ink-50">
+                    {secondaryPreview && <img src={secondaryPreview} alt="Secondary" className="h-full w-full object-cover" />}
+                  </div>
+                  {secondaryPreview ? (
+                    <button
+                      type="button"
+                      onClick={() => removeSlot("secondary")}
+                      className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink-900 text-white shadow-soft hover:bg-ink-800"
+                      aria-label="Remove second photo"
+                    >
+                      <AiOutlineClose size={14} />
+                    </button>
+                  ) : (
+                    <label
+                      htmlFor="secondaryImage"
+                      className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition-colors hover:bg-brand-700"
+                    >
+                      <AiOutlineCloudUpload size={18} />
+                    </label>
+                  )}
+                  <input type="file" id="secondaryImage" accept="image/*" className="hidden" onChange={handleSlotFile("secondary")} />
+                </div>
+              </div>
+
+              {primaryPreview && secondaryPreview && (
+                <button type="button" onClick={swapPhotos} className="flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:text-brand-700">
+                  <AiOutlineSwap size={14} />
+                  Make the second photo the main one
+                </button>
+              )}
+
+              <p className="text-xs text-ink-400">
+                Listings with at least one clear photo get noticed first - photos are optional but recommended.
+              </p>
+            </div>
+          )}
+
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Equipment Name"
+                  className={fieldClass(showErrorsForCurrentStep && currentStepErrors.name)}
+                />
+                {showErrorsForCurrentStep && <FieldError message={currentStepErrors.name} />}
+              </div>
+              <div>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-ink-400">
+                    GH&#8373;
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={price ? Number(price).toLocaleString("en-US") : ""}
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/[^\d]/g, "").replace(/^0+/, "");
+                      setPrice(digitsOnly);
+                    }}
+                    placeholder="Price"
+                    className={`${fieldClass(showErrorsForCurrentStep && currentStepErrors.price)} pl-12`}
+                  />
+                </div>
+                {showErrorsForCurrentStep && <FieldError message={currentStepErrors.price} />}
+              </div>
+              <select className={inputClass} value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="">Select a category (optional)</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div>
+                <div className="flex gap-2">
+                  <select
+                    value={phoneCountry}
+                    onChange={(e) => setPhoneCountry(e.target.value)}
+                    aria-label="Phone country code"
+                    className={`${inputClass} w-36 shrink-0 px-2`}
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.name} value={c.dial}>
+                        {c.name} ({c.dial})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, ""))}
+                    placeholder="24 412 3456"
+                    className={`${fieldClass(showErrorsForCurrentStep && currentStepErrors.phone)} flex-1`}
+                  />
+                </div>
+                {showErrorsForCurrentStep && <FieldError message={currentStepErrors.phone} />}
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={whatsappCountry}
+                  onChange={(e) => setWhatsappCountry(e.target.value)}
+                  aria-label="WhatsApp country code"
+                  className={`${inputClass} w-36 shrink-0 px-2`}
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.name} value={c.dial}>
+                      {c.name} ({c.dial})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, ""))}
+                  placeholder="24 412 3456 (optional)"
+                  className={`${inputClass} flex-1`}
+                />
+              </div>
+              <div>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Shop Description"
+                  rows={4}
+                  className={fieldClass(showErrorsForCurrentStep && currentStepErrors.description)}
+                ></textarea>
+                {showErrorsForCurrentStep && <FieldError message={currentStepErrors.description} />}
+              </div>
+              <select value={region} onChange={handleRegionChange} className={inputClass}>
+                <option value="">Select Region</option>
+                {withCustomOption(region, GHANA_REGIONS).map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+              <select
                 value={town}
                 onChange={(e) => setTown(e.target.value)}
-                placeholder="Town"
-                className={inputClass}
-              />
+                disabled={!region}
+                className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                <option value="">{region ? "Select Town" : "Select a region first"}</option>
+                {withCustomOption(town, TOWNS_BY_REGION[region] || []).map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <div>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Location"
+                  className={fieldClass(showErrorsForCurrentStep && currentStepErrors.location)}
+                />
+                {showErrorsForCurrentStep && <FieldError message={currentStepErrors.location} />}
+              </div>
             </div>
-            <input
-              type="text"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              placeholder="WhatsApp Number"
-              className={inputClass}
-            />
-            {/* <select
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">Select Condition</option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-            </select> */}
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+          )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className={`w-full rounded-xl bg-brand-600 py-3 font-semibold text-white shadow-soft transition-colors hover:bg-brand-700 ${
-                isLoading ? "opacity-50" : ""
-              }`}
-            >
-              {isLoading ? "Submitting..." : "Submit"}
-            </button>
+          {currentStep === 2 && (name || primaryPreview) && (
+            <div className="mt-6 overflow-hidden rounded-xl border border-ink-100 bg-ink-50">
+              <p className="border-b border-ink-100 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-ink-400">
+                Preview - how customers will see this
+              </p>
+              <div className="flex items-center gap-3 p-3">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-100">
+                  {primaryPreview ? (
+                    <img src={primaryPreview} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-ink-300">
+                      <AiOutlineCloudUpload size={20} />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-ink-900">{name || "Untitled equipment"}</p>
+                  {price && (
+                    <p className="text-xs font-bold text-brand-600">{`GH\u20b5${Number(price).toLocaleString("en-US")}`}</p>
+                  )}
+                  <p className="truncate text-xs text-ink-400">
+                    {[town, region].filter(Boolean).join(", ") || "Location not set"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 flex items-center gap-3">
+            {currentStep > 0 && (
+              <button
+                type="button"
+                onClick={handleBack}
+                disabled={isLoading}
+                className="flex-1 rounded-xl border border-ink-200 bg-white py-3 text-sm font-bold text-ink-700 transition-colors hover:bg-ink-50 disabled:opacity-50"
+              >
+                Back
+              </button>
+            )}
+            {currentStep < STEPS.length - 1 ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                className="flex-1 rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-soft transition-colors hover:bg-brand-700"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className={`flex-1 rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-soft transition-colors hover:bg-brand-700 ${
+                  isLoading ? "opacity-50" : ""
+                }`}
+              >
+                {isLoading ? "Submitting..." : "Submit"}
+              </button>
+            )}
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 };
