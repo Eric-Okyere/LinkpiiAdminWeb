@@ -54,6 +54,7 @@ import Home from "./screens/Home/Home";
 import HotDetail from "./screens/Home/HotDetail";
 import SavedItems from "./screens/Saved/SavedItems";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 
 const App = () => {
@@ -62,6 +63,7 @@ const App = () => {
 
     return (
       <>
+     <ScrollToTop />
      {(isLoggedIn || location.pathname === "/") && <NavbarCompo />}
         <div className="flex min-h-screen flex-col">
         <div className="flex-1">
