@@ -7,7 +7,7 @@ import { signUp } from "../../Redux/actions";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import baseURL from "../../assets/baseURL";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import { GoogleLogin } from '@react-oauth/google';
 import { loggedIn } from "../../Redux/actions";
 import PhoneInput from "react-phone-input-2";
@@ -60,6 +60,7 @@ const Signup = () => {
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState({ text: "", type: "" });
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
     const login = useSelector((state) => state.login);
@@ -69,6 +70,11 @@ const Signup = () => {
   };
 
   const handleSignup = async (values, formikActions) => {
+    if (!agreeToTerms) {
+      setMessage({ text: "Please agree to the Terms and Conditions to continue.", type: "error" });
+      return;
+    }
+
     let formattedPhoneNumber = values.phone;
 
     // Ensure phone number includes a "+" and the correct country code
@@ -85,6 +91,7 @@ const Signup = () => {
       const response = await axios.post(`${baseURL}create-user`, {
         ...values,
         phone: formattedPhoneNumber, // Use the formatted phone number
+        agreeToTerms,
       });
 
       const { success, user } = response.data;
@@ -238,18 +245,19 @@ const Signup = () => {
           </Link>
         </p>
 
+        {message.text && (
+          <div
+            className={`mb-4 rounded-xl p-3 text-center text-sm ${
+              message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
         {SHOW_EMAIL_SIGNUP && (
           <>
         <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card">
-          {message.text && (
-            <div
-              className={`mb-4 rounded-xl p-3 text-center text-sm ${
-                message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
           <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSignup}>
             {({ errors, touched, handleSubmit, handleChange, handleBlur, values }) => (
               <form className="space-y-3.5" onSubmit={handleSubmit}>
@@ -361,9 +369,9 @@ const Signup = () => {
                 <button
                   type="submit"
                   className={`w-full rounded-xl bg-brand-600 py-3 font-semibold text-white transition-colors hover:bg-brand-700 ${
-                    loading && "cursor-not-allowed opacity-50"
+                    (loading || !agreeToTerms) && "cursor-not-allowed opacity-50"
                   }`}
-                  disabled={loading}
+                  disabled={loading || !agreeToTerms}
                 >
                   {loading ? "Signing up..." : "Signup"}
                 </button>
@@ -380,8 +388,41 @@ const Signup = () => {
           </>
         )}
 
-        <div className={`flex justify-center ${SHOW_EMAIL_SIGNUP ? "mt-6" : "mt-2"}`}>
-          <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
+        <label className={`flex cursor-pointer items-start gap-2.5 text-sm text-ink-600 ${SHOW_EMAIL_SIGNUP ? "mt-6" : "mt-2"}`}>
+          <input
+            type="checkbox"
+            checked={agreeToTerms}
+            onChange={(e) => setAgreeToTerms(e.target.checked)}
+            className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-ink-300 text-brand-600 focus:ring-2 focus:ring-brand-200"
+          />
+          <span>
+            I agree to the{" "}
+            <Link
+              to="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-brand-700 hover:text-brand-800"
+            >
+              Terms and Conditions
+            </Link>
+          </span>
+        </label>
+
+        <div className="mt-3 flex justify-center">
+          {agreeToTerms ? (
+            <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} agreeToTerms={agreeToTerms} />
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                setMessage({ text: "Please agree to the Terms and Conditions to continue.", type: "error" })
+              }
+              className="flex items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-5 py-2.5 text-sm font-semibold text-ink-400"
+            >
+              <FaLock className="text-ink-300" />
+              Continue with Google
+            </button>
+          )}
         </div>
           </>
         )}

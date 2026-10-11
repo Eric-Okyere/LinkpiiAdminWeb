@@ -2,7 +2,10 @@ import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import baseURL from '../../assets/baseURL';
 
-const GoogleLoginButton = ({ onLoginSuccess }) => {
+// `agreeToTerms` is optional and only meaningful the first time this
+// creates a brand-new account (see googleSignIn in controllers/user.js) -
+// pages without a terms checkbox (e.g. Login) can omit it.
+const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms }) => {
 
 
   const handleSuccess = (credentialResponse) => {
@@ -17,7 +20,7 @@ const GoogleLoginButton = ({ onLoginSuccess }) => {
     fetch(`${baseURL}auth/google-signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ token, agreeToTerms })
      
     })
       .then((response) => response.json())
