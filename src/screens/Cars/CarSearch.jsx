@@ -42,6 +42,11 @@ const CarSearch = ({ productFiltered }) => {
                 <p className="truncate text-xs text-ink-500">
                   {[item.region, item.town, item.location].filter(Boolean).join(", ")}
                 </p>
+                {item.size && (
+                  <span className="mt-1 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700">
+                    {item.size}
+                  </span>
+                )}
               </div>
             </Link>
           ))}

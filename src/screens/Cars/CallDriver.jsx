@@ -11,6 +11,16 @@ import { GrLocationPin } from "react-icons/gr";
 import { FiX } from "react-icons/fi";
 import SectionHeading from "@/components/ui/SectionHeading";
 import LoadMoreButton from "@/components/ui/LoadMoreButton";
+import { toast } from "react-toastify";
+import { GHANA_REGIONS, TOWNS_BY_REGION, withCustomOption } from "@/data/ghanaLocations";
+
+const bookingInputClass =
+  "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
+const bookingErrorInputClass =
+  "w-full rounded-xl border border-red-300 bg-red-50/40 p-3 text-sm focus:border-red-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100";
+const bookingFieldClass = (hasError) => (hasError ? bookingErrorInputClass : bookingInputClass);
+const BookingFieldError = ({ message }) =>
+  message ? <p className="mt-1 text-xs font-medium text-red-600">{message}</p> : null;
 
 const CallDriver = () => {
   const { id } = useParams();
@@ -28,11 +38,93 @@ const CallDriver = () => {
     const [commentsToShow, setCommentsToShow] = useState(3);
      const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
      const [showModal, setShowModal] = useState(false);
-     const [form, setForm] = useState({ time:"",datepick:"",location:"", region: "Greater Accra",desregion:"Greater Accra", deslocation:"" });
+     const [form, setForm] = useState({
+       product: "",
+       packagesize: "",
+       time: "",
+       datepick: "",
+       location: "",
+       region: "Greater Accra",
+       town: "",
+       desregion: "Greater Accra",
+       destown: "",
+       deslocation: "",
+     });
+     const [bookingStep, setBookingStep] = useState(0);
+     const [attemptedBookingSteps, setAttemptedBookingSteps] = useState(() => new Set());
+     const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
      const [userLocation, setUserLocation] = useState({ latitude: null, longitude: null });
 
      const handleChange = (e) => {
       setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handlePickupRegionChange = (e) => {
+      const nextRegion = e.target.value;
+      setForm((prev) => {
+        const validTowns = TOWNS_BY_REGION[nextRegion] || [];
+        return {
+          ...prev,
+          region: nextRegion,
+          town: validTowns.includes(prev.town) ? prev.town : "",
+        };
+      });
+    };
+
+    const handleDestinationRegionChange = (e) => {
+      const nextRegion = e.target.value;
+      setForm((prev) => {
+        const validTowns = TOWNS_BY_REGION[nextRegion] || [];
+        return {
+          ...prev,
+          desregion: nextRegion,
+          destown: validTowns.includes(prev.destown) ? prev.destown : "",
+        };
+      });
+    };
+
+    const BOOKING_STEPS = [
+      { key: "what", label: "What & When" },
+      { key: "where", label: "Pickup & Destination" },
+    ];
+
+    const getBookingStepErrors = (stepIndex) => {
+      const stepErrors = {};
+      if (stepIndex === 0) {
+        if (!form.product.trim()) stepErrors.product = "Tell the driver what you're shipping.";
+        if (!form.datepick) stepErrors.datepick = "Pick a date.";
+        if (!form.time) stepErrors.time = "Pick a time.";
+      }
+      if (stepIndex === 1) {
+        if (!form.location.trim()) stepErrors.location = "Add the pickup location.";
+        if (!form.deslocation.trim()) stepErrors.deslocation = "Add the destination.";
+      }
+      return stepErrors;
+    };
+
+    const bookingStepHasErrors = (stepIndex) => Object.keys(getBookingStepErrors(stepIndex)).length > 0;
+    const currentBookingStepErrors = getBookingStepErrors(bookingStep);
+    const showBookingErrors = attemptedBookingSteps.has(bookingStep);
+
+    const markBookingStepAttempted = (stepIndex) =>
+      setAttemptedBookingSteps((prev) => {
+        const next = new Set(prev);
+        next.add(stepIndex);
+        return next;
+      });
+
+    const handleBookingNext = () => {
+      markBookingStepAttempted(bookingStep);
+      if (bookingStepHasErrors(bookingStep)) return;
+      setBookingStep((s) => Math.min(s + 1, BOOKING_STEPS.length - 1));
+    };
+
+    const handleBookingBack = () => setBookingStep((s) => Math.max(s - 1, 0));
+
+    const closeBookingModal = () => {
+      setShowModal(false);
+      setBookingStep(0);
+      setAttemptedBookingSteps(new Set());
     };
 
   const user = useSelector((state) => state.user.id);
@@ -353,15 +445,27 @@ const fetchUserLocation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const badStep = bookingStepHasErrors(0) ? 0 : bookingStepHasErrors(1) ? 1 : null;
+    if (badStep !== null) {
+      markBookingStepAttempted(badStep);
+      setBookingStep(badStep);
+      toast.error("Please fill in the highlighted fields before submitting.");
+      return;
+    }
+
     const appointmentData = {
       username: userData.name,
       userphone: userData.phone,
       drivername: driver.name,
       driverphone: driver.phone,
+      product: form.product,
+      packagesize: form.packagesize,
       time: form.time,
       region: form.region,
+      town: form.town,
       location: form.location,
       desregion: form.desregion,
+      destown: form.destown,
       deslocation: form.deslocation,
       datepick: form.datepick,
       userlocation: {
@@ -370,12 +474,28 @@ const fetchUserLocation = () => {
       },
     };
 
+    setIsBookingSubmitting(true);
     try {
-      const res = await axios.post(`${baseURL}appointment`, appointmentData);
-      console.log("Appointment saved:", res.data);
-      setShowModal(false);
+      await axios.post(`${baseURL}appointment`, appointmentData);
+      toast.success(`Booked! ${driver.name} will reach out to confirm.`);
+      setForm({
+        product: "",
+        packagesize: "",
+        time: "",
+        datepick: "",
+        location: "",
+        region: "Greater Accra",
+        town: "",
+        desregion: "Greater Accra",
+        destown: "",
+        deslocation: "",
+      });
+      closeBookingModal();
     } catch (err) {
       console.error("Error saving appointment:", err);
+      toast.error("Couldn't send your booking. Please try again.");
+    } finally {
+      setIsBookingSubmitting(false);
     }
   };
 
@@ -428,7 +548,11 @@ const fetchUserLocation = () => {
           </div>
 
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setBookingStep(0);
+              setAttemptedBookingSteps(new Set());
+              setShowModal(true);
+            }}
             className="mt-4 w-full rounded-xl bg-ink-900 py-3 font-semibold text-white transition-colors hover:bg-ink-800"
           >
             Book an appointment
@@ -574,118 +698,220 @@ const fetchUserLocation = () => {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/50 px-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-            <h2 className="font-display text-lg font-bold text-ink-900">Book Appointment</h2>
+          <div className="max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-display text-lg font-bold text-ink-900">Book {driver.name}</h2>
+                <p className="mt-0.5 text-xs text-ink-500">
+                  Step {bookingStep + 1} of {BOOKING_STEPS.length}: {BOOKING_STEPS[bookingStep].label}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeBookingModal}
+                className="shrink-0 text-ink-400 hover:text-ink-600"
+                aria-label="Close"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ink-100">
+              <div
+                className="h-full rounded-full bg-brand-600 transition-all"
+                style={{ width: `${((bookingStep + 1) / BOOKING_STEPS.length) * 100}%` }}
+              />
+            </div>
+
             <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-              <p className="text-xs font-semibold text-ink-500">When do you want the product to be picked?</p>
-              <input
-                type="date"
-                name="datepick"
-                value={form.datepick}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              />
+              {bookingStep === 0 && (
+                <>
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-ink-500">
+                      What are you shipping?
+                    </label>
+                    <textarea
+                      name="product"
+                      value={form.product}
+                      onChange={handleChange}
+                      placeholder="e.g. 2 bags of cement, a fridge, 10 crates of produce..."
+                      rows={2}
+                      className={bookingFieldClass(showBookingErrors && currentBookingStepErrors.product)}
+                    />
+                    {showBookingErrors && <BookingFieldError message={currentBookingStepErrors.product} />}
+                  </div>
 
-              <p className="text-xs font-semibold text-ink-500">What time do you want the product to be picked?</p>
-              <input
-                type="time"
-                name="time"
-                value={form.time}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              />
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-ink-500">
+                      Package size (optional)
+                    </label>
+                    <select
+                      name="packagesize"
+                      value={form.packagesize}
+                      onChange={handleChange}
+                      className={bookingInputClass}
+                    >
+                      <option value="">Not sure / tell the driver</option>
+                      <option value="Small (fits in a car boot)">Small - fits in a car boot</option>
+                      <option value="Medium (pickup bed)">Medium - fits a pickup bed</option>
+                      <option value="Large (needs a truck)">Large - needs a truck</option>
+                      <option value="Truckload">Full truckload</option>
+                    </select>
+                  </div>
 
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs font-semibold text-ink-500">Select the pickup region and location</p>
-                <MdMyLocation className="text-red-500" />
-              </div>
-              <select
-                name="region"
-                value={form.region}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              >
-                <option value="Ahafo">Ahafo</option>
-                <option value="Ashanti">Ashanti</option>
-                <option value="Bono">Bono</option>
-                <option value="Bono East">Bono East</option>
-                <option value="Central">Central</option>
-                <option value="Eastern">Eastern</option>
-                <option value="Greater Accra">Greater Accra</option>
-                <option value="North East">North East</option>
-                <option value="Northern">Northern</option>
-                <option value="Oti">Oti</option>
-                <option value="Savannah">Savannah</option>
-                <option value="Upper East">Upper East</option>
-                <option value="Upper West">Upper West</option>
-                <option value="Volta">Volta</option>
-                <option value="Western">Western</option>
-                <option value="Western North">Western North</option>
-              </select>
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-ink-500">
+                      When should the product be picked up?
+                    </label>
+                    <input
+                      type="date"
+                      name="datepick"
+                      value={form.datepick}
+                      onChange={handleChange}
+                      className={bookingFieldClass(showBookingErrors && currentBookingStepErrors.datepick)}
+                    />
+                    {showBookingErrors && <BookingFieldError message={currentBookingStepErrors.datepick} />}
+                  </div>
 
-              <input
-                type="text"
-                name="location"
-                value={form.location}
-                placeholder="Enter the pickup location"
-                onChange={handleChange}
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              />
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-ink-500">What time?</label>
+                    <input
+                      type="time"
+                      name="time"
+                      value={form.time}
+                      onChange={handleChange}
+                      className={bookingFieldClass(showBookingErrors && currentBookingStepErrors.time)}
+                    />
+                    {showBookingErrors && <BookingFieldError message={currentBookingStepErrors.time} />}
+                  </div>
+                </>
+              )}
 
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs font-semibold text-ink-500">Select the destination region and location</p>
-                <GrLocationPin className="text-red-500" />
-              </div>
-              <select
-                name="desregion"
-                value={form.desregion}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              >
-                <option value="Ahafo">Ahafo</option>
-                <option value="Ashanti">Ashanti</option>
-                <option value="Bono">Bono</option>
-                <option value="Bono East">Bono East</option>
-                <option value="Central">Central</option>
-                <option value="Eastern">Eastern</option>
-                <option value="Greater Accra">Greater Accra</option>
-                <option value="North East">North East</option>
-                <option value="Northern">Northern</option>
-                <option value="Oti">Oti</option>
-                <option value="Savannah">Savannah</option>
-                <option value="Upper East">Upper East</option>
-                <option value="Upper West">Upper West</option>
-                <option value="Volta">Volta</option>
-                <option value="Western">Western</option>
-                <option value="Western North">Western North</option>
-              </select>
+              {bookingStep === 1 && (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-ink-500">Pickup region &amp; town</p>
+                    <MdMyLocation className="text-red-500" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      name="region"
+                      value={form.region}
+                      onChange={handlePickupRegionChange}
+                      className={bookingInputClass}
+                    >
+                      {withCustomOption(form.region, GHANA_REGIONS).map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      name="town"
+                      value={form.town}
+                      onChange={handleChange}
+                      className={bookingInputClass}
+                    >
+                      <option value="">Select town</option>
+                      {withCustomOption(form.town, TOWNS_BY_REGION[form.region] || []).map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="location"
+                      value={form.location}
+                      placeholder="Exact pickup location / landmark"
+                      onChange={handleChange}
+                      className={bookingFieldClass(showBookingErrors && currentBookingStepErrors.location)}
+                    />
+                    {showBookingErrors && <BookingFieldError message={currentBookingStepErrors.location} />}
+                  </div>
 
-              <input
-                type="text"
-                name="deslocation"
-                value={form.deslocation}
-                placeholder="Enter the destination"
-                onChange={handleChange}
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              />
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <p className="text-xs font-semibold text-ink-500">Destination region &amp; town</p>
+                    <GrLocationPin className="text-red-500" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      name="desregion"
+                      value={form.desregion}
+                      onChange={handleDestinationRegionChange}
+                      className={bookingInputClass}
+                    >
+                      {withCustomOption(form.desregion, GHANA_REGIONS).map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      name="destown"
+                      value={form.destown}
+                      onChange={handleChange}
+                      className={bookingInputClass}
+                    >
+                      <option value="">Select town</option>
+                      {withCustomOption(form.destown, TOWNS_BY_REGION[form.desregion] || []).map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="deslocation"
+                      value={form.deslocation}
+                      placeholder="Exact destination / landmark"
+                      onChange={handleChange}
+                      className={bookingFieldClass(showBookingErrors && currentBookingStepErrors.deslocation)}
+                    />
+                    {showBookingErrors && <BookingFieldError message={currentBookingStepErrors.deslocation} />}
+                  </div>
+                </>
+              )}
 
-              <div className="flex justify-between pt-2">
-                <button
-                  type="submit"
-                  className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-                >
-                  Submit
-                </button>
+              <div className="flex items-center gap-3 pt-2">
+                {bookingStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleBookingBack}
+                    disabled={isBookingSubmitting}
+                    className="flex-1 rounded-xl border border-ink-200 bg-white py-2.5 text-sm font-semibold text-ink-700 transition-colors hover:bg-ink-50 disabled:opacity-50"
+                  >
+                    Back
+                  </button>
+                )}
+                {bookingStep < BOOKING_STEPS.length - 1 ? (
+                  <button
+                    type="button"
+                    onClick={handleBookingNext}
+                    className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isBookingSubmitting}
+                    className={`flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 ${
+                      isBookingSubmitting ? "opacity-50" : ""
+                    }`}
+                  >
+                    {isBookingSubmitting ? "Booking..." : "Submit"}
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="rounded-xl bg-ink-100 px-4 py-2 text-sm font-semibold text-ink-700 hover:bg-ink-200"
+                  onClick={closeBookingModal}
+                  disabled={isBookingSubmitting}
+                  className="rounded-xl bg-ink-100 px-4 py-2.5 text-sm font-semibold text-ink-700 hover:bg-ink-200 disabled:opacity-50"
                 >
                   Cancel
                 </button>

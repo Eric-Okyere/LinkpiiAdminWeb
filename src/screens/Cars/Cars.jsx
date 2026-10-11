@@ -103,6 +103,11 @@ const MyDriver = () => {
                         .join(", ")}
                     </p>
                     <p className="text-xs text-ink-400 mt-0.5">{item.carnum}</p>
+                    {item.size && (
+                      <span className="mt-1 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700">
+                        {item.size}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col items-center gap-2 shrink-0">
                     <img
