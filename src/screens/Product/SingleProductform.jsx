@@ -14,6 +14,7 @@ import Container from "../../components/ui/Container";
 import SectionHeading from "../../components/ui/SectionHeading";
 import { GHANA_REGIONS, TOWNS_BY_REGION, withCustomOption } from "../../data/ghanaLocations";
 import { compressImage } from "../../utils/imageCompression";
+import { COUNTRY_CODES, DEFAULT_COUNTRY_DIAL, splitDialAndLocal } from "../../data/countryCodes";
 
 const inputClass =
   "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-800 placeholder:text-ink-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
@@ -81,6 +82,8 @@ const SingleProductForm = ({ item }) => {
   const [region, setRegion] = useState("");
   const [town, setTown] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState(DEFAULT_COUNTRY_DIAL);
+  const [whatsappCountry, setWhatsappCountry] = useState(DEFAULT_COUNTRY_DIAL);
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [categories, setCategories] = useState([]);
@@ -115,12 +118,16 @@ const SingleProductForm = ({ item }) => {
 
       setName(name || "");
       setPrice(price || "");
-      setPhone(phone || "");
+      const phoneSplit = splitDialAndLocal(phone);
+      setPhoneCountry(phoneSplit.dial);
+      setPhone(phoneSplit.local);
       setDescription(description || "");
       setRegion(region || "");
       setTown(town || "");
       setLocation(location || "");
-      setWhatsapp(whatsapp || "");
+      const whatsappSplit = splitDialAndLocal(whatsapp);
+      setWhatsappCountry(whatsappSplit.dial);
+      setWhatsapp(whatsappSplit.local);
       setCondition(condition || "");
       setDiscount(discount || "");
       setPrimaryPreview(picture || null);
@@ -140,11 +147,13 @@ const SingleProductForm = ({ item }) => {
     setPrice(draft.price || "");
     setDiscount(draft.discount || "");
     setPhone(draft.phone || "");
+    setPhoneCountry(draft.phoneCountry || DEFAULT_COUNTRY_DIAL);
     setDescription(draft.description || "");
     setLocation(draft.location || "");
     setRegion(draft.region || "");
     setTown(draft.town || "");
     setWhatsapp(draft.whatsapp || "");
+    setWhatsappCountry(draft.whatsappCountry || DEFAULT_COUNTRY_DIAL);
     setCategory(draft.category || "");
     setCondition(draft.condition || "");
     if (typeof draft.currentStep === "number") setCurrentStep(draft.currentStep);
@@ -167,16 +176,34 @@ const SingleProductForm = ({ item }) => {
       price,
       discount,
       phone,
+      phoneCountry,
       description,
       location,
       region,
       town,
       whatsapp,
+      whatsappCountry,
       category,
       condition,
       currentStep,
     });
-  }, [item, name, price, discount, phone, description, location, region, town, whatsapp, category, condition, currentStep]);
+  }, [
+    item,
+    name,
+    price,
+    discount,
+    phone,
+    phoneCountry,
+    description,
+    location,
+    region,
+    town,
+    whatsapp,
+    whatsappCountry,
+    category,
+    condition,
+    currentStep,
+  ]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -376,6 +403,8 @@ const SingleProductForm = ({ item }) => {
     setRegion("");
     setTown("");
     setWhatsapp("");
+    setPhoneCountry(DEFAULT_COUNTRY_DIAL);
+    setWhatsappCountry(DEFAULT_COUNTRY_DIAL);
     setCategory("");
     setCondition("");
     setCurrentStep(0);
@@ -401,13 +430,13 @@ const SingleProductForm = ({ item }) => {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("phone", phone);
+      formData.append("phone", `${phoneCountry}${phone}`);
       formData.append("description", description);
       formData.append("location", location);
       formData.append("region", region);
       formData.append("town", town);
       formData.append("discount", discount);
-      formData.append("whatsapp", whatsapp);
+      formData.append("whatsapp", whatsapp ? `${whatsappCountry.replace("+", "")}${whatsapp}` : "");
       formData.append("condition", condition);
       formData.append("category", category);
       formData.append("userId", login.user);
@@ -718,27 +747,52 @@ const SingleProductForm = ({ item }) => {
           {currentStep === 2 && (
             <div className="space-y-4">
               <div>
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone Number +233, +44, +234"
-                  className={fieldClass(showErrorsForCurrentStep && currentStepErrors.phone)}
-                />
+                <div className="flex gap-2">
+                  <select
+                    value={phoneCountry}
+                    onChange={(e) => setPhoneCountry(e.target.value)}
+                    aria-label="Phone country code"
+                    className={`${inputClass} w-36 shrink-0 px-2`}
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.name} value={c.dial}>
+                        {c.name} ({c.dial})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, ""))}
+                    placeholder="24 412 3456"
+                    className={`${fieldClass(showErrorsForCurrentStep && currentStepErrors.phone)} flex-1`}
+                  />
+                </div>
                 {showErrorsForCurrentStep && <FieldError message={currentStepErrors.phone} />}
               </div>
-              <input
-                type="text"
-                value={whatsapp}
-                onChange={(e) => {
-                  const inputValue = e.target.value;
-                  if (/^[^0+]\d*$/.test(inputValue) || inputValue === "") {
-                    setWhatsapp(inputValue);
-                  }
-                }}
-                placeholder="WhatsApp Number 233, 44, 234"
-                className={inputClass}
-              />
+              <div className="flex gap-2">
+                <select
+                  value={whatsappCountry}
+                  onChange={(e) => setWhatsappCountry(e.target.value)}
+                  aria-label="WhatsApp country code"
+                  className={`${inputClass} w-36 shrink-0 px-2`}
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.name} value={c.dial}>
+                      {c.name} ({c.dial})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value.replace(/[^\d]/g, "").replace(/^0+/, ""))}
+                  placeholder="24 412 3456 (optional)"
+                  className={`${inputClass} flex-1`}
+                />
+              </div>
               <div>
                 <textarea
                   value={description}
