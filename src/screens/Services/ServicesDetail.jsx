@@ -407,7 +407,7 @@ const openDial = async () => {
         receiverphone: product.phone,
         recname: product.name,
         pagename: "fashion",
-        userlocation: getLocation(),
+        userlocation: await getLocation(),
       }),
     });
 
@@ -458,7 +458,7 @@ const WhatsApp = async () => {
         receiverphone: product.phone,
         recname: product.name,
         pagename: "Spare Part Website",
-        userlocation: getLocation(),
+        userlocation: await getLocation(),
       }),
     });
 

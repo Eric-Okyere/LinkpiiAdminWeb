@@ -277,7 +277,7 @@ const openDial = async () => {
         receiverphone: item.phone,
         recname: item.name,
         pagename: " Hot fashion Web ",
-        userlocation: getLocation(),
+        userlocation: await getLocation(),
       }),
     });
 

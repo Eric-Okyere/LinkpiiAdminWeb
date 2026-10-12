@@ -83,7 +83,7 @@ const CallDelivery = () => {
           receiverphone: driver.phone,
           recname: driver.name,
           pagename: "driver",
-          userlocation: getLocation(),
+          userlocation: await getLocation(),
         }),
       });
 

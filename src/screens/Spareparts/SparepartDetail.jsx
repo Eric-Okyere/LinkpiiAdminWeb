@@ -422,7 +422,7 @@ const SparepartDetail = () => {
           receiverphone: product.name,
           recname: product.phone,
           pagename: "Spare Part Website",
-          userlocation: getLocation(),
+          userlocation: await getLocation(),
         }),
       });
 
@@ -461,7 +461,7 @@ const SparepartDetail = () => {
           receiverphone: product.phone,
           recname: product.name,
           pagename: "Spare Part Website",
-          userlocation: getLocation(),
+          userlocation: await getLocation(),
         }),
       });
 

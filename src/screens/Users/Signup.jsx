@@ -90,7 +90,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      const { latitude, longitude } = getLocation();
+      const { latitude, longitude } = await getLocation();
       const response = await axios.post(`${baseURL}create-user`, {
         ...values,
         phone: formattedPhoneNumber, // Use the formatted phone number
@@ -418,8 +418,7 @@ const Signup = () => {
             <GoogleLoginButton
               onLoginSuccess={handleGoogleLoginSuccess}
               agreeToTerms={agreeToTerms}
-              latitude={getLocation().latitude}
-              longitude={getLocation().longitude}
+              getLocation={getLocation}
             />
           ) : (
             <button

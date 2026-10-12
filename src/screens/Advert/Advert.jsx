@@ -123,7 +123,7 @@ useEffect(() => {
                     receiverphone: selectedItem.phone,
                     recname: selectedItem.name,
                     pagename: "Advert Website",
-                    userlocation: getLocation(),
+                    userlocation: await getLocation(),
                 }),
             });
     

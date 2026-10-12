@@ -99,7 +99,7 @@ const HireDetail = () => {
           receiverphone: driver.phone,
           recname: driver.name,
           pagename: "Driver Web",
-          userlocation: getLocation(),
+          userlocation: await getLocation(),
         }),
       });
 

@@ -5,10 +5,10 @@ import baseURL from '../../assets/baseURL';
 // `agreeToTerms` is optional and only meaningful the first time this
 // creates a brand-new account (see googleSignIn in controllers/user.js) -
 // pages without a terms checkbox (e.g. Login) can omit it.
-const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms, latitude, longitude }) => {
+const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms, getLocation }) => {
 
 
-  const handleSuccess = (credentialResponse) => {
+  const handleSuccess = async (credentialResponse) => {
     console.log("Google Credential Response:", credentialResponse);
     const token = credentialResponse.credential;
 
@@ -16,6 +16,8 @@ const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms, latitude, longitude }
       console.error("No token received from Google.");
       return;
     }
+
+    const { latitude, longitude } = getLocation ? await getLocation() : { latitude: null, longitude: null };
 
     fetch(`${baseURL}auth/google-signin`, {
       method: "POST",

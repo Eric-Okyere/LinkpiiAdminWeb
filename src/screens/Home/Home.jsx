@@ -231,7 +231,7 @@ const handleProductClick = async (product) => {
           receiverphone: selectedItem.phone,
           recname: selectedItem.name,
           pagename: "Advert Website",
-          userlocation: getLocation(),
+          userlocation: await getLocation(),
         }),
       });
       if (selectedItem?.phone) window.location.href = `tel:${selectedItem.phone}`;

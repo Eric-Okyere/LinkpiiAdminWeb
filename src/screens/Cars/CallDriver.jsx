@@ -13,6 +13,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import LoadMoreButton from "@/components/ui/LoadMoreButton";
 import { toast } from "react-toastify";
 import { GHANA_REGIONS, TOWNS_BY_REGION, withCustomOption } from "@/data/ghanaLocations";
+import useGeolocation from "@/hooks/useGeolocation";
 
 const bookingInputClass =
   "w-full rounded-xl border border-ink-200 bg-ink-50 p-3 text-sm focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100";
@@ -52,7 +53,7 @@ const CallDriver = () => {
      const [bookingStep, setBookingStep] = useState(0);
      const [attemptedBookingSteps, setAttemptedBookingSteps] = useState(() => new Set());
      const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
-     const [userLocation, setUserLocation] = useState({ latitude: null, longitude: null });
+     const { getLocation } = useGeolocation();
 
      const handleChange = (e) => {
       setForm({ ...form, [e.target.name]: e.target.value });
@@ -197,7 +198,7 @@ const CallDriver = () => {
           receiverphone: driver.phone,
           recname: driver.name,
           pagename: "Driver Web",
-          userlocation: userLocation,
+          userlocation: await getLocation(),
         }),
       });
 
@@ -219,44 +220,6 @@ const CallDriver = () => {
       console.error("Error sending user info to backend:", error);
     }
   };
-
-
-const fetchUserLocation = () => {
-  if (!navigator.geolocation) {
-    console.error("Geolocation is not supported by this browser.");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude, accuracy } = position.coords;
-      setUserLocation({ latitude, longitude });
-
-      console.log("Accurate location obtained:");
-      console.log("Latitude:", latitude);
-      console.log("Longitude:", longitude);
-      console.log("Accuracy (in meters):", accuracy);
-    },
-    (error) => {
-      console.error("Geolocation error:", error.message);
-
-      // Optional retry logic
-      if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
-        console.log("Retrying in 3 seconds...");
-        setTimeout(fetchUserLocation, 3000);
-      }
-    },
-    {
-      enableHighAccuracy: true, // Try GPS first
-      timeout: 20000,           // Allow more time for accuracy
-      maximumAge: 0             // Don't allow cached location
-    }
-  );
-};
-
-  useEffect(() => {
-    fetchUserLocation();
-  }, []);
 
 
   useEffect(() => {
@@ -462,10 +425,7 @@ const fetchUserLocation = () => {
       destown: form.destown,
       deslocation: form.deslocation,
       datepick: form.datepick,
-      userlocation: {
-        latitude: userLocation.latitude,
-        longitude: userLocation.longitude,
-      },
+      userlocation: await getLocation(),
     };
 
     setIsBookingSubmitting(true);
