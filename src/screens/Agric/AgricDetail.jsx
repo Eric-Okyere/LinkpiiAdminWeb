@@ -17,9 +17,11 @@ import Container from '../../components/ui/Container';
 import ListingCard from '../../components/ui/ListingCard';
 import EmptyState from '../../components/ui/EmptyState';
 import SectionHeading from '../../components/ui/SectionHeading';
+import useGeolocation from "@/hooks/useGeolocation";
 
 
 const AgricDetail = () => {
+  const { getLocation } = useGeolocation();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -402,6 +404,7 @@ const openDial = async () => {
         receiverphone: product.phone,
         recname: product.name,
         pagename: "fashion",
+        userlocation: getLocation(),
       }),
     });
 
@@ -456,6 +459,7 @@ const WhatsApp = async () => {
         receiverphone: product.phone,
         recname: product.name,
         pagename: "Spare Part Website",
+        userlocation: getLocation(),
       }),
     });
 

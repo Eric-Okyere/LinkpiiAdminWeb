@@ -12,6 +12,7 @@ import BigCarousel from '../../components/ui/BigCarousel';
 import SearchBar from '../../components/ui/SearchBar';
 import ListingCard from '../../components/ui/ListingCard';
 import EmptyState from '../../components/ui/EmptyState';
+import useGeolocation from "@/hooks/useGeolocation";
 
 const categoryFilters = [
   { key: "all", label: "Everything" },
@@ -39,6 +40,7 @@ function getPriceDisplay(product) {
 }
 
 function Home() {
+  const { getLocation } = useGeolocation();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -229,6 +231,7 @@ const handleProductClick = async (product) => {
           receiverphone: selectedItem.phone,
           recname: selectedItem.name,
           pagename: "Advert Website",
+          userlocation: getLocation(),
         }),
       });
       if (selectedItem?.phone) window.location.href = `tel:${selectedItem.phone}`;

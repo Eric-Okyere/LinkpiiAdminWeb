@@ -18,9 +18,11 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import LoadMoreButton from "@/components/ui/LoadMoreButton";
 import EmptyState from "@/components/ui/EmptyState";
 import Container from "@/components/ui/Container";
+import useGeolocation from "@/hooks/useGeolocation";
 
 
 const SparepartDetail = () => {
+  const { getLocation } = useGeolocation();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -420,6 +422,7 @@ const SparepartDetail = () => {
           receiverphone: product.name,
           recname: product.phone,
           pagename: "Spare Part Website",
+          userlocation: getLocation(),
         }),
       });
 
@@ -458,6 +461,7 @@ const SparepartDetail = () => {
           receiverphone: product.phone,
           recname: product.name,
           pagename: "Spare Part Website",
+          userlocation: getLocation(),
         }),
       });
 

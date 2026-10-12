@@ -7,8 +7,10 @@ import SaveButton from "../../components/ui/SaveButton";
 import { useSelector } from "react-redux";
 import { LuPhoneCall } from "react-icons/lu";
 import Container from "../../components/ui/Container";
+import useGeolocation from "@/hooks/useGeolocation";
 
 const CallDelivery = () => {
+  const { getLocation } = useGeolocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [driver, setDriver] = useState(null);
@@ -81,6 +83,7 @@ const CallDelivery = () => {
           receiverphone: driver.phone,
           recname: driver.name,
           pagename: "driver",
+          userlocation: getLocation(),
         }),
       });
 

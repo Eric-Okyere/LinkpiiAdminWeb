@@ -13,10 +13,12 @@ import { TbPhoneCall } from "react-icons/tb";
 import Loader from '../../components/Loader';
 import { FaTimes } from "react-icons/fa";
 import Container from '../../components/ui/Container';
+import useGeolocation from "@/hooks/useGeolocation";
 
 
 
 function Advert() {
+    const { getLocation } = useGeolocation();
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false); 
@@ -121,6 +123,7 @@ useEffect(() => {
                     receiverphone: selectedItem.phone,
                     recname: selectedItem.name,
                     pagename: "Advert Website",
+                    userlocation: getLocation(),
                 }),
             });
     

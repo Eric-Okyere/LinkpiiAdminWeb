@@ -9,8 +9,10 @@ import { FiX, FiMapPin } from "react-icons/fi";
 import SectionHeading from "@/components/ui/SectionHeading";
 import LoadMoreButton from "@/components/ui/LoadMoreButton";
 import Container from "@/components/ui/Container";
+import useGeolocation from "@/hooks/useGeolocation";
 
 const HireDetail = () => {
+  const { getLocation } = useGeolocation();
   const { id } = useParams();
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,6 +99,7 @@ const HireDetail = () => {
           receiverphone: driver.phone,
           recname: driver.name,
           pagename: "Driver Web",
+          userlocation: getLocation(),
         }),
       });
 

@@ -8,8 +8,10 @@ import { LuPhoneCall } from "react-icons/lu";
 import { FiX } from "react-icons/fi";
 import SectionHeading from "@/components/ui/SectionHeading";
 import LoadMoreButton from "@/components/ui/LoadMoreButton";
+import useGeolocation from "@/hooks/useGeolocation";
 
 const CallMechanics = () => {
+  const { getLocation } = useGeolocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [driver, setDriver] = useState(null);
@@ -102,6 +104,7 @@ const CallMechanics = () => {
           receiverphone: driver.phone,
           recname: driver.name,
           pagename: "Driver Web",
+          userlocation: getLocation(),
         }),
       });
 

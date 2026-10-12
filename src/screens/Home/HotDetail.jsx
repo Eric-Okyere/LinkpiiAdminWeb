@@ -15,8 +15,10 @@ import { useSelector } from "react-redux";
 import Container from "../../components/ui/Container";
 import ListingCard from "../../components/ui/ListingCard";
 import SectionHeading from "../../components/ui/SectionHeading";
+import useGeolocation from "@/hooks/useGeolocation";
 
 function HotDetail() {
+  const { getLocation } = useGeolocation();
   const { type, id } = useParams();
   const [item, setItem] = useState(null);
   const [related, setRelated] = useState([]);
@@ -275,6 +277,7 @@ const openDial = async () => {
         receiverphone: item.phone,
         recname: item.name,
         pagename: " Hot fashion Web ",
+        userlocation: getLocation(),
       }),
     });
 
