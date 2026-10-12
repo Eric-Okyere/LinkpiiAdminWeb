@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import baseURL from "../../assets/baseURL";
 import Loader from "../../components/Loader";
 import SaveButton from "../../components/ui/SaveButton";
@@ -24,7 +24,6 @@ const BookingFieldError = ({ message }) =>
 
 const CallDriver = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState({});
@@ -156,7 +155,6 @@ const CallDriver = () => {
         name: data.name,
         email: data.email,
         phone: data.phone,
-        verified: data.verified,
       });
 
       if (driver) {
@@ -178,11 +176,6 @@ const CallDriver = () => {
 // console.log("User data",userData)
 
   const handleButtonClick = async () => {
-    if (!userData.verified) {
-      navigate("/verification");
-      return;
-    }
-
     // If the phone number is already visible, revert to "View Contact" without sending data
     if (isPhoneVisible) {
       setIsPhoneVisible(false); // Revert to "View Contact"
