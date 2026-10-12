@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import baseURL from "../../assets/baseURL";
 import { BiSolidPhoneCall } from "react-icons/bi";
@@ -7,6 +7,7 @@ import CarSearch from "./CarSearch";
 import SearchBar from "@/components/ui/SearchBar";
 import EmptyState from "@/components/ui/EmptyState";
 import LoadMoreButton from "@/components/ui/LoadMoreButton";
+import { ALL_GHANA_LOCATIONS } from "@/data/ghanaLocations";
 
 const MyDriver = () => {
   const [products, setProducts] = useState([]);
@@ -64,12 +65,30 @@ const MyDriver = () => {
     setProductsFiltered(products);
   };
 
+  // Suggest Ghana regions/towns as the user types, so they can pick a
+  // location instead of hoping they spell it the way a driver's profile
+  // does. "Starts with" matches surface before "contains" matches.
+  const locationSuggestions = useMemo(() => {
+    const query = input.trim().toLowerCase();
+    if (!query) return [];
+    const startsWith = [];
+    const contains = [];
+    for (const place of ALL_GHANA_LOCATIONS) {
+      const lower = place.toLowerCase();
+      if (lower.startsWith(query)) startsWith.push(place);
+      else if (lower.includes(query)) contains.push(place);
+    }
+    return [...startsWith, ...contains].slice(0, 6);
+  }, [input]);
+
   return (
     <div className="min-h-screen pb-8">
       <SearchBar
         keyword={input}
         onKeywordChange={searchProducts}
         keywordPlaceholder="Where are you?"
+        suggestions={locationSuggestions}
+        onSuggestionSelect={searchProducts}
         onClear={clearSearch}
         className="mb-4"
       />

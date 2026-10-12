@@ -106,6 +106,14 @@ export const TOWNS_BY_REGION = Object.fromEntries(
 
 export const GHANA_REGIONS = sortUnique(Object.keys(RAW_TOWNS_BY_REGION));
 
+// Flat, deduped list of every region + town, for free-text location
+// search/autocomplete (e.g. the Order KIA search bar) where there's no
+// separate region/town selection step.
+export const ALL_GHANA_LOCATIONS = sortUnique([
+  ...GHANA_REGIONS,
+  ...Object.values(TOWNS_BY_REGION).flat(),
+]);
+
 // Builds the <select> option list for a dropdown that must also keep
 // showing an existing free-text value that was typed before this list
 // existed (or that simply isn't in it) - so opening an old listing to
