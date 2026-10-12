@@ -45,6 +45,7 @@ const timeAgo = (dateString) => {
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const [pushState, setPushState] = useState("unsupported"); // unsupported | default | granted | denied
   const [pushBusy, setPushBusy] = useState(false);
   const containerRef = useRef(null);
@@ -111,7 +112,12 @@ const NotificationBell = () => {
   };
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div
+      className="relative"
+      ref={containerRef}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       <button
         type="button"
         onClick={handleToggle}
@@ -125,6 +131,15 @@ const NotificationBell = () => {
           </span>
         )}
       </button>
+
+      {isHovering && !isOpen && unreadCount > 0 && (
+        <div
+          role="tooltip"
+          className="absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-lg bg-ink-900 px-3 py-2 text-xs font-semibold text-white shadow-card-hover"
+        >
+          You have {unreadCount} unread notification{unreadCount === 1 ? "" : "s"}
+        </div>
+      )}
 
       {isOpen && (
         <div className="absolute right-0 z-50 mt-2 w-80 max-w-[85vw] overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-card-hover">
