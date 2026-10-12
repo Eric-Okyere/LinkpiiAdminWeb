@@ -13,6 +13,7 @@ import { loggedIn } from "../../Redux/actions";
 import PhoneInput from "react-phone-input-2";
 import GoogleLoginButton from "./GoogleLoginButton";
 import AuthLayout from "../../components/ui/AuthLayout";
+import useGeolocation from "@/hooks/useGeolocation";
 import { verifyEmailCode, resendVerificationCode } from "./Auth";
 
 // Eric: set this to true to bring email/password signup back - Google-only for now.
@@ -61,6 +62,7 @@ const Signup = () => {
   const [resending, setResending] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState({ text: "", type: "" });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const { getLocation } = useGeolocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
     const login = useSelector((state) => state.login);
@@ -88,10 +90,13 @@ const Signup = () => {
 
     setLoading(true);
     try {
+      const { latitude, longitude } = getLocation();
       const response = await axios.post(`${baseURL}create-user`, {
         ...values,
         phone: formattedPhoneNumber, // Use the formatted phone number
         agreeToTerms,
+        latitude,
+        longitude,
       });
 
       const { success, user } = response.data;
@@ -410,7 +415,12 @@ const Signup = () => {
 
         <div className="mt-3 flex justify-center">
           {agreeToTerms ? (
-            <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} agreeToTerms={agreeToTerms} />
+            <GoogleLoginButton
+              onLoginSuccess={handleGoogleLoginSuccess}
+              agreeToTerms={agreeToTerms}
+              latitude={getLocation().latitude}
+              longitude={getLocation().longitude}
+            />
           ) : (
             <button
               type="button"

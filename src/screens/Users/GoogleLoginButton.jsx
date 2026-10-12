@@ -5,7 +5,7 @@ import baseURL from '../../assets/baseURL';
 // `agreeToTerms` is optional and only meaningful the first time this
 // creates a brand-new account (see googleSignIn in controllers/user.js) -
 // pages without a terms checkbox (e.g. Login) can omit it.
-const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms }) => {
+const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms, latitude, longitude }) => {
 
 
   const handleSuccess = (credentialResponse) => {
@@ -20,7 +20,7 @@ const GoogleLoginButton = ({ onLoginSuccess, agreeToTerms }) => {
     fetch(`${baseURL}auth/google-signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, agreeToTerms })
+      body: JSON.stringify({ token, agreeToTerms, latitude, longitude })
      
     })
       .then((response) => response.json())
