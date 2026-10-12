@@ -18,6 +18,19 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Deterrent against casual image/video downloading (paired with
+   initMediaDownloadProtection() in main.jsx, which blocks right-click
+   save and the native video download button). Disables the drag ghost
+   that lets a desktop user drag an image straight to their files, and
+   the long-press "Save Image" menu on iOS/Android. Not real DRM - the
+   files are still reachable by anyone who inspects the page. */
+img,
+video {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

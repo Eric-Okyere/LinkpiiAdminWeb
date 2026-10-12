@@ -8,7 +8,9 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { HelmetProvider } from 'react-helmet-async';
 import store, { persistor } from './Redux/store.js'
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import initMediaDownloadProtection from './utils/preventMediaDownload';
 
+initMediaDownloadProtection();
 
 const clientId = "450195054535-tbf14l0n9dhvjon1ili187agq5bcf89k.apps.googleusercontent.com";
 
